@@ -1,9 +1,28 @@
+from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
+
+
+
+
+class UserModelTests(TestCase):
+	def setUp(self):
+		self.user = User.objects.create_user(
+			email='model@example.com',
+			username='modeluser',
+			password='StrongPass123!'
+		)
+
+	def test_str_returns_email(self):
+		self.assertEqual(str(self.user), 'model@example.com')
+
+	def test_username_field_configuration(self):
+		self.assertEqual(User.USERNAME_FIELD, 'email')
+		self.assertIn('username', User.REQUIRED_FIELDS)
 
 
 class AccountsAPITests(APITestCase):

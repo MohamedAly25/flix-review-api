@@ -1,0 +1,9 @@
+-r base.txt
+
+# Testing
+pytest==8.3.4
+pytest-django==4.9.0
+
+# Linting & formatting
+flake8==7.1.1
+black==24.10.0

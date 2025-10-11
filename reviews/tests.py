@@ -1,3 +1,4 @@
+from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,6 +10,45 @@ from .models import Review
 
 
 User = get_user_model()
+
+
+class ReviewModelTests(TestCase):
+	def setUp(self):
+		self.user = User.objects.create_user(
+			email='reviewer@example.com',
+			username='reviewer',
+			password='StrongPass123!'
+		)
+		self.other_user = User.objects.create_user(
+			email='other@example.com',
+			username='other',
+			password='StrongPass456!'
+		)
+		self.movie = Movie.objects.create(
+			title='Signal Test',
+			genre='Sci-Fi',
+			description='Testing signals',
+			release_date=date(2020, 1, 1)
+		)
+
+	def test_str_representation(self):
+		review = Review.objects.create(
+			user=self.user,
+			movie=self.movie,
+			content='Great movie',
+			rating=5
+		)
+		self.assertEqual(str(review), 'reviewer - Signal Test')
+
+	def test_avg_rating_updates_on_save_and_delete(self):
+		review1 = Review.objects.create(user=self.user, movie=self.movie, content='Great', rating=5)
+		review2 = Review.objects.create(user=self.other_user, movie=self.movie, content='Ok', rating=3)
+		self.movie.refresh_from_db()
+		self.assertEqual(self.movie.avg_rating, 4)
+
+		review2.delete()
+		self.movie.refresh_from_db()
+		self.assertEqual(self.movie.avg_rating, 5)
 
 
 class ReviewAPITests(APITestCase):

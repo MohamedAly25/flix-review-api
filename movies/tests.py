@@ -1,3 +1,4 @@
+from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -9,6 +10,32 @@ from reviews.models import Review
 
 
 User = get_user_model()
+
+
+class MovieModelTests(TestCase):
+	def test_str_returns_title(self):
+		movie = Movie.objects.create(
+			title='The Prestige',
+			genre='Drama',
+			description='Magicians',
+			release_date=date(2006, 10, 20)
+		)
+		self.assertEqual(str(movie), 'The Prestige')
+
+	def test_default_ordering_newest_first(self):
+		first = Movie.objects.create(
+			title='Old Film',
+			genre='Classic',
+			description='Vintage',
+			release_date=date(1980, 5, 1)
+		)
+		second = Movie.objects.create(
+			title='New Film',
+			genre='Modern',
+			description='Contemporary',
+			release_date=date(2024, 1, 1)
+		)
+		self.assertEqual(list(Movie.objects.all()), [second, first])
 
 
 class MovieAPITests(APITestCase):

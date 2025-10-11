@@ -14,7 +14,12 @@ Backend API built with Django + DRF to manage movies and reviews with JWT authen
 ## Setup
 
 1. Create a virtual environment and install dependencies (already configured in this workspace).
-2. Copy `.env.example` to `.env` and adjust values (SECRET_KEY, DEBUG, DATABASE_URL/SQLITE_NAME, ALLOWED_HOSTS).
+2. Copy `.env.example` to `.env` and adjust values (SECRET_KEY, DEBUG, DATABASE_URL/SQLITE_NAME, ALLOWED_HOSTS, security flags, CORS/CSRF origins).
+3. Install required packages using the layered requirement files:
+
+	```pwsh
+	pip install -r requirements/development.txt
+	```
 
 ## Run
 
@@ -66,10 +71,51 @@ Every endpoint returns a standardized payload:
 
 Errors follow the same envelope with `success: false` and an `errors` object when validation issues occur.
 
+## Environment Variables
+
+Key variables exposed via `.env.example`:
+
+- `DEBUG`, `ALLOWED_HOSTS`, `DATABASE_URL` / `SQLITE_NAME`
+- `CORS_ALLOW_ALL_ORIGINS` or `CORS_ALLOWED_ORIGINS`
+- `CSRF_TRUSTED_ORIGINS`
+- Security flags (`SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SECURE_HSTS_*`)
+- Logging levels (`DJANGO_LOG_LEVEL`, `APP_LOG_LEVEL`)
+
+All security-related values default to production-friendly settings when `DEBUG=False`.
+
 ## Testing
 
 ```pwsh
 python manage.py test accounts movies reviews -v 2
 ```
 
-All tests cover registration/login, profile operations, movie admin flow, review permissions, and filtering.
+Coverage now includes:
+
+- Model unit tests for users, movies, and reviews (signals + ordering)
+- Authentication and profile API flows with unified responses
+- Movie and review API scenarios (filters, search, pagination, permissions)
+
+## Deployment
+
+### Heroku Quickstart
+
+1. Ensure requirements are installed with `pip install -r requirements/production.txt`.
+2. Set up the application:
+	```pwsh
+	heroku create your-app-name
+	heroku config:set $(Get-Content .env | Where-Object {$_ -and $_ -notmatch '^#'} )
+	git push heroku main
+	```
+3. Run migrations and collect static assets:
+	```pwsh
+	heroku run python manage.py migrate
+	heroku run python manage.py collectstatic --noinput
+	```
+4. Optionally create an admin user:
+	```pwsh
+	heroku run python manage.py createsuperuser
+	```
+
+The repo ships with a `Procfile`, `runtime.txt`, and WhiteNoise-powered static handling so deployment platforms only need environment variables and `collectstatic` to go live.
+
+See `docs/DEPLOYMENT.md` for a full production checklist.
