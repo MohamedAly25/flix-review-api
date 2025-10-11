@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Django
+staticfiles/
+media/
+db.sqlite3
+
+# Env
+.env
+.venv/
+
+# VSCode
+.vscode/
