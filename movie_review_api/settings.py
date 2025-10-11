@@ -109,6 +109,9 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'DEFAULT_PAGINATION_CLASS': 'common.pagination.DefaultPagination',
+    'PAGE_SIZE': 10,
+    'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler',
 }
 
 SIMPLE_JWT = {

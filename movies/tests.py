@@ -25,12 +25,12 @@ class MovieAPITests(APITestCase):
 		)
 
 	def test_movie_list_and_create_requires_admin(self):
-		# Unauthenticated GET allowed
 		res = self.client.get(self.list_url)
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
-		self.assertEqual(len(res.data), 1)
+		self.assertEqual(res.data['data']['count'], 1)
+		self.assertEqual(len(res.data['data']['results']), 1)
+		self.assertEqual(res.data['data']['results'][0]['review_count'], 0)
 
-		# Non-admin POST forbidden
 		user = User.objects.create_user(
 			email='user@example.com', username='user', password='UserPass123!'
 		)
@@ -42,8 +42,8 @@ class MovieAPITests(APITestCase):
 			'release_date': '1999-03-31'
 		})
 		self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+		self.assertFalse(res.data['success'])
 
-		# Admin can create
 		self.client.force_authenticate(user=self.admin)
 		res = self.client.post(self.list_url, {
 			'title': 'Interstellar',
@@ -53,6 +53,7 @@ class MovieAPITests(APITestCase):
 		}, format='json')
 		self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 		self.assertEqual(Movie.objects.count(), 2)
+		self.assertEqual(res.data['data']['title'], 'Interstellar')
 
 	def test_movie_detail_includes_review_stats(self):
 		user = User.objects.create_user(
@@ -64,7 +65,30 @@ class MovieAPITests(APITestCase):
 		detail_url = reverse('movie-detail', args=[self.movie.pk])
 		res = self.client.get(detail_url)
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
-		self.assertIn('review_stats', res.data)
-		stats = res.data['review_stats']
+		self.assertIn('review_stats', res.data['data'])
+		stats = res.data['data']['review_stats']
 		self.assertEqual(stats['total_reviews'], 2)
 		self.assertEqual(stats['rating_distribution'][5], 1)
+		self.assertEqual(res.data['data']['review_count'], 2)
+
+	def test_movie_filters_by_rating_and_year(self):
+		user = User.objects.create_user(
+			email='filter@example.com', username='filter', password='FilterPass123!'
+		)
+		Review.objects.create(user=user, movie=self.movie, content='Amazing', rating=5)
+		Review.objects.create(user=self.admin, movie=self.movie, content='Solid', rating=4)
+
+		older_movie = Movie.objects.create(
+			title='Classic Film',
+			genre='Drama',
+			description='Old but gold',
+			release_date=date(2000, 1, 1)
+		)
+		Review.objects.create(user=user, movie=older_movie, content='Too old', rating=3)
+
+		res = self.client.get(f"{self.list_url}?min_rating=4.5&year_from=2005&year_to=2015")
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
+		self.assertEqual(res.data['data']['count'], 1)
+		movie_data = res.data['data']['results'][0]
+		self.assertEqual(movie_data['title'], 'Inception')
+		self.assertEqual(movie_data['review_count'], 2)

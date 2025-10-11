@@ -20,8 +20,9 @@ class ReviewAPITests(APITestCase):
 			release_date=date(2020, 9, 3)
 		)
 		self.list_url = reverse('review-list')
+		self.search_url = reverse('review-search')
 		self.detail_name = 'review-detail'
-		self.by_movie_url = reverse('review-by-movie', args=[self.movie.pk])
+		self.by_movie_url = reverse('review-by-movie', kwargs={'title': self.movie.title})
 		self.user = User.objects.create_user(
 			email='user1@example.com', username='user1', password='UserPass123!'
 		)
@@ -40,24 +41,27 @@ class ReviewAPITests(APITestCase):
 			'rating': 5
 		}, format='json')
 		self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+		self.assertEqual(res.data['data']['rating'], 5)
 
 		Review.objects.create(user=self.other_user, movie=self.movie, content='Pretty good', rating=4)
 
-		# Filter by min_rating
 		res = self.client.get(f"{self.list_url}?min_rating=5")
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
-		self.assertEqual(len(res.data), 1)
+		self.assertEqual(res.data['data']['count'], 1)
+		self.assertEqual(len(res.data['data']['results']), 1)
 
-		# Search by movie title
 		res = self.client.get(f"{self.list_url}?movie=ten")
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
-		self.assertEqual(len(res.data), 2)
+		self.assertEqual(res.data['data']['count'], 2)
+
+		search_res = self.client.get(f"{self.search_url}?q=tenet&min_rating=4")
+		self.assertEqual(search_res.status_code, status.HTTP_200_OK)
+		self.assertEqual(search_res.data['data']['count'], 2)
 
 	def test_only_owner_can_modify_review(self):
 		review = Review.objects.create(user=self.user, movie=self.movie, content='Solid', rating=4)
 		review_url = reverse(self.detail_name, args=[review.pk])
 
-		# Owner can update
 		self.authenticate(self.user)
 		res = self.client.put(review_url, {
 			'movie_id': self.movie.id,
@@ -69,7 +73,6 @@ class ReviewAPITests(APITestCase):
 		self.assertTrue(review.is_edited)
 		self.assertEqual(review.rating, 3)
 
-		# Other user cannot update
 		self.authenticate(self.other_user)
 		res = self.client.put(review_url, {
 			'movie_id': self.movie.id,
@@ -77,11 +80,11 @@ class ReviewAPITests(APITestCase):
 			'rating': 1
 		}, format='json')
 		self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+		self.assertFalse(res.data['success'])
 
-		# Owner can delete
 		self.authenticate(self.user)
 		res = self.client.delete(review_url)
-		self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
 		self.assertFalse(Review.objects.filter(pk=review.pk).exists())
 
 	def test_review_by_movie_endpoint(self):
@@ -90,4 +93,5 @@ class ReviewAPITests(APITestCase):
 
 		res = self.client.get(self.by_movie_url)
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
-		self.assertEqual(len(res.data), 2)
+		self.assertEqual(res.data['data']['count'], 2)
+		self.assertEqual(len(res.data['data']['results']), 2)

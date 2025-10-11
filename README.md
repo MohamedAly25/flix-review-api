@@ -1,14 +1,15 @@
-# Movie Review API (Phase 1 & 2)
+# Movie Review API (Phases 1–3)
 
 Backend API built with Django + DRF to manage movies and reviews with JWT authentication.
 
 ## Features
 
-- Custom user model with email login and JWT auth (Phase 1)
-- Movie & review models with automatic average rating updates (Phase 1)
-- Movie list/detail endpoints with filtering, search, ordering, and review stats (Phase 2)
-- Review CRUD with ownership permissions, filtering, and movie-specific listings (Phase 2)
-- OpenAPI schema + Swagger UI via drf-spectacular
+- Custom user model with email login, JWT auth, and instant token issuance on signup.
+- Unified API responses (success/error envelopes) with timestamp metadata and centralized exception handling.
+- Global pagination with page-size overrides and consistent payloads.
+- Movie catalogue with advanced filters (genre, min/max rating, release year ranges) and on-demand review statistics.
+- Review CRUD with ownership permissions, rating range filters, search endpoint, and movie-title specific listings.
+- OpenAPI schema + Swagger UI via drf-spectacular for interactive documentation.
 
 ## Setup
 
@@ -34,20 +35,36 @@ python manage.py createsuperuser
 
 | Endpoint | Method | Auth | Description |
 | --- | --- | --- | --- |
-| `/api/auth/register/` | POST | ❌ | Register a new user (returns tokens) |
-| `/api/auth/login/` | POST | ❌ | Obtain JWT access/refresh tokens |
-| `/api/auth/profile/` | GET | ✅ | Current user profile |
-| `/api/auth/profile/update/` | PUT | ✅ | Update profile |
-| `/api/auth/profile/delete/` | DELETE | ✅ | Delete account |
-| `/api/movies/` | GET | ❌ | List movies with filtering/search/ordering |
+| `/api/users/register/` | POST | ❌ | Register a new user (returns profile + tokens) |
+| `/api/users/login/` | POST | ❌ | Obtain JWT access/refresh tokens |
+| `/api/users/profile/` | GET | ✅ | Fetch current user profile |
+| `/api/users/profile/` | PUT/PATCH | ✅ | Update profile details |
+| `/api/users/profile/` | DELETE | ✅ | Delete account |
+| `/api/movies/` | GET | ❌ | List movies with ordering, search, rating & release-year filters |
 | `/api/movies/` | POST | ✅ (admin) | Create movie |
 | `/api/movies/<id>/` | GET | ❌ | Movie detail with review statistics |
 | `/api/movies/<id>/` | PUT/DELETE | ✅ (admin) | Update/Delete movie |
-| `/api/reviews/` | GET | ❌ | List reviews with filtering/search |
+| `/api/reviews/` | GET | ❌ | List reviews with pagination, rating ranges, and movie/user filters |
 | `/api/reviews/` | POST | ✅ | Create review (one per user/movie) |
 | `/api/reviews/<id>/` | GET | ❌ | Review detail |
 | `/api/reviews/<id>/` | PUT/DELETE | ✅ (owner) | Update/Delete review |
-| `/api/reviews/movie/<movie_id>/` | GET | ❌ | Reviews for a specific movie |
+| `/api/reviews/movie/<title>/` | GET | ❌ | Reviews for a specific movie title |
+| `/api/reviews/search/` | GET | ❌ | Keyword & rating-based review search |
+
+### Standard Response Format
+
+Every endpoint returns a standardized payload:
+
+```json
+{
+	"success": true,
+	"message": "Movies retrieved successfully",
+	"data": {},
+	"timestamp": "2025-10-11T12:00:00.000Z"
+}
+```
+
+Errors follow the same envelope with `success: false` and an `errors` object when validation issues occur.
 
 ## Testing
 
