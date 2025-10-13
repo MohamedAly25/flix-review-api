@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface text-white antialiased;
+}
+
+a {
+  @apply text-primary hover:text-primary/80 transition-colors;
+}

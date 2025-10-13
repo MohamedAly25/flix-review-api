@@ -19,8 +19,10 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
 
 urlpatterns = [
+    path('', lambda request: redirect('/api/docs/'), name='home'),
     path('admin/', admin.site.urls),
     path('api/users/', include('accounts.urls')),
     path('api/movies/', include('movies.urls')),

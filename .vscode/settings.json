@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "name": "flix-review-api",
+      "path": "flix-review-api"
+    },
+    {
+      "name": "flix-review-front",
+      "path": "flix-review-front"
+    }
+  ],
+  "settings": {
+    "css.validate": false,
+    "less.validate": false,
+    "scss.validate": false,
+    "files.associations": {
+      "*.css": "tailwindcss"
+    },
+    "tailwindCSS.includeLanguages": {
+      "plaintext": "html",
+      "css": "CSS"
+    },
+    "editor.quickSuggestions": {
+      "strings": true
+    }
+  }
+}
