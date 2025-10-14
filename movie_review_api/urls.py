@@ -20,9 +20,11 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
+from common.views import health_check
 
 urlpatterns = [
     path('', lambda request: redirect('/api/docs/'), name='home'),
+    path('health/', health_check, name='health-check'),
     path('admin/', admin.site.urls),
     path('api/users/', include('accounts.urls')),
     path('api/movies/', include('movies.urls')),

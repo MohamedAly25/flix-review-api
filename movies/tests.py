@@ -5,11 +5,27 @@ from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 from datetime import date
 
-from .models import Movie
+from .models import Movie, Genre
 from reviews.models import Review
 
 
 User = get_user_model()
+
+
+class GenreModelTests(TestCase):
+	def test_genre_str_returns_name(self):
+		genre = Genre.objects.create(name='Science Fiction')
+		self.assertEqual(str(genre), 'Science Fiction')
+	
+	def test_genre_slug_auto_generated(self):
+		genre = Genre.objects.create(name='Action & Adventure')
+		self.assertEqual(genre.slug, 'action-adventure')
+	
+	def test_genre_ordering(self):
+		sci_fi = Genre.objects.create(name='Sci-Fi')
+		action = Genre.objects.create(name='Action')
+		drama = Genre.objects.create(name='Drama')
+		self.assertEqual(list(Genre.objects.all()), [action, drama, sci_fi])
 
 
 class MovieModelTests(TestCase):
@@ -36,6 +52,122 @@ class MovieModelTests(TestCase):
 			release_date=date(2024, 1, 1)
 		)
 		self.assertEqual(list(Movie.objects.all()), [second, first])
+	
+	def test_movie_can_have_multiple_genres(self):
+		movie = Movie.objects.create(
+			title='The Matrix',
+			genre='Action, Sci-Fi',
+			description='Neo discovers the truth',
+			release_date=date(1999, 3, 31)
+		)
+		action = Genre.objects.create(name='Action')
+		sci_fi = Genre.objects.create(name='Sci-Fi')
+		movie.genres.add(action, sci_fi)
+		
+		self.assertEqual(movie.genres.count(), 2)
+		self.assertIn(action, movie.genres.all())
+		self.assertIn(sci_fi, movie.genres.all())
+
+
+class GenreAPITests(APITestCase):
+	def setUp(self):
+		self.admin = User.objects.create_superuser(
+			email='admin@test.com', username='admin', password='AdminPass123!'
+		)
+		self.user = User.objects.create_user(
+			email='user@test.com', username='user', password='UserPass123!'
+		)
+		self.genre_list_url = reverse('genre-list')
+		self.action = Genre.objects.create(name='Action', description='Action movies')
+		self.drama = Genre.objects.create(name='Drama', description='Dramatic films')
+	
+	def test_list_genres_public(self):
+		"""Anyone can list genres"""
+		res = self.client.get(self.genre_list_url)
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
+		self.assertTrue(res.data['success'])
+		# Response is paginated
+		self.assertIn('results', res.data['data'])
+		self.assertEqual(len(res.data['data']['results']), 2)
+	
+	def test_retrieve_genre_by_slug(self):
+		"""Anyone can retrieve a genre by slug"""
+		url = reverse('genre-detail', args=[self.action.slug])
+		res = self.client.get(url)
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
+		self.assertEqual(res.data['data']['name'], 'Action')
+		self.assertEqual(res.data['data']['slug'], 'action')
+	
+	def test_create_genre_requires_admin(self):
+		"""Only admin can create genres"""
+		# Unauthenticated - returns 401
+		res = self.client.post(self.genre_list_url, {'name': 'Horror'})
+		self.assertIn(res.status_code, [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN])
+		
+		# Regular user - returns 403
+		self.client.force_authenticate(user=self.user)
+		res = self.client.post(self.genre_list_url, {'name': 'Horror'})
+		self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+		
+		# Admin
+		self.client.force_authenticate(user=self.admin)
+		res = self.client.post(self.genre_list_url, {
+			'name': 'Horror',
+			'description': 'Scary movies'
+		})
+		self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+		self.assertTrue(res.data['success'])
+		self.assertEqual(Genre.objects.count(), 3)
+		self.assertEqual(res.data['data']['slug'], 'horror')
+	
+	def test_update_genre_requires_admin(self):
+		"""Only admin can update genres"""
+		url = reverse('genre-detail', args=[self.action.slug])
+		
+		# Regular user
+		self.client.force_authenticate(user=self.user)
+		res = self.client.patch(url, {'description': 'Updated description'})
+		self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+		
+		# Admin
+		self.client.force_authenticate(user=self.admin)
+		res = self.client.patch(url, {'description': 'Updated action description'})
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
+		self.action.refresh_from_db()
+		self.assertEqual(self.action.description, 'Updated action description')
+	
+	def test_delete_genre_requires_admin(self):
+		"""Only admin can delete genres"""
+		url = reverse('genre-detail', args=[self.drama.slug])
+		
+		# Regular user
+		self.client.force_authenticate(user=self.user)
+		res = self.client.delete(url)
+		self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+		
+		# Admin
+		self.client.force_authenticate(user=self.admin)
+		res = self.client.delete(url)
+		self.assertEqual(res.status_code, status.HTTP_204_NO_CONTENT)
+		self.assertEqual(Genre.objects.count(), 1)
+	
+	def test_genre_movie_count(self):
+		"""Genre serializer includes movie count"""
+		movie1 = Movie.objects.create(
+			title='Die Hard', genre='Action',
+			description='Action movie', release_date=date(1988, 7, 15)
+		)
+		movie2 = Movie.objects.create(
+			title='Mad Max', genre='Action',
+			description='Another action movie', release_date=date(2015, 5, 15)
+		)
+		movie1.genres.add(self.action)
+		movie2.genres.add(self.action)
+		
+		url = reverse('genre-detail', args=[self.action.slug])
+		res = self.client.get(url)
+		self.assertEqual(res.status_code, status.HTTP_200_OK)
+		self.assertEqual(res.data['data']['movie_count'], 2)
 
 
 class MovieAPITests(APITestCase):

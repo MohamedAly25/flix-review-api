@@ -1,3 +1,17 @@
 -r base.txt
 
+# Production server
 gunicorn==23.0.0
+
+# Redis for caching and celery
+redis==5.0.1
+
+# Error tracking
+sentry-sdk==1.40.0
+
+# Database driver for PostgreSQL
+psycopg2-binary==2.9.10
+
+# Security and performance
+django-redis==5.4.0
+

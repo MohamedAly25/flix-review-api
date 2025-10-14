@@ -1,15 +1,43 @@
 from decimal import Decimal, InvalidOperation
 
 from django.db.models import Avg, Count
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Movie
-from .serializers import MovieSerializer
+from .models import Movie, Genre
+from .serializers import MovieSerializer, GenreSerializer
 from common.permissions import IsAdminOrReadOnly
 from common.mixins import ApiResponseMixin
+
+
+class GenreViewSet(ApiResponseMixin, viewsets.ModelViewSet):
+	"""
+	ViewSet for Genre CRUD operations.
+	- List/Read: Anyone
+	- Create/Update/Delete: Admin only
+	"""
+	queryset = Genre.objects.all()
+	serializer_class = GenreSerializer
+	permission_classes = [IsAdminOrReadOnly]
+	lookup_field = 'slug'
+	filter_backends = [SearchFilter, OrderingFilter]
+	search_fields = ['name', 'description']
+	ordering_fields = ['name', 'created_at']
+	ordering = ['name']
+	success_messages = {
+		'GET': 'Genre retrieved successfully',
+		'POST': 'Genre created successfully',
+		'PUT': 'Genre updated successfully',
+		'PATCH': 'Genre updated successfully',
+		'DELETE': 'Genre deleted successfully',
+	}
+	
+	def get_queryset(self):
+		"""Prefetch related movies for efficiency"""
+		return super().get_queryset().prefetch_related('movies')
+
 
 class MovieListView(ApiResponseMixin, generics.ListCreateAPIView):
 	queryset = Movie.objects.all()
@@ -31,7 +59,7 @@ class MovieListView(ApiResponseMixin, generics.ListCreateAPIView):
 		return super().get_permissions()
 
 	def get_queryset(self):
-		queryset = super().get_queryset().prefetch_related('reviews').annotate(review_count=Count('reviews'))
+		queryset = super().get_queryset().prefetch_related('reviews', 'genres').annotate(review_count=Count('reviews'))
 		params = self.request.query_params
 
 		min_rating = params.get('min_rating')
@@ -91,7 +119,7 @@ class MovieDetailView(ApiResponseMixin, generics.RetrieveUpdateDestroyAPIView):
 		return Response(data)
 
 	def get_queryset(self):
-		return super().get_queryset().prefetch_related('reviews').annotate(review_count=Count('reviews'))
+		return super().get_queryset().prefetch_related('reviews', 'genres').annotate(review_count=Count('reviews'))
 
 	def destroy(self, request, *args, **kwargs):
 		instance = self.get_object()
