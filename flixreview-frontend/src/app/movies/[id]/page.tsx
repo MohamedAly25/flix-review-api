@@ -1,7 +1,8 @@
 'use client'
 
-import { use } from 'react'
+import { use, useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useMovie } from '@/hooks/useMovies'
 import { useReviews, useCreateReview, useDeleteReview } from '@/hooks/useReviews'
 import { Header } from '@/components/layout/Header'
@@ -12,7 +13,6 @@ import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { formatDate } from '@/utils/helpers'
 import { useAuth } from '@/contexts/AuthContext'
-import { useState } from 'react'
 
 export default function MovieDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -22,9 +22,18 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
   const createReview = useCreateReview()
   const deleteReview = useDeleteReview()
   const { user, isAuthenticated } = useAuth()
+  const router = useRouter()
   const [showReviewForm, setShowReviewForm] = useState(false)
+  const [actionMessage, setActionMessage] = useState<string | null>(null)
 
   const userHasReviewed = reviewsData?.results.some((review) => review.user === user?.username)
+
+  useEffect(() => {
+    if (!actionMessage) return
+
+    const timer = window.setTimeout(() => setActionMessage(null), 4000)
+    return () => window.clearTimeout(timer)
+  }, [actionMessage])
 
   if (movieLoading) {
     return (
@@ -60,6 +69,71 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
       await deleteReview.mutateAsync(reviewId)
     }
   }
+
+  const handleReviewClick = () => {
+    if (!isAuthenticated) {
+      router.push(`/register?next=/movies/${movieId}`)
+      return
+    }
+
+    if (userHasReviewed) {
+      setActionMessage('You have already added a review for this movie.')
+      return
+    }
+
+    setShowReviewForm((prev) => !prev)
+  }
+
+  const handleShare = async () => {
+    if (!isAuthenticated) {
+      router.push(`/register?next=/movies/${movieId}`)
+      return
+    }
+
+    const shareUrl = typeof window !== 'undefined'
+      ? window.location.href
+      : `${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/movies/${movieId}`
+
+    const shareData: ShareData = {
+      title: movie.title,
+      text: movie.description ?? 'Check out this movie on FlixReview.',
+      url: shareUrl,
+    }
+
+    try {
+      if (typeof navigator !== 'undefined') {
+        const nav = navigator as Navigator & {
+          share?: (data: ShareData) => Promise<void>
+          clipboard?: Clipboard
+        }
+
+        if (nav.share) {
+          await nav.share(shareData)
+          setActionMessage('Movie shared successfully!')
+          return
+        }
+
+        if (nav.clipboard && typeof nav.clipboard.writeText === 'function') {
+          await nav.clipboard.writeText(shareUrl)
+          setActionMessage('Movie link copied to clipboard.')
+          return
+        }
+      }
+
+      setActionMessage('Link sharing is not supported on this device.')
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
+      setActionMessage('Sharing failed. Please try again later.')
+    }
+  }
+
+  const reviewButtonLabel = showReviewForm
+    ? 'Cancel'
+    : userHasReviewed
+      ? 'Review Submitted'
+      : 'Add Review'
 
   return (
     <div className="min-h-screen flex flex-col flix-bg-primary">
@@ -111,12 +185,23 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
         <div className="mt-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="flix-h2">Reviews</h2>
-            {isAuthenticated && !userHasReviewed && !showReviewForm && (
-              <button onClick={() => setShowReviewForm(true)} className="flix-btn-primary">
-                Write a Review
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              <Button variant="secondary" size="sm" onClick={handleShare}>
+                Share
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleReviewClick}
+                disabled={userHasReviewed && !showReviewForm}
+              >
+                {reviewButtonLabel}
+              </Button>
+            </div>
           </div>
+
+          {actionMessage && (
+            <p className="flix-muted text-sm mb-4 text-center lg:text-left">{actionMessage}</p>
+          )}
 
           {showReviewForm && (
             <div className="flix-card p-6 mb-6">

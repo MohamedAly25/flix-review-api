@@ -387,34 +387,18 @@ body {
    ======================================== */
 
 .flix-trending-container {
-  display: flex;
-  gap: var(--flix-spacing-md);
-  overflow-x: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--flix-spacing-lg);
   padding: var(--flix-spacing-md) 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--flix-accent) var(--flix-bg-secondary);
-}
-
-.flix-trending-container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.flix-trending-container::-webkit-scrollbar-track {
-  background: var(--flix-bg-secondary);
-  border-radius: 4px;
-}
-
-.flix-trending-container::-webkit-scrollbar-thumb {
-  background: var(--flix-accent);
-  border-radius: 4px;
 }
 
 .flix-trending-card {
   position: relative;
-  min-width: 200px;
+  display: block;
+  min-width: 0;
   cursor: pointer;
   transition: all var(--transition-medium);
-  flex-shrink: 0;
 }
 
 .flix-trending-card:hover {
@@ -424,9 +408,9 @@ body {
 
 .flix-trending-number {
   position: absolute;
-  bottom: -20px;
-  left: -10px;
-  font-size: 180px;
+  bottom: -12px;
+  left: 12px;
+  font-size: 160px;
   font-weight: 900;
   color: #000;
   -webkit-text-stroke: 2px var(--flix-text-muted);
@@ -434,6 +418,14 @@ body {
   line-height: 1;
   user-select: none;
   pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .flix-trending-number {
+    font-size: 120px;
+    left: 8px;
+    bottom: -8px;
+  }
 }
 
 .flix-trending-poster {
@@ -787,6 +779,39 @@ select:focus {
 /* ========================================
    COMPONENT-SPECIFIC STYLES
    ======================================== */
+
+/* Header */
+.flix-header {
+  background-color: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Footer */
+.flix-footer {
+  padding: var(--flix-spacing-lg) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--flix-spacing-lg);
+}
+
+.flix-footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--flix-spacing-md);
+}
+
+.flix-footer-link {
+  font-size: var(--font-size-small);
+  color: var(--flix-text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.flix-footer-link:hover {
+  color: var(--flix-text-primary);
+}
 
 /* Movie Grid */
 .flix-movie-grid {

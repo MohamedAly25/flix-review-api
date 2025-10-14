@@ -7,7 +7,7 @@ export function Header() {
   const { user, isAuthenticated, logout } = useAuth()
 
   return (
-    <header className="flix-bg-primary" style={{ borderBottom: '1px solid var(--flix-border)' }}>
+    <header className="flix-header">
       <nav className="flix-container">
         <div className="flix-flex flix-justify-between flix-items-center" style={{ height: '64px' }}>
           <div className="flix-flex flix-items-center flix-gap-lg">

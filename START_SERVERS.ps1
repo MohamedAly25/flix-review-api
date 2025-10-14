@@ -6,9 +6,9 @@ Write-Host "=" * 60 -ForegroundColor Gray
 Write-Host ""
 
 # Check if we're in the correct directory
-if (-not (Test-Path ".\flix-review-api") -or -not (Test-Path ".\flixreview-frontend")) {
+if (-not (Test-Path ".\flixreview-backend") -or -not (Test-Path ".\flixreview-frontend")) {
     Write-Host "❌ Error: Please run this script from the project root directory" -ForegroundColor Red
-    Write-Host "   Expected to find: flix-review-api/ and flixreview-frontend/" -ForegroundColor Yellow
+    Write-Host "   Expected to find: flixreview-backend/ and flixreview-frontend/" -ForegroundColor Yellow
     exit 1
 }
 
@@ -20,7 +20,7 @@ Write-Host "🔧 Starting Backend Server (Django)..." -ForegroundColor Yellow
 $backendScript = @"
 Write-Host '🔧 FlixReview Backend Server' -ForegroundColor Cyan
 Write-Host '=' * 60 -ForegroundColor Gray
-cd '$PWD\flix-review-api'
+cd '$PWD\flixreview-backend'
 if (Test-Path '..\venv\Scripts\Activate.ps1') {
     Write-Host '✅ Activating virtual environment...' -ForegroundColor Green
     & '..\venv\Scripts\Activate.ps1'

@@ -47,6 +47,13 @@ A modern, responsive movie review platform built with Next.js 15, TypeScript, an
 - **Smooth Animations** - Hover effects and transitions
 - **Responsive Layout** - 1280px max-width centered container
 
+## 🆕 Recent frontend updates (2025-10-15)
+
+- Recommendations: The homepage showcase now calls the backend recommendations endpoints and will show personalized suggestions for signed-in users (falls back to top-rated).
+- Recently Added: A small "Recently Added Movies" section was introduced to highlight newest content.
+- Header & Footer: Transparent header style added; footer expanded with dedicated info pages.
+- Movie card: Titles are truncated to 6 words for consistent grid layout.
+
 ### 🖼️ **NEW: Image Handling**
 - **Movie Posters** - TMDB integration with lazy loading
 - **User Avatars** - Upload and display profile pictures

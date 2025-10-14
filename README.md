@@ -38,6 +38,15 @@ npm run dev
 
 ---
 
+## 🆕 Recent updates (2025-10-15)
+
+- Frontend: Trending / Recommendations now fetch live data from the API and show personalized picks for authenticated users when available. Falls back to top-rated movies otherwise.
+- Frontend: Added "Recently Added Movies" section to surface new content using the API ordering by creation date.
+- Frontend: Header updated to use a transparent backdrop-style header for a cleaner hero integration.
+- Frontend: Footer expanded with dedicated informational pages (FAQ, Help Center, Account, Media Center, Terms, Privacy, Cookie Preferences, Corporate Information, Contact).
+- Frontend: Movie card titles are now truncated to 6 words to keep the grid tidy and improve readability.
+
+
 ## ✨ Features
 
 <table>

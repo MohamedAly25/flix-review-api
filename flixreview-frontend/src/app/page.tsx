@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TrendingMovies } from "@/components/home/TrendingMovies";
+import { LatestMovies } from "@/components/home/LatestMovies";
 
 export default function Home() {
   return (
@@ -34,45 +35,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trending Movies Section */}
-        <TrendingMovies />
+  {/* Trending Movies Section */}
+  <TrendingMovies />
 
-        {/* Why FlixReview Section */}
-        <section className="flix-section flix-bg-secondary">
-          <div className="flix-container">
-            <h2 className="flix-subtitle flix-text-center flix-mb-xl">Why FlixReview?</h2>
-            <div className="flix-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px' }}>
-              <div className="flix-feature-card flix-slide-up">
-                <div className="flix-feature-icon">📺</div>
-                <h3 className="flix-subtitle flix-mb-sm">Enjoy on your TV</h3>
-                <p className="flix-body flix-text-muted">
-                  Watch on Smart TVs, Playstation, Xbox, Chromecast, Apple TV, Blu-ray players, and more.
-                </p>
-              </div>
-              <div className="flix-feature-card flix-slide-up" style={{ animationDelay: '100ms' }}>
-                <div className="flix-feature-icon">⬇️</div>
-                <h3 className="flix-subtitle flix-mb-sm">Download your shows to watch offline</h3>
-                <p className="flix-body flix-text-muted">
-                  Save your favorites easily and always have something to watch.
-                </p>
-              </div>
-              <div className="flix-feature-card flix-slide-up" style={{ animationDelay: '200ms' }}>
-                <div className="flix-feature-icon">📱</div>
-                <h3 className="flix-subtitle flix-mb-sm">Watch everywhere</h3>
-                <p className="flix-body flix-text-muted">
-                  Stream unlimited movies and TV shows on your phone, tablet, laptop, and TV.
-                </p>
-              </div>
-              <div className="flix-feature-card flix-slide-up" style={{ animationDelay: '300ms' }}>
-                <div className="flix-feature-icon">👨‍👩‍👧‍�</div>
-                <h3 className="flix-subtitle flix-mb-sm">Create profiles for kids</h3>
-                <p className="flix-body flix-text-muted">
-                  Send kids on adventures with their favorite characters in a space made just for them—free with your membership.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+  {/* Recently Added Movies Section */}
+  <LatestMovies />
 
         {/* Browse Movies CTA */}
         <section className="flix-section flix-text-center">
