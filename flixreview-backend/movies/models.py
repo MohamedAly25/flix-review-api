@@ -1,0 +1,65 @@
+from django.db import models
+from django.utils.text import slugify
+
+
+class Genre(models.Model):
+	"""Genre model for movie categorization"""
+	name = models.CharField(max_length=50, unique=True)
+	slug = models.SlugField(unique=True, max_length=50)
+	description = models.TextField(blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['name']
+		indexes = [
+			models.Index(fields=['slug']),
+			models.Index(fields=['name']),
+		]
+
+	def __str__(self):
+		return self.name
+
+	def save(self, *args, **kwargs):
+		if not self.slug:
+			self.slug = slugify(self.name)
+		super().save(*args, **kwargs)
+
+
+class Movie(models.Model):
+	title = models.CharField(max_length=200)
+	genre = models.CharField(max_length=100)  # Deprecated - will be removed after migration
+	genres = models.ManyToManyField(Genre, related_name='movies', blank=True)
+	description = models.TextField()
+	release_date = models.DateField()
+	avg_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
+	poster_url = models.URLField(blank=True, null=True)
+	
+	# TMDB Integration fields
+	tmdb_id = models.IntegerField(unique=True, null=True, blank=True, db_index=True, 
+								   help_text="The Movie Database (TMDB) ID")
+	imdb_id = models.CharField(max_length=20, blank=True, default='', db_index=True,
+							   help_text="IMDB ID (e.g., tt1234567)")
+	runtime = models.IntegerField(null=True, blank=True, help_text="Runtime in minutes")
+	budget = models.BigIntegerField(default=0, help_text="Production budget in USD")
+	revenue = models.BigIntegerField(default=0, help_text="Box office revenue in USD")
+	backdrop_url = models.URLField(blank=True, default='', help_text="Backdrop/hero image URL")
+	
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return self.title
+
+	class Meta:
+		ordering = ['-created_at']
+		indexes = [
+			models.Index(fields=['title']),
+			models.Index(fields=['genre']),
+			models.Index(fields=['avg_rating']),
+			models.Index(fields=['tmdb_id']),
+			models.Index(fields=['imdb_id']),
+		]
+
+
+# Create your models here.
