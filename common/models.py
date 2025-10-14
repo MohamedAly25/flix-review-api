@@ -12,6 +12,3 @@ class TimestampedModel(models.Model):
 
     class Meta:
         abstract = True
-from django.db import models
-
-# Create your models here.

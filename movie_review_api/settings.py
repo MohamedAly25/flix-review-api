@@ -249,3 +249,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RATELIMIT_ENABLE = env.bool('RATELIMIT_ENABLE', default=True)
 RATELIMIT_USE_CACHE = 'default'
 RATELIMIT_VIEW = 'common.exceptions.custom_exception_handler'
+
+
+# =======================
+# TMDB API Configuration
+# =======================
+TMDB_API_KEY = env('TMDB_API_KEY', default='')

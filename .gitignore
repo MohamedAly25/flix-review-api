@@ -2,15 +2,68 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
+*.pyo
+*.pyd
+.Python
+*.so
 
 # Django
 staticfiles/
 media/
 db.sqlite3
+*.log
+local_settings.py
 
-# Env
+# Environment & Secrets
 .env
+.env.*
+!.env.example
 .venv/
+venv/
+ENV/
+env/
+
+# Secrets Directory - NEVER COMMIT!
+.secrets/
+*.secret
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
 
 # VSCode
 .vscode/
+*.code-workspace
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Backup Files
+*.bak
+*.backup
+*.old
+
+# Credentials & Keys
+credentials.json
+serviceAccountKey.json
+firebase-admin-sdk.json
+
+# OS Files
+Thumbs.db
+.DS_Store
+desktop.ini

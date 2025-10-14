@@ -18,6 +18,7 @@ A comprehensive REST API for movie reviews built with Django REST Framework, fea
 - [What's New](#-whats-new)
 - [Tech Stack](#-tech-stack)
 - [Quick Start](#-quick-start)
+- [Documentation](#-documentation)
 - [API Documentation](#-api-documentation)
 - [API Endpoints](#-api-endpoints)
 - [Security Features](#-security-features)
@@ -26,6 +27,27 @@ A comprehensive REST API for movie reviews built with Django REST Framework, fea
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
 - [License](#-license)
+
+## 📚 Documentation
+
+Complete guides available in the `docs/` folder:
+
+| Guide | Description |
+|-------|-------------|
+| [📘 SETUP.md](docs/SETUP.md) | Complete setup guide with troubleshooting |
+| [📗 API.md](docs/API.md) | Comprehensive API reference with examples |
+| [📙 DEVELOPMENT.md](docs/DEVELOPMENT.md) | Development workflow and best practices |
+| [📕 TESTING.md](docs/TESTING.md) | Complete testing guide and patterns |
+| [📔 DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production deployment instructions |
+| [🐳 DOCKER.md](docs/DOCKER.md) | Docker setup and containerization |
+| [🎯 STRETCH_GOALS_PLAN.md](docs/STRETCH_GOALS_PLAN.md) | Future features and enhancements |
+
+> **Quick Links**: 
+> - **New to the project?** → Start with [SETUP.md](docs/SETUP.md)
+> - **Building features?** → See [DEVELOPMENT.md](docs/DEVELOPMENT.md)
+> - **API integration?** → Check [API.md](docs/API.md)
+> - **Running tests?** → Read [TESTING.md](docs/TESTING.md)
+> - **Deployment?** → Follow [DEPLOYMENT.md](docs/DEPLOYMENT.md)
 
 ## 🎯 What's New
 
