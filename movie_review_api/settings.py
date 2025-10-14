@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'accounts',
     'movies',
     'reviews',
+    'recommendations',
     'common',
 ]
 
@@ -68,6 +69,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'common.middleware.RateLimitMiddleware',
+    'common.middleware.RequestLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'movie_review_api.urls'
@@ -114,6 +117,15 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'common.pagination.DefaultPagination',
     'PAGE_SIZE': 10,
     'EXCEPTION_HANDLER': 'common.exceptions.custom_exception_handler',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',      # Anonymous users: 100 requests per hour
+        'user': '1000/hour',     # Authenticated users: 1000 requests per hour
+        'burst': '10/minute',    # Burst protection: 10 requests per minute
+    },
 }
 
 SIMPLE_JWT = {
@@ -229,3 +241,11 @@ LOGGING = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# =======================
+# Rate Limiting Settings
+# =======================
+RATELIMIT_ENABLE = env.bool('RATELIMIT_ENABLE', default=True)
+RATELIMIT_USE_CACHE = 'default'
+RATELIMIT_VIEW = 'common.exceptions.custom_exception_handler'

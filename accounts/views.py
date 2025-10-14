@@ -1,4 +1,6 @@
 from django.contrib.auth import get_user_model
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -15,7 +17,12 @@ from .serializers import (
 User = get_user_model()
 
 
+@method_decorator(ratelimit(key='ip', rate='3/h', method='POST'), name='dispatch')
 class UserRegistrationView(ApiResponseMixin, generics.CreateAPIView):
+	"""
+	User registration endpoint with rate limiting.
+	Rate limit: 3 registration attempts per hour per IP address.
+	"""
 	queryset = User.objects.all()
 	serializer_class = UserRegistrationSerializer
 	permission_classes = [permissions.AllowAny]
@@ -36,7 +43,12 @@ class UserRegistrationView(ApiResponseMixin, generics.CreateAPIView):
 		return Response({'user': user_data, 'tokens': tokens}, status=status.HTTP_201_CREATED)
 
 
+@method_decorator(ratelimit(key='ip', rate='5/m', method='POST'), name='dispatch')
 class CustomTokenObtainPairView(ApiResponseMixin, TokenObtainPairView):
+	"""
+	User login endpoint with rate limiting.
+	Rate limit: 5 login attempts per minute per IP address.
+	"""
 	serializer_class = CustomTokenObtainPairSerializer
 	success_messages = {'POST': 'Login successful'}
 

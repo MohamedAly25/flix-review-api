@@ -1,4 +1,5 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django.core.cache import cache
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth import get_user_model
@@ -78,3 +79,85 @@ class AccountsAPITests(APITestCase):
 		res = self.client.delete(self.profile_url)
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
 		self.assertFalse(User.objects.filter(email='tester@example.com').exists())
+
+
+class SecurityTests(APITestCase):
+	"""Test rate limiting and security measures on authentication endpoints."""
+	
+	def setUp(self):
+		# Clear rate limit cache before each test
+		cache.clear()
+		
+		self.register_url = '/api/users/register/'
+		self.login_url = '/api/users/login/'
+		
+		# Create a test user for login attempts
+		self.test_user = User.objects.create_user(
+			email='testuser@example.com',
+			username='testuser',
+			password='StrongPass123!'
+		)
+
+	def tearDown(self):
+		# Clear rate limit cache after each test
+		cache.clear()
+
+	@override_settings(RATELIMIT_ENABLE=True)
+	def test_registration_rate_limit(self):
+		"""Test that registration is rate limited to 3 attempts per hour."""
+		# First 3 registration attempts should succeed or fail normally
+		for i in range(3):
+			res = self.client.post(self.register_url, {
+				'username': f'user{i}',
+				'email': f'user{i}@example.com',
+				'password': 'StrongPass123!',
+				'password_confirm': 'StrongPass123!'
+			}, format='json')
+			# Should either succeed (201) or have validation errors (400), but not rate limited
+			self.assertIn(res.status_code, [status.HTTP_201_CREATED, status.HTTP_400_BAD_REQUEST])
+		
+		# 4th attempt should be rate limited
+		res = self.client.post(self.register_url, {
+			'username': 'user4',
+			'email': 'user4@example.com',
+			'password': 'StrongPass123!',
+			'password_confirm': 'StrongPass123!'
+		}, format='json')
+		self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+		data = res.json()
+		self.assertFalse(data['success'])
+		self.assertIn('too many', data['message'].lower())
+
+	@override_settings(RATELIMIT_ENABLE=True)
+	def test_login_rate_limit(self):
+		"""Test that login is rate limited to 5 attempts per minute."""
+		# First 5 login attempts should proceed normally (even if they fail auth)
+		for i in range(5):
+			res = self.client.post(self.login_url, {
+				'email': 'testuser@example.com',
+				'password': 'WrongPassword123!'
+			}, format='json')
+			# Should either succeed or have auth errors, but not rate limited
+			self.assertIn(res.status_code, [status.HTTP_200_OK, status.HTTP_401_UNAUTHORIZED])
+		
+		# 6th attempt should be rate limited
+		res = self.client.post(self.login_url, {
+			'email': 'testuser@example.com',
+			'password': 'StrongPass123!'
+		}, format='json')
+		self.assertEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+		data = res.json()
+		self.assertFalse(data['success'])
+		self.assertIn('too many', data['message'].lower())
+
+	@override_settings(RATELIMIT_ENABLE=False)
+	def test_rate_limiting_can_be_disabled(self):
+		"""Test that rate limiting can be disabled via settings."""
+		# Make more than the rate limit number of requests
+		for i in range(10):
+			res = self.client.post(self.login_url, {
+				'email': 'testuser@example.com',
+				'password': 'WrongPassword123!'
+			}, format='json')
+			# None should be rate limited when RATELIMIT_ENABLE=False
+			self.assertNotEqual(res.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
