@@ -76,8 +76,9 @@ export interface MovieList extends PaginatedResponse<Movie> {
 // Movie filters for API requests
 export interface MovieFilters {
   search?: string
-  genre?: string            // Filter by old genre field
+  genre?: string            // Filter by old genre field (deprecated)
   genres?: string           // Filter by genre IDs (comma-separated)
+  genres__slug?: string     // Filter by genre slug (Django lookup)
   ordering?: string
   page?: number
   page_size?: number

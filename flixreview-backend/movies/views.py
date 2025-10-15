@@ -6,6 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 from .models import Movie, Genre
 from .serializers import MovieSerializer, GenreSerializer
@@ -46,7 +47,7 @@ class MovieListView(ApiResponseMixin, generics.ListCreateAPIView):
 	serializer_class = MovieSerializer
 	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-	filterset_fields = ['genre']
+	filterset_fields = ['genres__slug']
 	search_fields = ['title', 'description']
 	ordering_fields = ['release_date', 'avg_rating', 'created_at', 'review_count']
 	ordering = ['-created_at']
@@ -131,6 +132,27 @@ class MovieDetailView(ApiResponseMixin, generics.RetrieveUpdateDestroyAPIView):
 
 # TMDB Integration Endpoints
 
+@extend_schema(
+	summary="Search TMDB for movies",
+	description="Search The Movie Database for movies by title",
+	parameters=[
+		OpenApiParameter(
+			name='q',
+			type=OpenApiTypes.STR,
+			location=OpenApiParameter.QUERY,
+			required=True,
+			description='Search query (movie title)'
+		),
+		OpenApiParameter(
+			name='page',
+			type=OpenApiTypes.INT,
+			location=OpenApiParameter.QUERY,
+			required=False,
+			description='Page number (default: 1)'
+		),
+	],
+	responses={200: MovieSerializer(many=True)}
+)
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def search_tmdb(request):
@@ -178,6 +200,21 @@ def search_tmdb(request):
 	})
 
 
+@extend_schema(
+	summary="Import movie from TMDB",
+	description="Import a movie from The Movie Database by TMDB ID (Admin only)",
+	request={
+		'application/json': {
+			'type': 'object',
+			'properties': {
+				'tmdb_id': {'type': 'integer', 'description': 'TMDB movie ID'},
+				'force': {'type': 'boolean', 'description': 'Force re-import if exists', 'default': False}
+			},
+			'required': ['tmdb_id']
+		}
+	},
+	responses={200: MovieSerializer}
+)
 @api_view(['POST'])
 @permission_classes([IsAdminOrReadOnly])
 def import_tmdb_movie(request):
@@ -247,6 +284,11 @@ def import_tmdb_movie(request):
 		)
 
 
+@extend_schema(
+	summary="Sync movie with TMDB data",
+	description="Update an existing movie with latest data from The Movie Database (Admin only)",
+	responses={200: MovieSerializer}
+)
 @api_view(['POST'])
 @permission_classes([IsAdminOrReadOnly])
 def sync_tmdb_movie(request, pk):

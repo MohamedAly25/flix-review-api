@@ -18,7 +18,7 @@ export default function GenreDetailPage() {
 
   const { data: moviesData, isLoading: moviesLoading } = useQuery({
     queryKey: ['movies', 'genre', slug],
-    queryFn: () => moviesService.getMovies({ genre: slug, page_size: 20 }),
+    queryFn: () => moviesService.getMovies({ genres__slug: slug, page_size: 20 }),
   })
 
   const isLoading = genreLoading || moviesLoading

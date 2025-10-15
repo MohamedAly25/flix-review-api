@@ -32,7 +32,7 @@ export const moviesService = {
 
   // TMDB Integration
   async searchTMDB(query: string): Promise<any> {
-    const response = await apiClient.get('/movies/search-tmdb/', { params: { query } })
+    const response = await apiClient.get('/movies/search-tmdb/', { params: { q: query } })
     return response.data.data || response.data
   },
 

@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 
 from .models import Movie, Genre
 
@@ -12,6 +13,7 @@ class GenreSerializer(serializers.ModelSerializer):
 		fields = ('id', 'name', 'slug', 'description', 'movie_count', 'created_at', 'updated_at')
 		read_only_fields = ('slug', 'created_at', 'updated_at', 'movie_count')
 	
+	@extend_schema_field(serializers.IntegerField)
 	def get_movie_count(self, obj):
 		"""Return the number of movies in this genre"""
 		return obj.movies.count()
