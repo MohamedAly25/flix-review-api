@@ -18,16 +18,24 @@ interface SearchOverlayProps {
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const [isMounted, setIsMounted] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
 
-  // Load recent searches from localStorage
+  // Mark component as mounted
   useEffect(() => {
-    const stored = localStorage.getItem('recentSearches')
-    if (stored) {
-      setRecentSearches(JSON.parse(stored))
-    }
+    setIsMounted(true)
   }, [])
+
+  // Load recent searches from localStorage only after mount
+  useEffect(() => {
+    if (isMounted) {
+      const stored = localStorage.getItem('recentSearches')
+      if (stored) {
+        setRecentSearches(JSON.parse(stored))
+      }
+    }
+  }, [isMounted])
 
   // Focus input when overlay opens
   useEffect(() => {
@@ -56,7 +64,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     // Add to recent searches
     const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5)
     setRecentSearches(updated)
-    localStorage.setItem('recentSearches', JSON.stringify(updated))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('recentSearches', JSON.stringify(updated))
+    }
 
     // Navigate to search results page
     router.push(`/movies?search=${encodeURIComponent(query)}`)
@@ -70,7 +80,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
   const clearRecentSearches = () => {
     setRecentSearches([])
-    localStorage.removeItem('recentSearches')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('recentSearches')
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
