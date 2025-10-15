@@ -304,3 +304,49 @@ python scripts/check_environment.py```bash
 **Last Updated:** October 15, 2025  
 **Version:** 2.0  
 **Recommended:** Use `test_all_features.py` for testing
+
+---
+
+## 🐘 PostgreSQL Setup Script
+
+### `setup_postgresql.py` ⭐ **PRODUCTION DATABASE**
+
+**Complete PostgreSQL content server setup and management**
+
+```bash
+# Interactive setup
+python scripts/setup_postgresql.py setup
+
+# Migrate from SQLite to PostgreSQL
+python scripts/setup_postgresql.py migrate
+
+# Test connection
+python scripts/setup_postgresql.py test
+
+# Check status
+python scripts/setup_postgresql.py status
+```
+
+**Features:**
+- ✅ Interactive PostgreSQL database setup
+- ✅ Automatic environment configuration
+- ✅ Data migration from SQLite to PostgreSQL
+- ✅ Connection testing and validation
+- ✅ Production-ready database configuration
+
+**Requirements:**
+```bash
+pip install psycopg2-binary==2.9.10
+```
+
+**Environment Variables:**
+```
+DATABASE_URL=postgresql://user:password@host:port/database
+```
+
+**Usage Workflow:**
+1. Install PostgreSQL and start service
+2. Run setup: `python scripts/setup_postgresql.py setup`
+3. Install psycopg2: `pip install psycopg2-binary`
+4. Run migrations: `python manage.py migrate`
+5. Migrate data (optional): `python scripts/setup_postgresql.py migrate`
