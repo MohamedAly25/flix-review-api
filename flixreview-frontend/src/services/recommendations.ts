@@ -7,12 +7,28 @@ interface ShowcaseResult {
   mode: 'personalized' | 'top-rated'
 }
 
+interface ApiMovieResults {
+  results?: Movie[]
+}
+
+interface RecommendationItem {
+  movie_id?: number
+  id?: number
+}
+
+interface TasteProfileData {
+  avg_rating?: number
+  total_reviews?: number
+  favorite_genres?: string[]
+  preferences?: Record<string, number>
+}
+
 async function unwrapMovies(data: unknown): Promise<Movie[]> {
   if (Array.isArray(data)) {
     return data as Movie[]
   }
-  if (data && typeof data === 'object' && Array.isArray((data as any).results)) {
-    return (data as any).results as Movie[]
+  if (data && typeof data === 'object' && Array.isArray((data as ApiMovieResults).results)) {
+    return (data as ApiMovieResults).results as Movie[]
   }
   return []
 }
@@ -34,7 +50,7 @@ async function getPersonalized(limit = 5): Promise<{ movies: Movie[]; algorithm?
     : []
 
   const movieIds = recommendations
-    .map((item: any) => item.movie_id)
+    .map((item: RecommendationItem) => item.movie_id)
     .filter((id: unknown): id is number => typeof id === 'number')
 
   if (movieIds.length === 0) {
@@ -118,7 +134,7 @@ export const recommendationsService = {
     const similarMovies = Array.isArray(data?.similar_movies) ? data.similar_movies : []
     
     const movieIds = similarMovies
-      .map((item: any) => item.movie_id || item.id)
+      .map((item: RecommendationItem) => item.movie_id || item.id)
       .filter((id: unknown): id is number => typeof id === 'number')
 
     if (movieIds.length === 0) return []
@@ -138,7 +154,7 @@ export const recommendationsService = {
   },
 
   // User Taste Profile
-  async getTasteProfile(): Promise<any> {
+  async getTasteProfile(): Promise<TasteProfileData> {
     const response = await apiClient.get('/recommendations/profile/taste/')
     return response.data?.data || response.data
   },
@@ -160,7 +176,7 @@ export const recommendationsService = {
   },
 
   // Clear Cache (Admin only)
-  async clearCache(): Promise<any> {
+  async clearCache(): Promise<{ message: string }> {
     const response = await apiClient.post('/recommendations/cache/clear/')
     return response.data?.data || response.data
   },

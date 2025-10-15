@@ -31,7 +31,7 @@ export const moviesService = {
   },
 
   // TMDB Integration
-  async searchTMDB(query: string): Promise<any> {
+  async searchTMDB(query: string): Promise<MovieList> {
     const response = await apiClient.get('/movies/search-tmdb/', { params: { q: query } })
     return response.data.data || response.data
   },
@@ -41,7 +41,7 @@ export const moviesService = {
     return response.data.data || response.data
   },
 
-  async syncWithTMDB(id: number): Promise<any> {
+  async syncWithTMDB(id: number): Promise<Movie> {
     const response = await apiClient.post(`/movies/${id}/sync-tmdb/`)
     return response.data.data || response.data
   },

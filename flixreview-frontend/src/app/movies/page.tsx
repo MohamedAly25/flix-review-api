@@ -43,7 +43,7 @@ export default function MoviesPage() {
             <div className="space-y-4">
               <h1 className="flix-h1">Discover Movies</h1>
               <p className="text-white/60">
-                Browse our extensive collection of movies. Use filters to find exactly what you're looking for.
+                Browse our extensive collection of movies. Use filters to find exactly what you&apos;re looking for.
               </p>
             </div>
 
@@ -88,7 +88,9 @@ export default function MoviesPage() {
                     d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
                   />
                 </svg>
-                <p className="text-lg font-medium text-white">No movies found</p>
+                                  <p className="flix-text-muted">
+                    We couldn&apos;t find any movies matching your criteria.
+                  </p>
                 <p className="mt-2 text-white/60">Try adjusting your filters or search terms</p>
               </div>
             ) : (

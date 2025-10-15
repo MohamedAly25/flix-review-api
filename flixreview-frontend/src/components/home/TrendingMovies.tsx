@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { recommendationsService } from '@/services/recommendations'
@@ -85,14 +86,17 @@ export function TrendingMovies() {
                   <div className="flix-trending-number">{index + 1}</div>
                   <div className="flix-trending-poster">
                     <div className="flix-netflix-badge">F</div>
-                    <img
-                      src={posterSrc}
-                      alt={movie.title}
-                      onError={(event) => {
-                        event.currentTarget.onerror = null
-                        event.currentTarget.src = '/placeholder-movie.svg'
-                      }}
-                    />
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={posterSrc}
+                        alt={movie.title}
+                        fill
+                        className="object-cover"
+                        onError={(event) => {
+                          event.currentTarget.src = '/placeholder-movie.svg'
+                        }}
+                      />
+                    </div>
                   </div>
                 </Link>
               )

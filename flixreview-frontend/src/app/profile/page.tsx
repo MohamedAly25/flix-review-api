@@ -1,12 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { AvatarUpload } from '@/components/auth/AvatarUpload'
 import { Button } from '@/components/ui/Button'
-import { Spinner } from '@/components/ui/Spinner'
 
 export default function ProfilePage() {
   const { user, isAuthenticated } = useAuth()
@@ -46,10 +46,12 @@ export default function ProfilePage() {
                 <div className="text-center">
                   <div className="relative">
                     {user.profile_picture_url ? (
-                      <img
+                      <Image
                         src={user.profile_picture_url}
                         alt="Profile picture"
-                        className="w-32 h-32 rounded-full object-cover mx-auto border-4 border-gray-200"
+                        width={128}
+                        height={128}
+                        className="rounded-full object-cover mx-auto border-4 border-gray-200"
                       />
                     ) : (
                       <div className="w-32 h-32 rounded-full bg-gray-200 mx-auto flex items-center justify-center border-4 border-gray-200">

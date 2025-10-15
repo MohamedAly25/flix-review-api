@@ -104,9 +104,9 @@ class SecurityTests(APITestCase):
 
 	@override_settings(RATELIMIT_ENABLE=True)
 	def test_registration_rate_limit(self):
-		"""Test that registration is rate limited to 3 attempts per hour."""
-		# First 3 registration attempts should succeed or fail normally
-		for i in range(3):
+		"""Test that registration is rate limited to 30 attempts per hour."""
+		# First 30 registration attempts should succeed or fail normally
+		for i in range(30):
 			res = self.client.post(self.register_url, {
 				'username': f'user{i}',
 				'email': f'user{i}@example.com',
@@ -116,10 +116,10 @@ class SecurityTests(APITestCase):
 			# Should either succeed (201) or have validation errors (400), but not rate limited
 			self.assertIn(res.status_code, [status.HTTP_201_CREATED, status.HTTP_400_BAD_REQUEST])
 		
-		# 4th attempt should be rate limited
+		# 31st attempt should be rate limited
 		res = self.client.post(self.register_url, {
-			'username': 'user4',
-			'email': 'user4@example.com',
+			'username': 'user31',
+			'email': 'user31@example.com',
 			'password': 'StrongPass123!',
 			'password_confirm': 'StrongPass123!'
 		}, format='json')

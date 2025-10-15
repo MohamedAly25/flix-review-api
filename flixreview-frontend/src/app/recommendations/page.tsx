@@ -1,15 +1,16 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
 import { recommendationsService } from '@/services/recommendations'
 import { MovieCard } from '@/components/movies/MovieCard'
-import { Movie } from '@/types/movie'
-
-type TabType = 'top-rated' | 'trending' | 'most-reviewed' | 'recent' | 'for-you'
+import { Header } from '@/components/layout/Header'
+import { Footer } from '@/components/layout/Footer'
+import { Spinner } from '@/components/ui/Spinner'
+import { useAuth } from '@/contexts/AuthContext'
+import Link from 'next/link'
 
 export default function RecommendationsPage() {
-  const [activeTab, setActiveTab] = useState<TabType>('top-rated')
+  const { isAuthenticated } = useAuth()
 
   const { data: topRated, isLoading: loadingTopRated } = useQuery({
     queryKey: ['recommendations', 'top-rated'],
@@ -34,90 +35,182 @@ export default function RecommendationsPage() {
   const { data: personalizedData, isLoading: loadingPersonalized } = useQuery({
     queryKey: ['recommendations', 'for-you'],
     queryFn: () => recommendationsService.getPersonalizedRecommendations(12),
+    enabled: isAuthenticated,
   })
 
-  const tabs = [
-    { id: 'top-rated' as TabType, label: 'Top Rated', data: topRated, loading: loadingTopRated },
-    { id: 'trending' as TabType, label: 'Trending', data: trending, loading: loadingTrending },
-    {
-      id: 'most-reviewed' as TabType,
-      label: 'Most Reviewed',
-      data: mostReviewed,
-      loading: loadingMostReviewed,
-    },
-    { id: 'recent' as TabType, label: 'Recently Added', data: recent, loading: loadingRecent },
-    {
-      id: 'for-you' as TabType,
-      label: 'For You',
-      data: personalizedData?.movies,
-      loading: loadingPersonalized,
-    },
-  ]
-
-  const currentTab = tabs.find((tab) => tab.id === activeTab)
-  const movies = currentTab?.data as Movie[] | undefined
-  const isLoading = currentTab?.loading || false
-
   return (
-    <div className="min-h-screen flix-bg-primary">
-      <div className="container mx-auto px-4 py-12">
-        {/* Page Header */}
-        <div className="mb-12">
-          <h1 className="flix-heading-lg mb-4">Discover Movies</h1>
-          <p className="flix-text-secondary text-lg">
-            Explore curated collections and personalized recommendations
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-2 border-b border-gray-700">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 font-medium transition-all ${
-                  activeTab === tab.id
-                    ? 'border-b-2 border-flix-red text-flix-red'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Movies Grid */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-            <p className="mt-4 flix-text-secondary">Loading movies...</p>
-          </div>
-        ) : movies && movies.length > 0 ? (
-          <div>
-            {personalizedData?.algorithm && activeTab === 'for-you' && (
-              <p className="flix-text-muted text-sm mb-4">
-                Recommendations powered by {personalizedData.algorithm}
+    <div className="min-h-screen flex flex-col flix-bg-primary">
+      <Header />
+      <main className="flex-grow">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-flix-accent/20 via-transparent to-transparent py-16">
+          <div className="container mx-auto px-6">
+            <div className="max-w-4xl">
+              <h1 className="flix-h1 mb-4">Discover Amazing Movies</h1>
+              <p className="text-lg leading-relaxed text-white/80">
+                Explore our curated collections of top-rated films, trending titles, and personalized recommendations just for you.
               </p>
-            )}
-            <div className="flix-movies-grid">
-              {movies.map((movie) => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
             </div>
           </div>
-        ) : (
-          <div className="flix-card text-center py-12">
-            <p className="flix-text-secondary">No movies found in this category.</p>
-            {activeTab === 'for-you' && (
-              <p className="flix-text-muted mt-2">
-                Rate some movies to get personalized recommendations!
-              </p>
+        </section>
+
+        <div className="container mx-auto px-6 py-12 space-y-16">
+          {/* For You Section - Only for authenticated users */}
+          {isAuthenticated && (
+            <section>
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <h2 className="flix-h2 mb-2">For You</h2>
+                  <p className="text-sm text-white/60">
+                    {personalizedData?.algorithm 
+                      ? `Powered by ${personalizedData.algorithm} algorithm`
+                      : 'Personalized based on your viewing history'}
+                  </p>
+                </div>
+                <Link
+                  href="/profile/taste"
+                  className="text-sm font-medium text-flix-accent transition-colors hover:text-flix-accent-hover"
+                >
+                  View Taste Profile →
+                </Link>
+              </div>
+
+              {loadingPersonalized ? (
+                <div className="flex justify-center py-12">
+                  <Spinner />
+                </div>
+              ) : personalizedData?.movies && personalizedData.movies.length > 0 ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                  {personalizedData.movies.map((movie) => (
+                    <MovieCard key={movie.id} movie={movie} />
+                  ))}
+                </div>
+              ) : (
+                <div className="flix-card p-12 text-center">
+                  <svg
+                    className="mx-auto mb-4 h-16 w-16 text-white/20"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                    />
+                  </svg>
+                  <p className="text-lg font-medium text-white">Start Rating Movies</p>
+                  <p className="mt-2 text-white/60">Rate some movies to get personalized recommendations!</p>
+                  <Link
+                    href="/movies"
+                    className="mt-6 inline-block rounded-lg bg-flix-accent px-6 py-3 font-medium text-white transition-colors hover:bg-flix-accent-hover"
+                  >
+                    Browse Movies
+                  </Link>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Top Rated Section */}
+          <section>
+            <div className="mb-6">
+              <h2 className="flix-h2 mb-2">Top Rated</h2>
+              <p className="text-sm text-white/60">Highest rated movies by our community</p>
+            </div>
+
+            {loadingTopRated ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : topRated && topRated.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {topRated.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            ) : (
+              <div className="flix-card p-12 text-center">
+                <p className="text-white/60">No top rated movies available yet</p>
+              </div>
             )}
-          </div>
-        )}
-      </div>
+          </section>
+
+          {/* Trending Section */}
+          <section>
+            <div className="mb-6">
+              <h2 className="flix-h2 mb-2">Trending Now</h2>
+              <p className="text-sm text-white/60">Most popular movies this week</p>
+            </div>
+
+            {loadingTrending ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : trending && trending.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {trending.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            ) : (
+              <div className="flix-card p-12 text-center">
+                <p className="text-white/60">No trending movies available yet</p>
+              </div>
+            )}
+          </section>
+
+          {/* Most Reviewed Section */}
+          <section>
+            <div className="mb-6">
+              <h2 className="flix-h2 mb-2">Most Discussed</h2>
+              <p className="text-sm text-white/60">Movies with the most reviews and conversations</p>
+            </div>
+
+            {loadingMostReviewed ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : mostReviewed && mostReviewed.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {mostReviewed.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            ) : (
+              <div className="flix-card p-12 text-center">
+                <p className="text-white/60">No reviewed movies available yet</p>
+              </div>
+            )}
+          </section>
+
+          {/* Recently Added Section */}
+          <section>
+            <div className="mb-6">
+              <h2 className="flix-h2 mb-2">Recently Added</h2>
+              <p className="text-sm text-white/60">Latest additions to our collection</p>
+            </div>
+
+            {loadingRecent ? (
+              <div className="flex justify-center py-12">
+                <Spinner />
+              </div>
+            ) : recent && recent.length > 0 ? (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {recent.map((movie) => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            ) : (
+              <div className="flix-card p-12 text-center">
+                <p className="text-white/60">No recent movies available yet</p>
+              </div>
+            )}
+          </section>
+        </div>
+      </main>
+      <Footer />
     </div>
   )
 }

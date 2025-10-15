@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useGenres } from '@/hooks/useGenres'
+import { useGenres } from '@/hooks'
+import type { Genre } from '@/services/genres'
 
 interface MovieFiltersProps {
   onFilterChange: (filters: FilterState) => void
@@ -127,7 +128,7 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
               className="w-full rounded-lg bg-white/5 px-4 py-2.5 text-sm text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-flix-accent"
             >
               <option value="">All Genres</option>
-              {genres?.map((genre) => (
+              {genres?.map((genre: Genre) => (
                 <option key={genre.slug} value={genre.slug}>
                   {genre.name} {genre.movie_count ? `(${genre.movie_count})` : ''}
                 </option>
@@ -193,7 +194,7 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
           <span className="text-xs font-medium uppercase tracking-wide text-white/50">Active:</span>
           {localFilters.genre && (
             <span className="inline-flex items-center gap-1 rounded-full bg-flix-accent/20 px-3 py-1 text-xs font-medium text-flix-accent">
-              {genres?.find((g) => g.slug === localFilters.genre)?.name}
+              {genres?.find((g: Genre) => g.slug === localFilters.genre)?.name}
               <button
                 onClick={() => handleFilterUpdate('genre', '')}
                 className="ml-1 hover:text-white"
