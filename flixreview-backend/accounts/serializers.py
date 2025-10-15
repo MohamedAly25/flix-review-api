@@ -17,6 +17,26 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             'username', 'email', 'password', 'password_confirm', 'first_name', 'last_name', 'bio', 'profile_picture'
         )
 
+    def validate_email(self, value):
+        """
+        Check for existing email (case-insensitive) and provide user-friendly error.
+        """
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError(
+                'An account with this email already exists. Please log in or use a different email address.'
+            )
+        return value.lower()  # Normalize email to lowercase
+
+    def validate_username(self, value):
+        """
+        Check for existing username (case-insensitive) and provide user-friendly error.
+        """
+        if User.objects.filter(username__iexact=value).exists():
+            raise serializers.ValidationError(
+                'This username is already taken. Please choose a different username.'
+            )
+        return value
+
     def validate(self, attrs):
         if attrs['password'] != attrs['password_confirm']:
             raise serializers.ValidationError("Passwords don't match")

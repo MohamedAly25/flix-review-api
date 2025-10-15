@@ -80,6 +80,47 @@ class AccountsAPITests(APITestCase):
 		self.assertEqual(res.status_code, status.HTTP_200_OK)
 		self.assertFalse(User.objects.filter(email='tester@example.com').exists())
 
+	def test_duplicate_email_validation(self):
+		"""Test that duplicate email registration is prevented with user-friendly error."""
+		# Register first user
+		res = self.client.post(self.register_url, self.user_payload, format='json')
+		self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+		# Try to register with same email (different case)
+		duplicate_payload = {
+			'username': 'different_user',
+			'email': 'TESTER@EXAMPLE.COM',  # Same email, different case
+			'password': 'DifferentPass123!',
+			'password_confirm': 'DifferentPass123!'
+		}
+		res = self.client.post(self.register_url, duplicate_payload, format='json')
+		self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertFalse(res.data['success'])
+		self.assertIn('email', res.data['errors'])
+		error_message = res.data['errors']['email'][0]
+		self.assertIn('already exists', error_message.lower())
+		self.assertIn('log in', error_message.lower())
+
+	def test_duplicate_username_validation(self):
+		"""Test that duplicate username registration is prevented with user-friendly error."""
+		# Register first user
+		res = self.client.post(self.register_url, self.user_payload, format='json')
+		self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
+		# Try to register with same username (different case)
+		duplicate_payload = {
+			'username': 'TESTER',  # Same username, different case
+			'email': 'different@example.com',
+			'password': 'DifferentPass123!',
+			'password_confirm': 'DifferentPass123!'
+		}
+		res = self.client.post(self.register_url, duplicate_payload, format='json')
+		self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+		self.assertFalse(res.data['success'])
+		self.assertIn('username', res.data['errors'])
+		error_message = res.data['errors']['username'][0]
+		self.assertIn('already taken', error_message.lower())
+
 
 class SecurityTests(APITestCase):
 	"""Test rate limiting and security measures on authentication endpoints."""
