@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { useMovie } from '@/hooks/useMovies'
-import { useReviews, useCreateReview, useDeleteReview } from '@/hooks/useReviews'
+import { useReviewsByMovieTitle, useCreateReview, useDeleteReview, useUpdateReview } from '@/hooks/useReviews'
 import { recommendationsService } from '@/services/recommendations'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -17,12 +17,13 @@ import { Spinner } from '@/components/ui/Spinner'
 import { formatDate } from '@/utils/helpers'
 import { useAuth } from '@/contexts/AuthContext'
 import { SimilarGenreMovieCardModel } from '@/models/MovieCardModel'
+import { Review } from '@/types/review'
 
 export default function MovieDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const movieId = parseInt(id)
   const { data: movie, isLoading: movieLoading } = useMovie(movieId)
-  const { data: reviewsData, isLoading: reviewsLoading } = useReviews({ movie: movieId })
+  const { data: reviewsData, isLoading: reviewsLoading } = useReviewsByMovieTitle(movie?.title)
   const { data: similarMovies, isLoading: similarLoading } = useQuery({
     queryKey: ['similar-movies', movieId],
     queryFn: () => recommendationsService.getSimilarMovies(movieId, 20),
@@ -30,12 +31,22 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
   })
   const createReview = useCreateReview()
   const deleteReview = useDeleteReview()
+  const updateReview = useUpdateReview()
   const { user, isAuthenticated } = useAuth()
   const router = useRouter()
   const [showReviewForm, setShowReviewForm] = useState(false)
+  const [editingReview, setEditingReview] = useState<Review | null>(null)
   const [actionMessage, setActionMessage] = useState<string | null>(null)
 
-  const userHasReviewed = reviewsData?.results.some((review) => review.user === user?.username)
+  const userReview = useMemo(() => {
+    if (!reviewsData?.results || !user?.username) {
+      return null
+    }
+
+    return reviewsData.results.find((review) => review.user === user.username) ?? null
+  }, [reviewsData, user?.username])
+
+  const userHasReviewed = !!userReview
 
   const primaryGenre = movie?.genre ?? movie?.genres?.[0]?.name ?? null
 
@@ -78,29 +89,67 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
     )
   }
 
-  const handleSubmitReview = async (data: { movie_id: number; rating: number; content: string }) => {
-    await createReview.mutateAsync(data)
+  const handleSubmitReview = async ({ rating, content }: { rating: number; content: string }) => {
+    if (editingReview) {
+      await updateReview.mutateAsync({ id: editingReview.id, data: { rating, content } })
+      setActionMessage('Review updated successfully.')
+    } else {
+      await createReview.mutateAsync({ movie_id: movieId, rating, content })
+      setActionMessage('Review submitted successfully.')
+    }
+
+    setEditingReview(null)
     setShowReviewForm(false)
+  }
+
+  const handleEditReview = (review: Review) => {
+    if (!isAuthenticated || review.user !== user?.username) {
+      return
+    }
+
+    setEditingReview(review)
+    setShowReviewForm(true)
+
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
   }
 
   const handleDeleteReview = async (reviewId: number) => {
     if (confirm('Are you sure you want to delete this review?')) {
       await deleteReview.mutateAsync(reviewId)
+      setEditingReview(null)
+      setActionMessage('Review deleted.')
     }
   }
 
   const handleReviewClick = () => {
     if (!isAuthenticated) {
-      router.push(`/register?next=/movies/${movieId}`)
+      router.push(`/login?next=/movies/${movieId}`)
       return
     }
 
-    if (userHasReviewed) {
-      setActionMessage('You have already added a review for this movie.')
+    if (showReviewForm) {
+      setShowReviewForm(false)
+      setEditingReview(null)
       return
     }
 
-    setShowReviewForm((prev) => !prev)
+    if (userHasReviewed && userReview) {
+      setEditingReview(userReview)
+    } else {
+      setEditingReview(null)
+    }
+
+    setShowReviewForm(true)
+
+    if (typeof window !== 'undefined') {
+      window.requestAnimationFrame(() => {
+        document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }
   }
 
   const handleShare = async () => {
@@ -148,11 +197,13 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
     }
   }
 
-  const reviewButtonLabel = showReviewForm
-    ? 'Cancel'
-    : userHasReviewed
-      ? 'Review Submitted'
-      : 'Add Review'
+  const reviewButtonLabel = !isAuthenticated
+    ? 'Sign in to Review'
+    : showReviewForm
+      ? 'Cancel'
+      : userHasReviewed
+        ? 'Edit Your Review'
+        : 'Write a Review'
 
   return (
     <div className="min-h-screen flex flex-col flix-bg-primary">
@@ -250,7 +301,6 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
                   <Button
                     size="lg"
                     onClick={handleReviewClick}
-                    disabled={userHasReviewed && !showReviewForm}
                     className="bg-flix-red hover:bg-flix-red/80 text-white px-8 py-4 text-lg font-semibold shadow-xl"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -272,6 +322,12 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
                   </Button>
                 </div>
 
+                {isAuthenticated && userHasReviewed && (
+                  <p className="mt-3 text-sm text-white/70">
+                    You can edit or delete your original review below. One review per member keeps things fair.
+                  </p>
+                )}
+
                 {actionMessage && (
                   <div className="mt-4 px-4 py-3 bg-flix-red/90 text-white rounded backdrop-blur-sm inline-block">
                     {actionMessage}
@@ -283,17 +339,41 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Reviews Section */}
-        <div className="flix-container py-12">
+        <div className="flix-container py-12" id="reviews">
           <div className="max-w-6xl mx-auto">
             <h2 className="flix-heading-lg mb-8">Reviews</h2>
 
+            {!isAuthenticated && (
+              <div className="flix-card p-8 mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h3 className="flix-heading-md">Join the conversation</h3>
+                  <p className="flix-text-muted mt-2 max-w-xl">
+                    Sign in to publish your take and follow what others are saying about this title.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => router.push(`/login?next=/movies/${movieId}`)}
+                  className="px-6"
+                >
+                  Sign in to review
+                </Button>
+              </div>
+            )}
+
             {showReviewForm && (
               <div className="flix-card p-8 mb-8">
-                <h3 className="flix-heading-md mb-6">Write Your Review</h3>
+                <h3 className="flix-heading-md mb-6">
+                  {editingReview ? 'Edit Your Review' : 'Write Your Review'}
+                </h3>
                 <ReviewForm
-                  movieId={movieId}
                   onSubmit={handleSubmitReview}
-                  onCancel={() => setShowReviewForm(false)}
+                  onCancel={() => {
+                    setShowReviewForm(false)
+                    setEditingReview(null)
+                  }}
+                  initialRating={editingReview?.rating ?? 5}
+                  initialContent={editingReview?.content ?? ''}
+                  submitLabel={editingReview ? 'Update Review' : 'Submit Review'}
                 />
               </div>
             )}
@@ -308,8 +388,8 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
                   <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                   <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
                 </svg>
-                <p className="flix-text-secondary text-lg mb-2">No reviews yet</p>
-                <p className="flix-text-muted">Be the first to share your thoughts!</p>
+                <p className="flix-text-secondary text-lg mb-2">No member reviews yet</p>
+                <p className="flix-text-muted">Be the first to break the silence.</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -318,6 +398,7 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
                     key={review.id}
                     review={review}
                     canEdit={review.user === user?.username}
+                    onEdit={handleEditReview}
                     onDelete={handleDeleteReview}
                   />
                 ))}
@@ -333,7 +414,7 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
               <div>
                 <h2 className="flix-heading-lg">More Like This</h2>
                 <p className="flix-text-muted mt-2">
-                  {primaryGenre ? `${primaryGenre} · curated for you` : 'Curated by viewing patterns'}
+                  {primaryGenre ? `${primaryGenre} · handpicked for you` : 'Tailored recommendations'}
                 </p>
               </div>
               {similarGenreModels.length > 0 && (

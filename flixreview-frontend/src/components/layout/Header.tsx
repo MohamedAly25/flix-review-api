@@ -91,32 +91,34 @@ export function Header() {
               {isAuthenticated ? (
                 <>
                   <div className="flix-flex flix-items-center flix-gap-sm">
-                    {user?.profile_picture_url ? (
-                      <Image
-                        src={user.profile_picture_url}
-                        alt="Profile picture"
-                        width={32}
-                        height={32}
-                        className="flix-rounded-full flix-transition-fast flix-hover-lift"
-                        style={{ 
-                          objectFit: 'cover',
-                          border: '2px solid var(--flix-border)'
-                        }}
-                      />
-                    ) : (
-                      <div 
-                        className="flix-rounded-full flix-bg-secondary flix-flex flix-items-center flix-justify-center"
-                        style={{ 
-                          width: '32px', 
-                          height: '32px',
-                          border: '2px solid var(--flix-border)'
-                        }}
-                      >
-                        <svg className="flix-text-muted" style={{ width: '16px', height: '16px' }} fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
+                    <Link href="/account" className="flix-flex flix-items-center">
+                      {user?.profile_picture_url ? (
+                        <Image
+                          src={user.profile_picture_url}
+                          alt="Profile picture"
+                          width={32}
+                          height={32}
+                          className="flix-rounded-full flix-transition-fast flix-hover-lift flix-cursor-pointer"
+                          style={{ 
+                            objectFit: 'cover',
+                            border: '2px solid var(--flix-border)'
+                          }}
+                        />
+                      ) : (
+                        <div 
+                          className="flix-rounded-full flix-bg-secondary flix-flex flix-items-center flix-justify-center flix-cursor-pointer"
+                          style={{ 
+                            width: '32px', 
+                            height: '32px',
+                            border: '2px solid var(--flix-border)'
+                          }}
+                        >
+                          <svg className="flix-text-muted" style={{ width: '16px', height: '16px' }} fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </Link>
                     <span className="flix-body flix-hidden md:inline-block">
                       <span className="flix-text-muted">Welcome, </span>
                       <span className="flix-font-semibold">{user?.username}</span>

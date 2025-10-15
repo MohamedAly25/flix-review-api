@@ -1,21 +1,38 @@
 'use client'
 
-import { useState } from 'react'
-import { ReviewCreate } from '@/types/review'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { TextArea } from '@/components/ui/TextArea'
 
 interface ReviewFormProps {
-  movieId: number
-  onSubmit: (data: ReviewCreate) => Promise<void>
+  onSubmit: (data: { rating: number; content: string }) => Promise<void>
   onCancel?: () => void
+  initialRating?: number
+  initialContent?: string
+  submitLabel?: string
 }
 
-export function ReviewForm({ movieId, onSubmit, onCancel }: ReviewFormProps) {
-  const [rating, setRating] = useState(5)
-  const [content, setContent] = useState('')
+export function ReviewForm({
+  onSubmit,
+  onCancel,
+  initialRating = 5,
+  initialContent = '',
+  submitLabel = 'Submit Review',
+}: ReviewFormProps) {
+  const [rating, setRating] = useState(initialRating)
+  const [content, setContent] = useState(initialContent)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    setRating(initialRating)
+    setContent(initialContent)
+  }, [initialRating, initialContent])
+
+  const resetForm = () => {
+    setRating(initialRating)
+    setContent(initialContent)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,9 +45,8 @@ export function ReviewForm({ movieId, onSubmit, onCancel }: ReviewFormProps) {
 
     setIsSubmitting(true)
     try {
-      await onSubmit({ movie_id: movieId, rating, content: content.trim() })
-      setContent('')
-      setRating(5)
+      await onSubmit({ rating, content: content.trim() })
+      resetForm()
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } }
       setError(error.response?.data?.detail || 'Failed to submit review')
@@ -42,7 +58,7 @@ export function ReviewForm({ movieId, onSubmit, onCancel }: ReviewFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-white/80 mb-2">
           Your Rating
         </label>
         <div className="flex items-center gap-1">
@@ -55,8 +71,8 @@ export function ReviewForm({ movieId, onSubmit, onCancel }: ReviewFormProps) {
             >
               <svg
                 className={`w-8 h-8 ${
-                  star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                } hover:text-yellow-400 transition-colors`}
+                  star <= rating ? 'text-imdb-yellow fill-current drop-shadow-sm' : 'text-white/20'
+                } hover:text-imdb-yellow transition-colors`}
                 viewBox="0 0 20 20"
               >
                 <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
@@ -73,11 +89,14 @@ export function ReviewForm({ movieId, onSubmit, onCancel }: ReviewFormProps) {
         rows={4}
         placeholder="Share your thoughts about this movie..."
         error={error}
+        labelClassName="text-white/80"
+        errorClassName="text-red-400"
+        className="bg-white/5 border-white/10 text-white placeholder-white/40 focus:ring-red-500 focus:border-red-500"
       />
 
       <div className="flex gap-2">
         <Button type="submit" isLoading={isSubmitting}>
-          Submit Review
+          {submitLabel}
         </Button>
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>

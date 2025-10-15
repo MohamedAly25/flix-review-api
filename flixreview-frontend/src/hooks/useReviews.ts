@@ -2,6 +2,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { reviewsService } from '@/services/reviews'
 import { ReviewCreate, ReviewUpdate, ReviewFilters } from '@/types/review'
 
+export function useReviewsByMovieTitle(title?: string, filters?: ReviewFilters) {
+  return useQuery({
+    queryKey: ['reviews', 'by-title', title, filters ?? null],
+    queryFn: () => reviewsService.getReviewsByMovieTitle(title!, filters),
+    enabled: Boolean(title),
+  })
+}
+
 export function useReviews(params?: ReviewFilters) {
   return useQuery({
     queryKey: ['reviews', params],

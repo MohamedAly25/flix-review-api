@@ -37,8 +37,10 @@ export const reviewsService = {
   },
 
   // Get Reviews by Movie Title
-  async getReviewsByMovieTitle(title: string): Promise<ReviewList> {
-    const response = await apiClient.get(`/reviews/movie/${encodeURIComponent(title)}/`)
+  async getReviewsByMovieTitle(title: string, params?: ReviewFilters): Promise<ReviewList> {
+    const response = await apiClient.get(`/reviews/movie/${encodeURIComponent(title)}/`, {
+      params,
+    })
     return response.data.data || response.data
   },
 }

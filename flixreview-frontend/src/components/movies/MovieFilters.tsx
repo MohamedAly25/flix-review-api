@@ -3,10 +3,12 @@
 import { useEffect, useState } from 'react'
 import { useGenres } from '@/hooks'
 import type { Genre } from '@/services/genres'
+import { cn } from '@/utils/helpers'
 
 interface MovieFiltersProps {
   onFilterChange: (filters: FilterState) => void
   currentFilters: FilterState
+  className?: string
 }
 
 export interface FilterState {
@@ -37,7 +39,7 @@ const RATING_OPTIONS = [
   { value: 1, label: '1+ Stars' },
 ]
 
-export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersProps) {
+export function MovieFilters({ onFilterChange, currentFilters, className }: MovieFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false)
   const { data: genres } = useGenres()
   const [localFilters, setLocalFilters] = useState<FilterState>(currentFilters)
@@ -64,8 +66,13 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
 
   const hasActiveFilters = localFilters.genre || localFilters.year || localFilters.rating
 
+  const selectBaseClasses = 'w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm text-white outline-none transition-all focus:border-flix-accent focus:bg-white/20 focus:ring-0'
+
   return (
-    <div className="flix-card p-6 space-y-4">
+    <div className={cn(
+      'flix-card space-y-5 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_72px_rgba(0,0,0,0.35)] backdrop-blur-lg transition-shadow',
+      className,
+    )}>
       {/* Search Bar */}
       <div className="relative">
         <svg
@@ -86,14 +93,14 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
           placeholder="Search movies by title or description..."
           value={localFilters.search}
           onChange={(e) => handleFilterUpdate('search', e.target.value)}
-          className="w-full rounded-lg bg-white/5 py-3 pl-12 pr-4 text-white placeholder-white/40 outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-flix-accent"
+          className="w-full rounded-full border border-white/10 bg-white/10 py-3 pl-12 pr-4 text-white placeholder-white/40 outline-none transition-all focus:border-flix-accent focus:bg-white/20"
         />
       </div>
 
       {/* Filter Toggle */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between rounded-lg bg-white/5 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
+        className="flex w-full items-center justify-between rounded-full border border-white/10 bg-white/10 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
       >
         <span className="flex items-center gap-2">
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,11 +132,15 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
             <select
               value={localFilters.genre}
               onChange={(e) => handleFilterUpdate('genre', e.target.value)}
-              className="w-full rounded-lg bg-white/5 px-4 py-2.5 text-sm text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-flix-accent"
+              className={cn(selectBaseClasses, 'pr-8')}
             >
-              <option value="">All Genres</option>
+              <option value="" style={{ color: '#111827', backgroundColor: '#F9FAFB' }}>All Genres</option>
               {genres?.map((genre: Genre) => (
-                <option key={genre.slug} value={genre.slug}>
+                <option
+                  key={genre.slug}
+                  value={genre.slug}
+                  style={{ color: '#111827', backgroundColor: '#F9FAFB' }}
+                >
                   {genre.name} {genre.movie_count ? `(${genre.movie_count})` : ''}
                 </option>
               ))}
@@ -142,11 +153,15 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
             <select
               value={localFilters.year ?? ''}
               onChange={(e) => handleFilterUpdate('year', e.target.value ? parseInt(e.target.value) : undefined)}
-              className="w-full rounded-lg bg-white/5 px-4 py-2.5 text-sm text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-flix-accent"
+              className={cn(selectBaseClasses, 'pr-8')}
             >
-              <option value="">All Years</option>
+              <option value="" style={{ color: '#111827', backgroundColor: '#F9FAFB' }}>All Years</option>
               {YEAR_OPTIONS.map((year) => (
-                <option key={year} value={year}>
+                <option
+                  key={year}
+                  value={year}
+                  style={{ color: '#111827', backgroundColor: '#F9FAFB' }}
+                >
                   {year}
                 </option>
               ))}
@@ -159,11 +174,15 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
             <select
               value={localFilters.rating ?? ''}
               onChange={(e) => handleFilterUpdate('rating', e.target.value ? parseInt(e.target.value) : undefined)}
-              className="w-full rounded-lg bg-white/5 px-4 py-2.5 text-sm text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-flix-accent"
+              className={cn(selectBaseClasses, 'pr-8')}
             >
-              <option value="">Any Rating</option>
+              <option value="" style={{ color: '#111827', backgroundColor: '#F9FAFB' }}>Any Rating</option>
               {RATING_OPTIONS.map((rating) => (
-                <option key={rating.value} value={rating.value}>
+                <option
+                  key={rating.value}
+                  value={rating.value}
+                  style={{ color: '#111827', backgroundColor: '#F9FAFB' }}
+                >
                   {rating.label}
                 </option>
               ))}
@@ -176,10 +195,14 @@ export function MovieFilters({ onFilterChange, currentFilters }: MovieFiltersPro
             <select
               value={localFilters.ordering}
               onChange={(e) => handleFilterUpdate('ordering', e.target.value)}
-              className="w-full rounded-lg bg-white/5 px-4 py-2.5 text-sm text-white outline-none ring-1 ring-white/10 transition-all focus:bg-white/10 focus:ring-flix-accent"
+              className={cn(selectBaseClasses, 'pr-8')}
             >
               {SORT_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
+                <option
+                  key={option.value}
+                  value={option.value}
+                  style={{ color: '#111827', backgroundColor: '#F9FAFB' }}
+                >
                   {option.label}
                 </option>
               ))}

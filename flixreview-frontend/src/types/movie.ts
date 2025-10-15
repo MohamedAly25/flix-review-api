@@ -84,4 +84,8 @@ export interface MovieFilters {
   page_size?: number
   tmdb_id?: number
   imdb_id?: string
+  min_rating?: number
+  max_rating?: number
+  year_from?: number
+  year_to?: number
 }
