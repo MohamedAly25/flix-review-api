@@ -8,7 +8,7 @@ export interface PaginatedResponse<T> {
 export interface ApiError {
   detail?: string
   message?: string
-  errors?: Record<string, string[]>
+  errors?: Record<string, string | string[]>
 }
 
 export interface PaginationParams {

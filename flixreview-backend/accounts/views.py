@@ -17,11 +17,11 @@ from .serializers import (
 User = get_user_model()
 
 
-@method_decorator(ratelimit(key='ip', rate='3/h', method='POST'), name='dispatch')
+@method_decorator(ratelimit(key='ip', rate='30/h', method='POST'), name='dispatch')
 class UserRegistrationView(ApiResponseMixin, generics.CreateAPIView):
 	"""
 	User registration endpoint with rate limiting.
-	Rate limit: 3 registration attempts per hour per IP address.
+	Rate limit: 30 registration attempts per hour per IP address.
 	"""
 	queryset = User.objects.all()
 	serializer_class = UserRegistrationSerializer

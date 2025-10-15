@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import type { AxiosError } from 'axios'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import type { ApiError } from '@/types/api'
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -21,8 +23,13 @@ export default function RegisterPage() {
   const { register, isAuthenticated } = useAuth()
   const router = useRouter()
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/movies')
+    }
+  }, [isAuthenticated, router])
+
   if (isAuthenticated) {
-    router.push('/movies')
     return null
   }
 
@@ -52,21 +59,46 @@ export default function RegisterPage() {
         password_confirm: formData.password_confirm,
       })
     } catch (err) {
-      const error = err as {
-        response?: {
-          data?: {
-            email?: string[]
-            username?: string[]
-            password?: string[]
-          }
+  const axiosError = err as AxiosError<ApiError>
+  const data = axiosError.response?.data
+  const errors = (data?.errors ?? {}) as Record<string, unknown>
+
+      const extractMessage = (value: unknown): string | undefined => {
+        if (!value) return undefined
+        if (Array.isArray(value)) {
+          return value[0]
+        }
+        if (typeof value === 'string') {
+          return value
+        }
+        return undefined
+      }
+
+      const prioritizedKeys = [
+        'email',
+        'username',
+        'password',
+        'password_confirm',
+        'non_field_errors',
+        'rate_limit',
+      ]
+
+      let message = prioritizedKeys
+        .map((key) => extractMessage(errors[key]))
+        .find((msg) => msg)
+
+      if (!message) {
+        for (const value of Object.values(errors)) {
+          message = extractMessage(value)
+          if (message) break
         }
       }
-      const errorMessage =
-        error.response?.data?.email?.[0] ||
-        error.response?.data?.username?.[0] ||
-        error.response?.data?.password?.[0] ||
-        'Registration failed. Please try again.'
-      setError(errorMessage)
+
+      if (!message) {
+        message = data?.message || data?.detail || 'Registration failed. Please try again.'
+      }
+
+      setError(message)
     } finally {
       setIsLoading(false)
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { formatDate } from '@/utils/helpers'
 import { useAuth } from '@/contexts/AuthContext'
+import { SimilarGenreMovieCardModel } from '@/models/MovieCardModel'
 
 export default function MovieDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -24,7 +25,7 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
   const { data: reviewsData, isLoading: reviewsLoading } = useReviews({ movie: movieId })
   const { data: similarMovies, isLoading: similarLoading } = useQuery({
     queryKey: ['similar-movies', movieId],
-    queryFn: () => recommendationsService.getSimilarMovies(movieId, 6),
+    queryFn: () => recommendationsService.getSimilarMovies(movieId, 20),
     enabled: !!movieId,
   })
   const createReview = useCreateReview()
@@ -35,6 +36,16 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
   const [actionMessage, setActionMessage] = useState<string | null>(null)
 
   const userHasReviewed = reviewsData?.results.some((review) => review.user === user?.username)
+
+  const primaryGenre = movie?.genre ?? movie?.genres?.[0]?.name ?? null
+
+  const similarGenreModels = useMemo(() => {
+    if (!similarMovies) {
+      return []
+    }
+
+    return SimilarGenreMovieCardModel.fromMovies(similarMovies, primaryGenre).slice(0, 10)
+  }, [primaryGenre, similarMovies])
 
   useEffect(() => {
     if (!actionMessage) return
@@ -243,16 +254,39 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
         </div>
 
         {/* Similar Movies Section */}
-        {!similarLoading && similarMovies && similarMovies.length > 0 && (
-          <div className="mt-12">
-            <h2 className="flix-h2 mb-6">Similar Movies</h2>
-            <div className="flix-movies-grid">
-              {similarMovies.map((similarMovie) => (
-                <MovieCard key={similarMovie.id} movie={similarMovie} />
-              ))}
+        <section className="mt-12">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="flix-h2">More Like This</h2>
+              <p className="text-xs uppercase tracking-wide text-white/60">
+                {primaryGenre ? `${primaryGenre} · curated for you` : 'Curated by viewing patterns'}
+              </p>
             </div>
+            {similarGenreModels.length > 0 && (
+              <span className="text-xs uppercase tracking-wide text-white/40">
+                Showing top {similarGenreModels.length} matches
+              </span>
+            )}
           </div>
-        )}
+
+          <div className="mt-6">
+            {similarLoading ? (
+              <div className="flex justify-center py-10">
+                <Spinner />
+              </div>
+            ) : similarGenreModels.length === 0 ? (
+              <p className="flix-muted text-sm text-center sm:text-left">
+                We could not find closely related titles in this genre yet. Check back soon for more picks.
+              </p>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-6">
+                {similarGenreModels.map((model) => (
+                  <MovieCard key={model.id} movie={model.toMovie()} />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
     </div>
