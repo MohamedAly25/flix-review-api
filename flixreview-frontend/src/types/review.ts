@@ -39,7 +39,7 @@ export interface ReviewList extends PaginatedResponse<Review> {
 export interface ReviewFilters {
   movie?: number
   movie_id?: number
-  user?: number
+  user?: number | string  // Can be user ID or username
   rating?: number
   ordering?: string
   page?: number

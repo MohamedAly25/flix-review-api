@@ -10,10 +10,11 @@ export function useReviewsByMovieTitle(title?: string, filters?: ReviewFilters) 
   })
 }
 
-export function useReviews(params?: ReviewFilters) {
+export function useUserReviews(username?: string) {
   return useQuery({
-    queryKey: ['reviews', params],
-    queryFn: () => reviewsService.getReviews(params),
+    queryKey: ['reviews', 'user', username],
+    queryFn: () => reviewsService.getReviews({ user: username }),
+    enabled: Boolean(username),
   })
 }
 

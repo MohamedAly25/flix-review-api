@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useMovies } from '@/hooks/useMovies'
+import { useUserReviews } from '@/hooks/useReviews'
 import { MovieCard } from '@/components/movies/MovieCard'
 import { MovieFilters, type FilterState } from '@/components/movies/MovieFilters'
 import { MovieHero } from '@/components/movies/MovieHero'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Spinner } from '@/components/ui/Spinner'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function MoviesPage() {
   const [filters, setFilters] = useState<FilterState>({
@@ -16,6 +18,7 @@ export default function MoviesPage() {
     ordering: '-avg_rating',
   })
   const [page, setPage] = useState(1)
+  const { user, isAuthenticated } = useAuth()
 
   const isDefaultFiltersActive =
     filters.search === '' &&
@@ -38,19 +41,95 @@ export default function MoviesPage() {
       : {}),
   })
 
+  // Get user reviews for genre preference calculation
+  const { data: userReviewsData } = useUserReviews(user?.username)
+
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters)
     setPage(1) // Reset to first page when filters change
   }
 
   const movies = data?.results ?? []
+
+  // Calculate user's genre preferences based on their reviews
+  const genrePreferences = useMemo(() => {
+    if (!userReviewsData?.results || !isAuthenticated) {
+      return {}
+    }
+
+    const genreCounts: Record<string, number> = {}
+    const totalReviews = userReviewsData.results.length
+
+    userReviewsData.results.forEach(review => {
+      const movieGenres = review.movie.genres?.map(g => g.name) || [review.movie.genre]
+      movieGenres.forEach(genre => {
+        if (genre) {
+          genreCounts[genre] = (genreCounts[genre] || 0) + 1
+        }
+      })
+    })
+
+    // Convert to preference scores (0-1 scale)
+    const preferences: Record<string, number> = {}
+    Object.entries(genreCounts).forEach(([genre, count]) => {
+      preferences[genre] = count / totalReviews
+    })
+
+    return preferences
+  }, [userReviewsData, isAuthenticated])
+
   const totalPages = data?.count ? Math.ceil(data.count / 12) : 0
   const currentPageCount = movies.length
   const showingStart = currentPageCount ? (page - 1) * 12 + 1 : 0
   const showingEnd = currentPageCount ? Math.min((page - 1) * 12 + currentPageCount, data?.count ?? 0) : 0
   const shouldShowHero = !isLoading && !error && page === 1 && isDefaultFiltersActive && movies.length > 1
-  const featuredMovie = shouldShowHero ? movies[0] : null
-  const gridMovies = shouldShowHero ? movies.slice(1) : movies
+
+  // Select featured movie with genre preference weighting
+  const featuredMovie = useMemo(() => {
+    if (!shouldShowHero || movies.length === 0) return null
+
+    if (!isAuthenticated || Object.keys(genrePreferences).length === 0) {
+      // Simple random selection for non-authenticated users or users with no reviews
+      return movies[Math.floor(Math.random() * movies.length)]
+    }
+
+    // Weighted random selection based on genre preferences
+    const weightedMovies = movies.map(movie => {
+      const movieGenres = movie.genres?.map(g => g.name) || [movie.genre]
+      let weight = 0.1 // Base weight for all movies
+
+      movieGenres.forEach(genre => {
+        if (genre && genrePreferences[genre]) {
+          weight += genrePreferences[genre] * 2 // Double weight for preferred genres
+        }
+      })
+
+      return { movie, weight }
+    })
+
+    // Normalize weights to probabilities
+    const totalWeight = weightedMovies.reduce((sum, item) => sum + item.weight, 0)
+    const normalizedMovies = weightedMovies.map(item => ({
+      ...item,
+      probability: item.weight / totalWeight
+    }))
+
+    // Select movie based on weighted probability
+    const random = Math.random()
+    let cumulativeProbability = 0
+
+    for (const item of normalizedMovies) {
+      cumulativeProbability += item.probability
+      if (random <= cumulativeProbability) {
+        return item.movie
+      }
+    }
+
+    // Fallback to first movie if something goes wrong
+    return movies[0]
+  }, [movies, shouldShowHero, genrePreferences, isAuthenticated])
+
+  const gridMovies = shouldShowHero ? movies.filter(movie => movie.id !== featuredMovie?.id) : movies
   const hasNoResults = !isLoading && !error && movies.length === 0
 
   return (
@@ -69,7 +148,7 @@ export default function MoviesPage() {
 
             {featuredMovie && (
               <div className="flix-mt-xl">
-                <MovieHero movie={featuredMovie} />
+                <MovieHero movie={featuredMovie} badgeLabel="Random Pick" />
               </div>
             )}
 
