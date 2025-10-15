@@ -3,12 +3,15 @@
 import { use, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
 import { useMovie } from '@/hooks/useMovies'
 import { useReviews, useCreateReview, useDeleteReview } from '@/hooks/useReviews'
+import { recommendationsService } from '@/services/recommendations'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ReviewCard } from '@/components/reviews/ReviewCard'
 import { ReviewForm } from '@/components/reviews/ReviewForm'
+import { MovieCard } from '@/components/movies/MovieCard'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
 import { formatDate } from '@/utils/helpers'
@@ -19,6 +22,11 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
   const movieId = parseInt(id)
   const { data: movie, isLoading: movieLoading } = useMovie(movieId)
   const { data: reviewsData, isLoading: reviewsLoading } = useReviews({ movie: movieId })
+  const { data: similarMovies, isLoading: similarLoading } = useQuery({
+    queryKey: ['similar-movies', movieId],
+    queryFn: () => recommendationsService.getSimilarMovies(movieId, 6),
+    enabled: !!movieId,
+  })
   const createReview = useCreateReview()
   const deleteReview = useDeleteReview()
   const { user, isAuthenticated } = useAuth()
@@ -233,6 +241,18 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
             </div>
           )}
         </div>
+
+        {/* Similar Movies Section */}
+        {!similarLoading && similarMovies && similarMovies.length > 0 && (
+          <div className="mt-12">
+            <h2 className="flix-h2 mb-6">Similar Movies</h2>
+            <div className="flix-movies-grid">
+              {similarMovies.map((similarMovie) => (
+                <MovieCard key={similarMovie.id} movie={similarMovie} />
+              ))}
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </div>

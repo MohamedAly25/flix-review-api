@@ -23,6 +23,18 @@ export function Header() {
               >
                 Movies
               </Link>
+              <Link
+                href="/genres"
+                className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+              >
+                Genres
+              </Link>
+              <Link
+                href="/recommendations"
+                className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+              >
+                Discover
+              </Link>
               {isAuthenticated && (
                 <>
                   <Link

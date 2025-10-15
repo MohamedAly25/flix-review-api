@@ -29,4 +29,16 @@ export const reviewsService = {
   async deleteReview(id: number): Promise<void> {
     await apiClient.delete(`/reviews/${id}/`)
   },
+
+  // Search Reviews
+  async searchReviews(query: string): Promise<ReviewList> {
+    const response = await apiClient.get('/reviews/search/', { params: { q: query } })
+    return response.data.data || response.data
+  },
+
+  // Get Reviews by Movie Title
+  async getReviewsByMovieTitle(title: string): Promise<ReviewList> {
+    const response = await apiClient.get(`/reviews/movie/${encodeURIComponent(title)}/`)
+    return response.data.data || response.data
+  },
 }

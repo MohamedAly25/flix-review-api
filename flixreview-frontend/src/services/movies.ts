@@ -29,4 +29,20 @@ export const moviesService = {
   async deleteMovie(id: number): Promise<void> {
     await apiClient.delete(`/movies/${id}/`)
   },
+
+  // TMDB Integration
+  async searchTMDB(query: string): Promise<any> {
+    const response = await apiClient.get('/movies/search-tmdb/', { params: { query } })
+    return response.data.data || response.data
+  },
+
+  async importFromTMDB(tmdbId: number): Promise<Movie> {
+    const response = await apiClient.post('/movies/import-tmdb/', { tmdb_id: tmdbId })
+    return response.data.data || response.data
+  },
+
+  async syncWithTMDB(id: number): Promise<any> {
+    const response = await apiClient.post(`/movies/${id}/sync-tmdb/`)
+    return response.data.data || response.data
+  },
 }

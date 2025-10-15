@@ -80,4 +80,88 @@ export const recommendationsService = {
     const movies = await getTopRated(limit)
     return { movies, mode: 'top-rated' }
   },
+
+  // Top Rated Movies
+  async getTopRated(limit = 10): Promise<Movie[]> {
+    return getTopRated(limit)
+  },
+
+  // Trending Movies
+  async getTrending(limit = 10): Promise<Movie[]> {
+    const response = await apiClient.get('/recommendations/trending/', { params: { limit } })
+    return await unwrapMovies(response.data?.data)
+  },
+
+  // Most Reviewed Movies
+  async getMostReviewed(limit = 10): Promise<Movie[]> {
+    const response = await apiClient.get('/recommendations/most-reviewed/', { params: { limit } })
+    return await unwrapMovies(response.data?.data)
+  },
+
+  // Recent Movies
+  async getRecent(limit = 10): Promise<Movie[]> {
+    const response = await apiClient.get('/recommendations/recent/', { params: { limit } })
+    return await unwrapMovies(response.data?.data)
+  },
+
+  // Personalized Recommendations
+  async getPersonalizedRecommendations(limit = 10): Promise<{ movies: Movie[]; algorithm?: string }> {
+    return getPersonalized(limit)
+  },
+
+  // Similar Movies
+  async getSimilarMovies(movieId: number, limit = 5): Promise<Movie[]> {
+    const response = await apiClient.get(`/recommendations/movies/${movieId}/similar/`, {
+      params: { limit },
+    })
+    const data = response.data?.data
+    const similarMovies = Array.isArray(data?.similar_movies) ? data.similar_movies : []
+    
+    const movieIds = similarMovies
+      .map((item: any) => item.movie_id || item.id)
+      .filter((id: unknown): id is number => typeof id === 'number')
+
+    if (movieIds.length === 0) return []
+
+    const movies = await Promise.all(
+      movieIds.map(async (id: number) => {
+        try {
+          return await moviesService.getMovie(id)
+        } catch (error) {
+          console.warn(`Failed to load similar movie ${id}`, error)
+          return null
+        }
+      })
+    )
+
+    return movies.filter((movie): movie is Movie => movie !== null)
+  },
+
+  // User Taste Profile
+  async getTasteProfile(): Promise<any> {
+    const response = await apiClient.get('/recommendations/profile/taste/')
+    return response.data?.data || response.data
+  },
+
+  // Recommendations Dashboard
+  async getDashboard(): Promise<{
+    top_rated: Movie[]
+    trending: Movie[]
+    personalized: Movie[]
+  }> {
+    const response = await apiClient.get('/recommendations/dashboard/')
+    const data = response.data?.data || response.data
+    
+    return {
+      top_rated: await unwrapMovies(data.top_rated),
+      trending: await unwrapMovies(data.trending),
+      personalized: await unwrapMovies(data.personalized),
+    }
+  },
+
+  // Clear Cache (Admin only)
+  async clearCache(): Promise<any> {
+    const response = await apiClient.post('/recommendations/cache/clear/')
+    return response.data?.data || response.data
+  },
 }
