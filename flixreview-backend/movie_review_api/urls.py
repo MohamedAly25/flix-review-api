@@ -21,11 +21,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
 from common.views import health_check
+from .admin_site import admin_site
 
 urlpatterns = [
     path('', lambda request: redirect('/api/docs/'), name='home'),
     path('health/', health_check, name='health-check'),
-    path('admin/', admin.site.urls),
+    path('admin/', admin_site.urls),
     path('api/users/', include('accounts.urls')),
     path('api/movies/', include('movies.urls')),
     path('api/reviews/', include('reviews.urls')),

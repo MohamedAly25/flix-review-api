@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
@@ -17,10 +17,11 @@ export default function LoginPage() {
   const { login, isAuthenticated } = useAuth()
   const router = useRouter()
 
-  if (isAuthenticated) {
-    router.push('/movies')
-    return null
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/movies')
+    }
+  }, [isAuthenticated, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

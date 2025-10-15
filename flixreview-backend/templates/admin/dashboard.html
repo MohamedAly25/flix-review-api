@@ -1,0 +1,139 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Dashboard - {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">Home</a>
+    &rsaquo; Dashboard
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>FlixReview Dashboard</h2>
+
+        <!-- Statistics Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+
+            <!-- Users Stats -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0; color: #333;">👥 Users</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><strong>Total:</strong> {{ stats.users.total }}</div>
+                    <div><strong>Active:</strong> {{ stats.users.active }}</div>
+                    <div><strong>Staff:</strong> {{ stats.users.staff }}</div>
+                    <div><strong>New (7d):</strong> {{ stats.users.new_7d }}</div>
+                    <div><strong>New (30d):</strong> {{ stats.users.new_30d }}</div>
+                </div>
+            </div>
+
+            <!-- Movies Stats -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0; color: #333;">🎬 Movies</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><strong>Total:</strong> {{ stats.movies.total }}</div>
+                    <div><strong>With Reviews:</strong> {{ stats.movies.with_reviews }}</div>
+                    <div><strong>Avg Rating:</strong> {{ stats.movies.avg_rating }}/5</div>
+                </div>
+            </div>
+
+            <!-- Reviews Stats -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0; color: #333;">⭐ Reviews</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><strong>Total:</strong> {{ stats.reviews.total }}</div>
+                    <div><strong>Last 7d:</strong> {{ stats.reviews.last_7d }}</div>
+                    <div><strong>Last 30d:</strong> {{ stats.reviews.last_30d }}</div>
+                    <div><strong>Avg Rating:</strong> {{ stats.reviews.avg_rating }}/5</div>
+                </div>
+            </div>
+
+            <!-- Genres Stats -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0; color: #333;">🏷️ Genres</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><strong>Total:</strong> {{ stats.genres.total }}</div>
+                    <div><strong>With Movies:</strong> {{ stats.genres.with_movies }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Distribution -->
+        <div style="margin-bottom: 30px;">
+            <h3>📊 Rating Distribution</h3>
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                {% for rating_data in rating_distribution %}
+                    <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                        <span style="width: 60px; font-weight: bold;">{{ rating_data.rating }} ⭐</span>
+                        <div style="flex: 1; background: #e9ecef; height: 20px; border-radius: 10px; margin: 0 10px;">
+                            <div style="background: #007bff; height: 100%; border-radius: 10px; width: 20%;"></div>
+                        </div>
+                        <span style="width: 40px; text-align: right;">{{ rating_data.count }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+
+            <!-- Recent Users -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0;">🆕 Recent Users</h3>
+                {% for user in recent_activity.users %}
+                    <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <strong>{{ user.email }}</strong><br>
+                        <small style="color: #666;">{{ user.date_joined|date:"M d, Y H:i" }}</small>
+                    </div>
+                {% empty %}
+                    <p style="color: #666; font-style: italic;">No recent users</p>
+                {% endfor %}
+            </div>
+
+            <!-- Recent Reviews -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0;">💬 Recent Reviews</h3>
+                {% for review in recent_activity.reviews %}
+                    <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <strong>{{ review.user.email }}</strong> reviewed <em>{{ review.movie.title }}</em><br>
+                        <span style="color: #007bff;">{{ review.rating }}/5 ⭐</span><br>
+                        <small style="color: #666;">{{ review.created_at|date:"M d, Y H:i" }}</small>
+                    </div>
+                {% empty %}
+                    <p style="color: #666; font-style: italic;">No recent reviews</p>
+                {% endfor %}
+            </div>
+
+            <!-- Recent Movies -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0;">🎬 Recent Movies</h3>
+                {% for movie in recent_activity.movies %}
+                    <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <strong>{{ movie.title }}</strong><br>
+                        <small style="color: #666;">{{ movie.release_date|date:"Y" }} • Rating: {{ movie.avg_rating }}/5</small>
+                    </div>
+                {% empty %}
+                    <p style="color: #666; font-style: italic;">No recent movies</p>
+                {% endfor %}
+            </div>
+
+            <!-- Top Rated Movies -->
+            <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #f8f9fa;">
+                <h3 style="margin: 0 0 15px 0;">🏆 Top Rated Movies</h3>
+                {% for movie in top_movies %}
+                    <div style="padding: 8px 0; border-bottom: 1px solid #eee;">
+                        <strong>{{ movie.title }}</strong><br>
+                        <span style="color: #28a745;">{{ movie.avg_rating }}/5 ⭐</span>
+                        <small style="color: #666;">({{ movie.reviews.count }} reviews)</small>
+                    </div>
+                {% empty %}
+                    <p style="color: #666; font-style: italic;">No rated movies yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

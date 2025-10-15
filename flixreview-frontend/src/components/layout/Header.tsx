@@ -2,13 +2,26 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { SearchOverlay } from '@/components/search/SearchOverlay'
 
 export function Header() {
   const { user, isAuthenticated, logout } = useAuth()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  // Add global keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setIsSearchOpen(true)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   return (
     <>
@@ -137,22 +150,6 @@ export function Header() {
 
       {/* Search Overlay */}
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-
-      {/* Global keyboard shortcut for search */}
-      {typeof window !== 'undefined' && (
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              document.addEventListener('keydown', function(e) {
-                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-                  e.preventDefault();
-                  window.dispatchEvent(new CustomEvent('openSearch'));
-                }
-              });
-            `,
-          }}
-        />
-      )}
     </>
   )
 }
