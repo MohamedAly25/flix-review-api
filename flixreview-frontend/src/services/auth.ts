@@ -3,7 +3,7 @@ import { User, LoginCredentials, RegisterData, TokenResponse } from '@/types/aut
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
-    const response = await apiClient.post('/accounts/login/', credentials)
+    const response = await apiClient.post('/users/login/', credentials)
     // Backend wraps response in {success, message, data} format
     const data = response.data.data || response.data
     const { access, refresh } = data
@@ -17,32 +17,26 @@ export const authService = {
   },
 
   async register(data: RegisterData): Promise<User> {
-    const response = await apiClient.post('/accounts/register/', data)
+    const response = await apiClient.post('/users/register/', data)
     // Backend wraps response in {success, message, data} format
     return response.data.data || response.data
   },
 
   async logout(): Promise<void> {
     if (typeof window !== 'undefined') {
-      const refreshToken = localStorage.getItem('refresh_token')
-
-      try {
-        await apiClient.post('/accounts/logout/', { refresh: refreshToken })
-      } finally {
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
-      }
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
     }
   },
 
   async getCurrentUser(): Promise<User> {
-    const response = await apiClient.get('/accounts/me/')
+    const response = await apiClient.get('/users/profile/')
     // Backend wraps response in {success, message, data} format
     return response.data.data || response.data
   },
 
   async updateProfile(data: Partial<User> | FormData): Promise<User> {
-    const response = await apiClient.patch('/accounts/me/', data)
+    const response = await apiClient.patch('/users/profile/', data)
     // Backend wraps response in {success, message, data} format
     return response.data.data || response.data
   },
