@@ -10,7 +10,6 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import type { ApiError } from '@/types/api'
-import styles from './register.module.css'
 
 type PasswordStrength = 'empty' | 'weak' | 'medium' | 'strong'
 
@@ -138,31 +137,31 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className={styles.authPage}>
+    <div className="auth-page-shell">
       <Header />
-      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md">
-        <div className={`flix-fade-in ${styles.authContainer}`}>
-          <div className={`flix-card flix-p-xl ${styles.authCard}`}>
-            <div className={styles.authHeader}>
-              <h2 className={`flix-title flix-text-center flix-mb-lg ${styles.authTitle}`}>
+      <main className="auth-main-content">
+        <div className="auth-container">
+          <div className="auth-card">
+            <div className="auth-header">
+              <h2 className="auth-title">
                 Create your account
               </h2>
-              <p className={`flix-body flix-text-center flix-text-secondary ${styles.authSubtitle}`}>
+              <p className="auth-subtitle">
                 Join FlixReview and start discovering amazing movies
               </p>
             </div>
             
-            <form className={`flix-flex flix-flex-col flix-gap-lg ${styles.authForm}`} onSubmit={handleSubmit}>
+            <form className="auth-form" onSubmit={handleSubmit}>
               {error && (
-                <div className={`flix-alert flix-alert-error ${styles.authAlert}`} role="alert" aria-live="assertive">
+                <div className="auth-alert" role="alert" aria-live="assertive">
                   <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span className={styles.authErrorText}>{error}</span>
+                  <span className="auth-error-text">{error}</span>
                 </div>
               )}
 
-              <div className={styles.authFormGroup}>
+              <div className="auth-form-group">
                 <Input
                   label="Email address"
                   name="email"
@@ -173,11 +172,10 @@ export default function RegisterPage() {
                   autoComplete="email"
                   autoCapitalize="none"
                   spellCheck={false}
-                  className={styles.authInput}
                 />
               </div>
 
-              <div className={styles.authFormGroup}>
+              <div className="auth-form-group">
                 <Input
                   label="Username"
                   name="username"
@@ -188,12 +186,11 @@ export default function RegisterPage() {
                   autoComplete="username"
                   autoCapitalize="none"
                   spellCheck={false}
-                  className={styles.authInput}
                 />
               </div>
 
-              <div className={styles.authFormGroup}>
-                <div className="relative">
+              <div className="auth-form-group">
+                <div className="auth-input-wrapper">
                   <Input
                     label="Password"
                     name="password"
@@ -203,12 +200,12 @@ export default function RegisterPage() {
                     required
                     autoComplete="new-password"
                     aria-describedby="password-strength-message"
-                    className={`${styles.authInput} pr-12`}
+                    className="pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className={styles.authPasswordToggle}
+                    className="auth-password-toggle"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -223,11 +220,11 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
-                <p id="password-strength-message" data-strength={passwordStrength} className={`flix-small ${strengthState.tone} ${styles.authPasswordStrength}`}>{strengthState.label}</p>
+                <p id="password-strength-message" data-strength={passwordStrength} className={`auth-password-strength ${strengthState.tone}`}>{strengthState.label}</p>
               </div>
 
-              <div className={styles.authFormGroup}>
-                <div className="relative">
+              <div className="auth-form-group">
+                <div className="auth-input-wrapper">
                   <Input
                     label="Confirm Password"
                     name="password_confirm"
@@ -237,12 +234,12 @@ export default function RegisterPage() {
                     required
                     autoComplete="new-password"
                     error={passwordsMatch ? undefined : 'Passwords must match'}
-                    className={`${styles.authInput} pr-12`}
+                    className="pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className={styles.authPasswordToggle}
+                    className="auth-password-toggle"
                     aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   >
                     {showConfirmPassword ? (
@@ -259,10 +256,10 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className={styles.authButtonContainer}>
+              <div className="auth-button-container">
                 <Button
                   type="submit"
-                  className={`flix-w-full ${styles.authButton}`}
+                  className="auth-button"
                   isLoading={isLoading}
                   disabled={!passwordsMatch || isLoading}
                 >
@@ -270,10 +267,10 @@ export default function RegisterPage() {
                 </Button>
               </div>
 
-              <div className={styles.authFooter}>
-                <p className={`flix-small flix-text-center flix-text-muted ${styles.authFooterText}`}>
+              <div className="auth-footer">
+                <p className="auth-footer-text">
                   Already have an account?{' '}
-                  <Link href="/login" className={`flix-accent flix-font-semibold ${styles.authLink}`}>
+                  <Link href="/login" className="auth-link">
                     Sign in
                   </Link>
                 </p>

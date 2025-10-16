@@ -117,49 +117,47 @@ export default function MyReviewsPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col flix-bg-primary">
+    <div className="min-h-screen flex flex-col my-reviews-page-shell">
       <Header />
       <main className="flex-grow pt-24 sm:pt-28">
-        <section className="relative overflow-hidden bg-gradient-to-b from-flix-black via-flix-black to-transparent pt-10 pb-16 sm:pt-14 sm:pb-20">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl space-y-4">
-              <h1 className="flix-h1">Your Reviews</h1>
-              <p className="text-lg text-white/70">
-                Track the movies you&apos;ve rated, see how they shape your taste profile, and refine your preferences for even sharper recommendations.
-              </p>
-              <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.3em] text-white/40">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
-                  {totalReviews} review{totalReviews === 1 ? '' : 's'} logged
-                </span>
-                {averageRating ? (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
-                    Average rating {averageRating}/5
-                  </span>
-                ) : null}
-                {lastUpdatedLabel ? (
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
-                    Updated {lastUpdatedLabel}
-                  </span>
-                ) : null}
+        <section className="my-reviews-hero">
+          <div className="my-reviews-hero-content">
+            <h1 className="my-reviews-hero-title">Your Reviews</h1>
+            <p className="my-reviews-hero-description">
+              Track the movies you&apos;ve rated, see how they shape your taste profile, and refine your preferences for even sharper recommendations.
+            </p>
+            <div className="my-reviews-stats-container">
+              <div className="my-reviews-stat-badge">
+                {totalReviews} review{totalReviews === 1 ? '' : 's'} logged
               </div>
+              {averageRating ? (
+                <div className="my-reviews-stat-badge">
+                  Average rating {averageRating}/5
+                </div>
+              ) : null}
+              {lastUpdatedLabel ? (
+                <div className="my-reviews-stat-badge">
+                  Updated {lastUpdatedLabel}
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
 
-        <section className="container mx-auto px-6 py-12 space-y-12">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_25px_70px_-35px_rgba(0,0,0,0.9)]">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/40">Total reviews</p>
-              <p className="mt-3 text-4xl font-semibold">{totalReviews}</p>
-              <p className="mt-2 text-sm text-white/60">Every review sharpens the recommendation engine.</p>
+        <section className="my-reviews-content-section">
+          <div className="my-reviews-stats-grid">
+            <div className="my-reviews-stat-card">
+              <p className="my-reviews-stat-label">Total reviews</p>
+              <p className="my-reviews-stat-value">{totalReviews}</p>
+              <p className="my-reviews-stat-description">Every review sharpens the recommendation engine.</p>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_25px_70px_-35px_rgba(0,0,0,0.9)]">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/40">Average rating</p>
-              <p className="mt-3 text-4xl font-semibold">{averageRating ?? '—'}</p>
-              <p className="mt-2 text-sm text-white/60">Higher scores tell us which genres you champion.</p>
+            <div className="my-reviews-stat-card">
+              <p className="my-reviews-stat-label">Average rating</p>
+              <p className="my-reviews-stat-value">{averageRating ?? '—'}</p>
+              <p className="my-reviews-stat-description">Higher scores tell us which genres you champion.</p>
             </div>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white shadow-[0_25px_70px_-35px_rgba(0,0,0,0.9)]">
-              <p className="text-xs uppercase tracking-[0.3em] text-white/40">Top genres</p>
+            <div className="my-reviews-stat-card">
+              <p className="my-reviews-stat-label">Top genres</p>
               {topGenres.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {topGenres.map((genre) => (
@@ -172,8 +170,8 @@ export default function MyReviewsPage() {
                 <p className="mt-3 text-sm text-white/60">Rate a few movies to reveal your leading genres.</p>
               )}
             </div>
-            <div className="rounded-3xl border border-flix-accent/40 bg-flix-accent/10 p-6 text-white shadow-[0_25px_70px_-25px_rgba(229,9,20,0.55)]">
-              <p className="text-xs uppercase tracking-[0.3em] text-flix-accent/70">Manual preferences</p>
+            <div className="my-reviews-stat-card highlight">
+              <p className="my-reviews-stat-label">Manual preferences</p>
               {preferredGenres.length > 0 ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {preferredGenres.map((genre) => (
@@ -200,15 +198,17 @@ export default function MyReviewsPage() {
           </div>
 
           {error ? (
-            <div className="flix-card p-12 text-center">
-              <svg className="mx-auto mb-4 h-16 w-16 text-white/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+            <div className="my-reviews-empty-state">
+              <svg className="recommendations-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-lg font-semibold text-white">We couldn&apos;t load your reviews</p>
-              <p className="mt-2 text-white/60">Please refresh the page or try again shortly.</p>
+              <div>
+                <p className="my-reviews-empty-title">We couldn&apos;t load your reviews</p>
+                <p className="my-reviews-empty-description">Please refresh the page or try again shortly.</p>
+              </div>
               <button
                 onClick={() => refetch()}
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
               >
                 {isFetching ? (
                   <>
@@ -227,17 +227,22 @@ export default function MyReviewsPage() {
               </button>
             </div>
           ) : isLoading ? (
-            <div className="grid gap-4">
+            <div className="my-reviews-list-container">
               {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-32 rounded-3xl border border-white/8 bg-white/5" />
+                <div key={index} className="skeleton-card h-32" />
               ))}
             </div>
           ) : reviews.length === 0 ? (
-            <div className="flix-card p-12 text-center">
-              <h2 className="flix-heading-md mb-3">No reviews yet</h2>
-              <p className="flix-text-secondary mb-6">
-                Start by rating a movie. Your opinions instantly fuel personalized recommendations and your taste profile.
-              </p>
+            <div className="my-reviews-empty-state">
+              <svg className="recommendations-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              <div>
+                <h2 className="my-reviews-empty-title">No reviews yet</h2>
+                <p className="my-reviews-empty-description">
+                  Start by rating a movie. Your opinions instantly fuel personalized recommendations and your taste profile.
+                </p>
+              </div>
               <div className="flex flex-wrap justify-center gap-3">
                 <Link
                   href="/movies"
@@ -260,9 +265,11 @@ export default function MyReviewsPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="my-reviews-list-container">
               {reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
+                <div key={review.id} className="review-card-enhanced">
+                  <ReviewCard review={review} />
+                </div>
               ))}
             </div>
           )}

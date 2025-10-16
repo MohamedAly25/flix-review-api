@@ -51,49 +51,51 @@ export default function RecommendationsPage() {
     : []
 
   return (
-    <div className="min-h-screen flex flex-col flix-bg-primary">
+    <div className="min-h-screen flex flex-col recommendations-page-shell">
       <Header />
       <main className="flex-grow pt-24 sm:pt-28">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-flix-accent/20 via-transparent to-transparent pt-12 pb-16 sm:pt-16 sm:pb-20">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl">
-              <h1 className="flix-h1 mb-4">Discover Amazing Movies</h1>
-              <p className="text-lg leading-relaxed text-white/80">
-                Explore our curated collections of top-rated films, trending titles, and personalized recommendations just for you.
-              </p>
-            </div>
+        <section className="recommendations-hero">
+          <div className="recommendations-hero-content">
+            <h1 className="recommendations-hero-title">Discover Amazing Movies</h1>
+            <p className="text-lg md:text-xl leading-relaxed text-white/80 max-w-3xl mx-auto">
+              Explore our curated collections of top-rated films, trending titles, and personalized recommendations just for you.
+            </p>
           </div>
         </section>
 
-        <div className="container mx-auto px-6 py-12 space-y-16">
+        <div className="recommendations-section-container">
           {/* For You Section - Only for authenticated users */}
           {isAuthenticated && (
-            <section>
-              <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <h2 className="flix-h2 mb-2">For You</h2>
-                  <p className="flex flex-wrap items-center gap-2 text-sm text-white/60">
-                    {personalizedMetadata.length > 0
-                      ? personalizedMetadata.map((item) => (
-                          <span key={item} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white/60">
-                            <span className="h-1.5 w-1.5 rounded-full bg-flix-accent" />
-                            {item}
-                          </span>
-                        ))
-                      : 'Personalized using your viewing history and recent reviews'}
-                  </p>
+            <section className="recommendations-section">
+              <div className="recommendations-section-header">
+                <div className="flex flex-wrap items-end justify-between gap-4">
+                  <div>
+                    <h2 className="recommendations-section-title">For You</h2>
+                    <div className="flex flex-wrap items-center gap-2 mt-3">
+                      {personalizedMetadata.length > 0
+                        ? personalizedMetadata.map((item) => (
+                            <span key={item} className="recommendations-meta-badge">
+                              {item}
+                            </span>
+                          ))
+                        : 'Personalized using your viewing history and recent reviews'}
+                    </div>
+                  </div>
+                  <Link
+                    href="/account/taste"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-flix-accent transition-colors hover:text-flix-accent-hover"
+                  >
+                    View Taste Profile
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
                 </div>
-                <Link
-                  href="/account/taste"
-                  className="text-sm font-medium text-flix-accent transition-colors hover:text-flix-accent-hover"
-                >
-                  View Taste Profile →
-                </Link>
               </div>
 
               {loadingPersonalized ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                <div className="recommendations-grid">
                   {skeletonCards.map((_, index) => (
                     <MovieCardSkeleton key={index} />
                   ))}
@@ -101,10 +103,10 @@ export default function RecommendationsPage() {
               ) : personalizedData?.movies && personalizedData.movies.length > 0 ? (
                 <>
                   {preferredGenres.length > 0 ? (
-                    <div className="mb-6 rounded-3xl border border-flix-accent/30 bg-flix-accent/10 p-6">
-                      <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="recommendations-personalized-banner">
+                      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
                         <div>
-                          <p className="text-xs uppercase tracking-[0.28em] text-flix-accent/70">Manual taste boost</p>
+                          <p className="text-xs uppercase tracking-[0.28em] text-flix-accent/70 font-semibold">Manual taste boost</p>
                           <p className="mt-2 text-sm text-white/70">
                             We prioritized these genres in your current mix. Update them anytime from your account.
                           </p>
@@ -119,7 +121,7 @@ export default function RecommendationsPage() {
                           </svg>
                         </Link>
                       </div>
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <div className="relative z-10 mt-4 flex flex-wrap gap-2">
                         {preferredGenres.map((genre) => (
                           <span
                             key={genre.id}
@@ -147,16 +149,16 @@ export default function RecommendationsPage() {
                     </div>
                   ) : null}
 
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                  <div className="recommendations-grid">
                     {personalizedData.movies.map((movie) => (
                       <MovieCard key={movie.id} movie={movie} />
                     ))}
                   </div>
                 </>
               ) : (
-                <div className="flix-card p-12 text-center">
+                <div className="recommendations-empty-state">
                   <svg
-                    className="mx-auto mb-4 h-16 w-16 text-white/20"
+                    className="recommendations-empty-icon"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -168,13 +170,18 @@ export default function RecommendationsPage() {
                       d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
                     />
                   </svg>
-                  <p className="text-lg font-medium text-white">Start Rating Movies</p>
-                  <p className="mt-2 text-white/60">Rate some movies to get personalized recommendations!</p>
+                  <div>
+                    <p className="text-xl font-semibold text-white mb-2">Start Rating Movies</p>
+                    <p className="text-white/60">Rate some movies to get personalized recommendations!</p>
+                  </div>
                   <Link
                     href="/movies"
-                    className="mt-6 inline-block rounded-lg bg-flix-accent px-6 py-3 font-medium text-white transition-colors hover:bg-flix-accent-hover"
+                    className="inline-flex items-center gap-2 rounded-full bg-flix-accent px-6 py-3 font-semibold text-white transition-colors hover:bg-flix-accent-hover"
                   >
                     Browse Movies
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                   </Link>
                 </div>
               )}
@@ -182,104 +189,104 @@ export default function RecommendationsPage() {
           )}
 
           {/* Top Rated Section */}
-          <section>
-            <div className="mb-6">
-              <h2 className="flix-h2 mb-2">Top Rated</h2>
-              <p className="text-sm text-white/60">Highest rated movies by our community</p>
+          <section className="recommendations-section">
+            <div className="recommendations-section-header">
+              <h2 className="recommendations-section-title">Top Rated</h2>
+              <p className="recommendations-section-subtitle">Highest rated movies by our community</p>
             </div>
 
             {loadingTopRated ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {skeletonCards.map((_, index) => (
                   <MovieCardSkeleton key={index} />
                 ))}
               </div>
             ) : topRated && topRated.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {topRated.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
             ) : (
-              <div className="flix-card p-12 text-center">
+              <div className="recommendations-empty-state">
                 <p className="text-white/60">No top rated movies available yet</p>
               </div>
             )}
           </section>
 
           {/* Trending Section */}
-          <section>
-            <div className="mb-6">
-              <h2 className="flix-h2 mb-2">Trending Now</h2>
-              <p className="text-sm text-white/60">Most popular movies this week</p>
+          <section className="recommendations-section">
+            <div className="recommendations-section-header">
+              <h2 className="recommendations-section-title">Trending Now</h2>
+              <p className="recommendations-section-subtitle">Most popular movies this week</p>
             </div>
 
             {loadingTrending ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {skeletonCards.map((_, index) => (
                   <MovieCardSkeleton key={index} />
                 ))}
               </div>
             ) : trending && trending.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {trending.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
             ) : (
-              <div className="flix-card p-12 text-center">
+              <div className="recommendations-empty-state">
                 <p className="text-white/60">No trending movies available yet</p>
               </div>
             )}
           </section>
 
           {/* Most Reviewed Section */}
-          <section>
-            <div className="mb-6">
-              <h2 className="flix-h2 mb-2">Most Discussed</h2>
-              <p className="text-sm text-white/60">Movies with the most reviews and conversations</p>
+          <section className="recommendations-section">
+            <div className="recommendations-section-header">
+              <h2 className="recommendations-section-title">Most Discussed</h2>
+              <p className="recommendations-section-subtitle">Movies with the most reviews and conversations</p>
             </div>
 
             {loadingMostReviewed ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {skeletonCards.map((_, index) => (
                   <MovieCardSkeleton key={index} />
                 ))}
               </div>
             ) : mostReviewed && mostReviewed.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {mostReviewed.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
             ) : (
-              <div className="flix-card p-12 text-center">
+              <div className="recommendations-empty-state">
                 <p className="text-white/60">No reviewed movies available yet</p>
               </div>
             )}
           </section>
 
           {/* Recently Added Section */}
-          <section>
-            <div className="mb-6">
-              <h2 className="flix-h2 mb-2">Recently Added</h2>
-              <p className="text-sm text-white/60">Latest additions to our collection</p>
+          <section className="recommendations-section">
+            <div className="recommendations-section-header">
+              <h2 className="recommendations-section-title">Recently Added</h2>
+              <p className="recommendations-section-subtitle">Latest additions to our collection</p>
             </div>
 
             {loadingRecent ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {skeletonCards.map((_, index) => (
                   <MovieCardSkeleton key={index} />
                 ))}
               </div>
             ) : recent && recent.length > 0 ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+              <div className="recommendations-grid">
                 {recent.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
             ) : (
-              <div className="flix-card p-12 text-center">
+              <div className="recommendations-empty-state">
                 <p className="text-white/60">No recent movies available yet</p>
               </div>
             )}

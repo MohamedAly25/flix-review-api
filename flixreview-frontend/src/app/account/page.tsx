@@ -247,14 +247,21 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col flix-bg-primary">
+    <div className="min-h-screen flex flex-col account-page-container">
       <Header />
-      <main className="flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 lg:pb-24 px-6 sm:px-8 lg:px-12">
-        <div className="relative mx-auto w-full max-w-[1280px]">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-6 -top-20 h-64 rounded-full bg-[radial-gradient(circle_at_top,rgba(229,9,20,0.35),rgba(229,9,20,0))] opacity-60 blur-3xl"
-          />
+      <main className="flex-grow pt-24 sm:pt-28 pb-16 sm:pb-20 lg:pb-24">
+        {/* Hero Section */}
+        <div className="account-hero-section">
+          <div className="account-content-wrapper">
+            <h1 className="account-hero-title">Your Profile</h1>
+            <p className="account-hero-subtitle">
+              Manage your personal information, preferences, and customize your FlixReview experience.
+            </p>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="account-content-wrapper">
           <div className="relative">
             <AccountLayout
               user={user}
