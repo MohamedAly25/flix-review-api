@@ -9,7 +9,7 @@ User = get_user_model()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)
+    user = serializers.SerializerMethodField()
     movie = MovieSerializer(read_only=True)
     movie_id = serializers.PrimaryKeyRelatedField(
         queryset=Movie.objects.all(),
@@ -24,6 +24,23 @@ class ReviewSerializer(serializers.ModelSerializer):
             'rating', 'created_at', 'updated_at', 'is_edited'
         )
         read_only_fields = ('user', 'created_at', 'updated_at', 'is_edited')
+
+    def get_user(self, obj):
+        user = obj.user
+        profile_picture_url = None
+        if user.profile_picture:
+            request = self.context.get('request')
+            if request:
+                profile_picture_url = request.build_absolute_uri(user.profile_picture.url)
+            else:
+                profile_picture_url = user.profile_picture.url
+        
+        return {
+            'username': user.username,
+            'profile_picture': {
+                'url': profile_picture_url
+            } if profile_picture_url else None
+        }
 
     def validate_rating(self, value):
         if value < 1 or value > 5:

@@ -13,6 +13,8 @@ from .serializers import (
 	CustomTokenObtainPairSerializer,
 	UserProfileSerializer,
 	UserPreferredGenresSerializer,
+	ChangePasswordSerializer,
+	DeleteAccountSerializer,
 )
 
 
@@ -99,3 +101,41 @@ class UserPreferredGenresView(ApiResponseMixin, generics.GenericAPIView):
 		updated_profile = serializer.save()
 		response_data = self.get_serializer(updated_profile, context={'request': request}).data
 		return Response(response_data)
+
+
+@method_decorator(ratelimit(key='user', rate='3/h', method='POST'), name='dispatch')
+class ChangePasswordView(ApiResponseMixin, generics.GenericAPIView):
+	"""
+	Change user password with current password verification.
+	Rate limit: 3 password changes per hour per user.
+	"""
+	serializer_class = ChangePasswordSerializer
+	permission_classes = [permissions.IsAuthenticated]
+	success_messages = {'POST': 'Password changed successfully'}
+
+	def post(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+		serializer.save()
+		return Response({'detail': 'Password changed successfully'})
+
+
+@method_decorator(ratelimit(key='user', rate='1/h', method='POST'), name='dispatch')
+class DeleteAccountView(ApiResponseMixin, generics.GenericAPIView):
+	"""
+	Delete user account with password verification.
+	Rate limit: 1 account deletion per hour per user.
+	"""
+	serializer_class = DeleteAccountSerializer
+	permission_classes = [permissions.IsAuthenticated]
+	success_messages = {'POST': 'Account deleted successfully'}
+
+	def post(self, request, *args, **kwargs):
+		serializer = self.get_serializer(data=request.data)
+		serializer.is_valid(raise_exception=True)
+
+		# Delete the user account
+		user = request.user
+		user.delete()
+
+		return Response({'detail': 'Account deleted successfully'}, status=status.HTTP_200_OK)
