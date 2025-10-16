@@ -456,6 +456,27 @@ class TMDBService:
             logger.error(f"Error getting popular movies: {str(e)}")
             return []
     
+    def get_top_rated_movies(self, page: int = 1) -> List[Dict]:
+        """
+        Get top-rated movies from TMDB
+        
+        Args:
+            page: Page number for pagination
+            
+        Returns:
+            List of top-rated movie dictionaries
+        """
+        if not self.enabled:
+            logger.warning("TMDB not enabled. Cannot get top-rated movies.")
+            return []
+        
+        try:
+            results = self.movie_api.top_rated(page=page)
+            return [self._format_search_result(movie) for movie in results]
+        except Exception as e:
+            logger.error(f"Error getting top-rated movies: {str(e)}")
+            return []
+    
     def _format_search_result(self, movie) -> Dict:
         """Format TMDB search result into a dictionary"""
         return {
