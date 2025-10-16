@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import type { ApiError } from '@/types/api'
+import styles from './register.module.css'
 
 type PasswordStrength = 'empty' | 'weak' | 'medium' | 'strong'
 
@@ -137,31 +138,31 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flix-min-h-screen flix-flex flix-flex-col flix-bg-primary">
+    <div className={styles.authPage}>
       <Header />
-      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md flix-bg-primary">
-        <div className="flix-fade-in auth-container">
-          <div className="flix-card flix-p-xl auth-card">
-            <div className="auth-header">
-              <h2 className="flix-title flix-text-center flix-mb-lg auth-title">
+      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md">
+        <div className={`flix-fade-in ${styles.authContainer}`}>
+          <div className={`flix-card flix-p-xl ${styles.authCard}`}>
+            <div className={styles.authHeader}>
+              <h2 className={`flix-title flix-text-center flix-mb-lg ${styles.authTitle}`}>
                 Create your account
               </h2>
-              <p className="flix-body flix-text-center flix-text-secondary auth-subtitle">
+              <p className={`flix-body flix-text-center flix-text-secondary ${styles.authSubtitle}`}>
                 Join FlixReview and start discovering amazing movies
               </p>
             </div>
             
-            <form className="flix-flex flix-flex-col flix-gap-lg auth-form" onSubmit={handleSubmit}>
+            <form className={`flix-flex flix-flex-col flix-gap-lg ${styles.authForm}`} onSubmit={handleSubmit}>
               {error && (
-                <div className="flix-alert flix-alert-error auth-alert" role="alert" aria-live="assertive">
+                <div className={`flix-alert flix-alert-error ${styles.authAlert}`} role="alert" aria-live="assertive">
                   <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span className="auth-error-text">{error}</span>
+                  <span className={styles.authErrorText}>{error}</span>
                 </div>
               )}
 
-              <div className="auth-form-group">
+              <div className={styles.authFormGroup}>
                 <Input
                   label="Email address"
                   name="email"
@@ -170,11 +171,11 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                   autoComplete="email"
-                  className="auth-input"
+                  className={styles.authInput}
                 />
               </div>
 
-              <div className="auth-form-group">
+              <div className={styles.authFormGroup}>
                 <Input
                   label="Username"
                   name="username"
@@ -183,11 +184,11 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                   autoComplete="username"
-                  className="auth-input"
+                  className={styles.authInput}
                 />
               </div>
 
-              <div className="auth-form-group">
+              <div className={styles.authFormGroup}>
                 <div className="relative">
                   <Input
                     label="Password"
@@ -198,12 +199,12 @@ export default function RegisterPage() {
                     required
                     autoComplete="new-password"
                     aria-describedby="password-strength-message"
-                    className="auth-input pr-12"
+                    className={`${styles.authInput} pr-12`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-3 bottom-3 flex items-center text-white/50 transition-colors hover:text-white"
+                    className={styles.authPasswordToggle}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
@@ -218,10 +219,10 @@ export default function RegisterPage() {
                     )}
                   </button>
                 </div>
-                <p id="password-strength-message" className={`flix-small ${strengthState.tone} auth-hint`}>{strengthState.label}</p>
+                <p id="password-strength-message" data-strength={passwordStrength} className={`flix-small ${strengthState.tone} ${styles.authPasswordStrength}`}>{strengthState.label}</p>
               </div>
 
-              <div className="auth-form-group">
+              <div className={styles.authFormGroup}>
                 <div className="relative">
                   <Input
                     label="Confirm Password"
@@ -232,12 +233,12 @@ export default function RegisterPage() {
                     required
                     autoComplete="new-password"
                     error={passwordsMatch ? undefined : 'Passwords must match'}
-                    className="auth-input pr-12"
+                    className={`${styles.authInput} pr-12`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className="absolute right-3 bottom-3 flex items-center text-white/50 transition-colors hover:text-white"
+                    className={styles.authPasswordToggle}
                     aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   >
                     {showConfirmPassword ? (
@@ -254,10 +255,10 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <div className="auth-button-container">
+              <div className={styles.authButtonContainer}>
                 <Button
                   type="submit"
-                  className="flix-w-full auth-button"
+                  className={`flix-w-full ${styles.authButton}`}
                   isLoading={isLoading}
                   disabled={!passwordsMatch || isLoading}
                 >
@@ -265,10 +266,10 @@ export default function RegisterPage() {
                 </Button>
               </div>
 
-              <div className="auth-footer">
-                <p className="flix-small flix-text-center flix-text-muted auth-footer-text">
+              <div className={styles.authFooter}>
+                <p className={`flix-small flix-text-center flix-text-muted ${styles.authFooterText}`}>
                   Already have an account?{' '}
-                  <Link href="/login" className="flix-accent flix-font-semibold auth-link">
+                  <Link href="/login" className={`flix-accent flix-font-semibold ${styles.authLink}`}>
                     Sign in
                   </Link>
                 </p>

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/Input'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import styles from './login.module.css'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -40,31 +41,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flix-min-h-screen flix-flex flix-flex-col flix-bg-primary">
+    <div className={styles.authPage}>
       <Header />
-      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md flix-bg-primary">
-        <div className="flix-fade-in auth-container">
-          <div className="flix-card flix-p-xl auth-card">
-            <div className="auth-header">
-              <h2 className="flix-title flix-text-center flix-mb-lg auth-title">
+      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md">
+        <div className={`flix-fade-in ${styles.authContainer}`}>
+          <div className={`flix-card flix-p-xl ${styles.authCard}`}>
+            <div className={styles.authHeader}>
+              <h2 className={`flix-title flix-text-center flix-mb-lg ${styles.authTitle}`}>
                 Sign in to FlixReview
               </h2>
-              <p className="flix-body flix-text-center flix-text-secondary auth-subtitle">
+              <p className={`flix-body flix-text-center flix-text-secondary ${styles.authSubtitle}`}>
                 Welcome back! Sign in to continue exploring movies
               </p>
             </div>
             
-            <form className="flix-flex flix-flex-col flix-gap-lg auth-form" onSubmit={handleSubmit}>
+            <form className={`flix-flex flix-flex-col flix-gap-lg ${styles.authForm}`} onSubmit={handleSubmit}>
               {error && (
-                <div className="flix-alert flix-alert-error auth-alert" role="alert" aria-live="assertive">
+                <div className={`flix-alert flix-alert-error ${styles.authAlert}`} role="alert" aria-live="assertive">
                   <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span className="auth-error-text">{error}</span>
+                  <span className={styles.authErrorText}>{error}</span>
                 </div>
               )}
 
-              <div className="auth-form-group relative">
+              <div className={`${styles.authFormGroup} relative`}>
                 <Input
                   label="Email address"
                   type="email"
@@ -72,11 +73,11 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
-                  className="auth-input"
+                  className={styles.authInput}
                 />
               </div>
 
-              <div className="auth-form-group">
+              <div className={styles.authFormGroup}>
                 <Input
                   label="Password"
                   type={showPassword ? 'text' : 'password'}
@@ -84,12 +85,12 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="auth-input pr-12"
+                  className={`${styles.authInput} pr-12`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 bottom-3 flex items-center text-white/50 transition-colors hover:text-white"
+                  className={styles.authPasswordToggle}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -105,10 +106,10 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <div className="auth-button-container">
+              <div className={styles.authButtonContainer}>
                 <Button
                   type="submit"
-                  className="flix-w-full auth-button"
+                  className={`flix-w-full ${styles.authButton}`}
                   isLoading={isLoading}
                   disabled={isLoading || !email || !password}
                 >
@@ -116,10 +117,10 @@ export default function LoginPage() {
                 </Button>
               </div>
 
-              <div className="auth-footer">
-                <p className="flix-small flix-text-center flix-text-muted auth-footer-text">
+              <div className={styles.authFooter}>
+                <p className={`flix-small flix-text-center flix-text-muted ${styles.authFooterText}`}>
                   Don&apos;t have an account?{' '}
-                  <Link href="/register" className="flix-accent flix-font-semibold auth-link">
+                  <Link href="/register" className={`flix-accent flix-font-semibold ${styles.authLink}`}>
                     Sign up
                   </Link>
                 </p>
