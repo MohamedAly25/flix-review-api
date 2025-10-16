@@ -26,7 +26,7 @@ export function ProfilePictureCard({ user, isEditing }: ProfilePictureCardProps)
         </div>
 
         {/* Card Content Section */}
-        <div className="profile-card-content flex-1 flix-p-lg flex flex-col items-center text-center">
+  <div className="profile-card-content flex-1 flix-p-lg flex flex-col items-center text-center md:items-start md:text-left">
           {/* Profile Image Container */}
           <div className="profile-image-container flex-shrink-0 mb-6">
             <div className="relative inline-block">
@@ -57,14 +57,14 @@ export function ProfilePictureCard({ user, isEditing }: ProfilePictureCardProps)
           </div>
 
           {/* User Info Section */}
-          <div className="profile-info-section flex flex-col flix-gap-xs mb-6">
-            <h3 className="profile-username text-xl font-semibold text-[var(--flix-text-primary)]">{user.username}</h3>
-            <p className="profile-status text-sm text-[var(--flix-text-secondary)]">Active Member</p>
+          <div className="profile-info-section flex flex-col flix-gap-xs mb-6 md:w-full">
+            <h3 className="profile-username text-xl font-semibold text-[var(--flix-text-primary)] md:text-2xl">{user.username}</h3>
+            <p className="profile-status text-sm text-[var(--flix-text-secondary)]">Active member</p>
           </div>
 
           {/* Upload Section */}
           {isEditing && (
-            <div className="profile-upload-section w-full">
+            <div className="profile-upload-section w-full md:max-w-sm">
               <AvatarUpload />
             </div>
           )}

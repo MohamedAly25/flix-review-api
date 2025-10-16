@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 import { AccountHeader } from './AccountHeader'
 import { ProfilePictureCard } from './ProfilePictureCard'
 import { PersonalInfoCard } from './PersonalInfoCard'
@@ -20,6 +22,7 @@ interface AccountLayoutProps {
   onCancelEdit: () => void
   onSaveProfile: () => void
   onBioChange: (value: string) => void
+  preferredGenresCard?: ReactNode
 }
 
 export function AccountLayout({
@@ -30,20 +33,30 @@ export function AccountLayout({
   onEditClick,
   onCancelEdit,
   onSaveProfile,
-  onBioChange
+  onBioChange,
+  preferredGenresCard,
 }: AccountLayoutProps) {
   return (
-    <section className="w-full min-h-[80vh] flex items-center justify-center py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8">
-      <div className="bg-[var(--flix-bg-secondary)] border border-[rgba(255,255,255,0.06)] rounded-3xl shadow-[var(--shadow-lg)] account-card-wide overflow-hidden flex flex-col">
-        <AccountHeader
-          isEditing={isEditing}
-          onEditClick={onEditClick}
-          onCancelEdit={onCancelEdit}
-          onSaveProfile={onSaveProfile}
-          isSaving={isSaving}
+    <section className="w-full space-y-12 sm:space-y-14 lg:space-y-16">
+      <div className="relative overflow-hidden rounded-3xl border border-[rgba(255,255,255,0.06)] bg-[var(--flix-bg-secondary)] shadow-[var(--shadow-lg)] account-card-wide">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(229,9,20,0.22),transparent_60%)] opacity-80"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-24 -right-20 h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(229,9,20,0.2),transparent_65%)] blur-3xl opacity-70"
         />
 
-        <div className="flix-mt-xl">
+        <div className="relative flex flex-col gap-12">
+          <AccountHeader
+            isEditing={isEditing}
+            onEditClick={onEditClick}
+            onCancelEdit={onCancelEdit}
+            onSaveProfile={onSaveProfile}
+            isSaving={isSaving}
+          />
+
           <div className="grid grid-cols-1 xl:grid-cols-[352px_1fr] flix-gap-lg">
             <ProfilePictureCard user={user} isEditing={isEditing} />
 
@@ -57,11 +70,15 @@ export function AccountLayout({
                   onBioChange={onBioChange}
                 />
               </div>
+
+              {preferredGenresCard && (
+                <div className="min-h-[320px]">
+                  {preferredGenresCard}
+                </div>
+              )}
             </div>
           </div>
-        </div>
 
-        <div className="flix-mt-2xl">
           <AccountActions />
         </div>
       </div>

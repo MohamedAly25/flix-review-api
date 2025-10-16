@@ -9,7 +9,6 @@ This service provides:
 import logging
 from typing import List, Dict, Optional, Tuple
 from collections import defaultdict
-import math
 
 
 logger = logging.getLogger(__name__)
@@ -416,75 +415,186 @@ class RecommendationEngine:
         content_weight: float = 0.4,
         collaborative_weight: float = 0.6
     ) -> List[Dict]:
-        """
-        Get hybrid recommendations combining content and collaborative filtering
-        
-        Args:
-            user_id: ID of the user
-            limit: Number of recommendations
-            content_weight: Weight for content-based score (0-1)
-            collaborative_weight: Weight for collaborative score (0-1)
-            
-        Returns:
-            List of movie dictionaries with combined scores
-        """
+        """Get hybrid recommendations with genre preference prioritisation"""
+        from django.db.models import Count
         from reviews.models import Review
-        
-        # Normalize weights
+        from accounts.models import UserProfile
+
+        profile = UserProfile.objects.filter(user_id=user_id).prefetch_related('preferred_genres').first()
+        preferred_genre_ids = list(profile.preferred_genres.values_list('id', flat=True)) if profile else []
+
+        # Track movies the user already interacted with to avoid repeats
+        reviewed_movie_ids = set(
+            Review.objects.filter(user_id=user_id).values_list('movie_id', flat=True)
+        )
+
+        # Compute base hybrid recommendations (content + collaborative)
+        base_recommendations = self._calculate_base_hybrid_scores(
+            user_id=user_id,
+            limit=limit * 2,
+            content_weight=content_weight,
+            collaborative_weight=collaborative_weight,
+        )
+
+        if not preferred_genre_ids:
+            return self._finalize_recommendations(base_recommendations[:limit])
+
+        # Prioritise preferred genres
+        genre_priority_recs = self._genre_priority_recommendations(
+            preferred_genre_ids=preferred_genre_ids,
+            exclude_movie_ids=reviewed_movie_ids,
+            limit=limit * 2,
+        )
+
+        merged = self._merge_preference_recommendations(
+            preferred_recommendations=genre_priority_recs,
+            base_recommendations=base_recommendations,
+            limit=limit,
+        )
+
+        return merged
+
+    def _calculate_base_hybrid_scores(
+        self,
+        user_id: int,
+        limit: int,
+        content_weight: float,
+        collaborative_weight: float,
+    ) -> List[Dict]:
+        """Internal helper to calculate hybrid scores without genre prioritisation"""
+        from reviews.models import Review
+
         total_weight = content_weight + collaborative_weight
         content_weight = content_weight / total_weight
         collaborative_weight = collaborative_weight / total_weight
-        
-        # Get user's recent highly rated movies for content-based
+
         recent_liked = Review.objects.filter(
             user_id=user_id,
             rating__gte=4
         ).order_by('-created_at').select_related('movie').first()
-        
-        content_recs = []
+
+        content_recs: List[Dict] = []
         if recent_liked:
             content_recs = self.get_content_based_recommendations(
                 recent_liked.movie_id,
-                limit=limit * 2
+                limit=limit
             )
-        
-        # Get collaborative recommendations
-        collab_recs = self.get_collaborative_recommendations(user_id, limit=limit * 2)
-        
-        # Combine recommendations
-        combined = defaultdict(lambda: {'content_score': 0, 'collab_score': 0, 'data': None})
-        
+
+        collab_recs = self.get_collaborative_recommendations(user_id, limit=limit)
+
+        combined = defaultdict(lambda: {'content_score': 0.0, 'collab_score': 0.0, 'data': None})
+
         for rec in content_recs:
             movie_id = rec['movie_id']
-            combined[movie_id]['content_score'] = rec.get('similarity_score', 0)
+            combined[movie_id]['content_score'] = rec.get('similarity_score', 0.0)
             combined[movie_id]['data'] = rec
-        
+
         for rec in collab_recs:
             movie_id = rec['movie_id']
-            combined[movie_id]['collab_score'] = rec.get('predicted_rating', 0) / 5.0  # Normalize to 0-1
+            combined[movie_id]['collab_score'] = rec.get('predicted_rating', 0.0) / 5.0
             if combined[movie_id]['data'] is None:
                 combined[movie_id]['data'] = rec
-        
-        # Calculate hybrid scores
-        hybrid_recommendations = []
+
+        hybrid_recommendations: List[Dict] = []
         for movie_id, scores in combined.items():
+            rec_data = scores['data'] or {}
             hybrid_score = (
                 content_weight * scores['content_score'] +
                 collaborative_weight * scores['collab_score']
             )
-            
-            rec_data = scores['data']
             rec_data['hybrid_score'] = hybrid_score
+            rec_data.setdefault('source', 'hybrid')
             hybrid_recommendations.append(rec_data)
-        
-        # Sort by hybrid score
-        hybrid_recommendations.sort(key=lambda x: x['hybrid_score'], reverse=True)
-        
-        # Re-rank and return top N
-        for idx, rec in enumerate(hybrid_recommendations[:limit]):
+
+        hybrid_recommendations.sort(key=lambda x: x.get('hybrid_score', 0), reverse=True)
+        return hybrid_recommendations
+
+    def _genre_priority_recommendations(
+        self,
+        preferred_genre_ids: List[int],
+        exclude_movie_ids: Optional[set],
+        limit: int,
+    ) -> List[Dict]:
+        """Return high-quality movies matching the user's preferred genres"""
+        from django.db.models import Count
+        from movies.models import Movie
+
+        exclude_movie_ids = exclude_movie_ids or set()
+
+        movies = (
+            Movie.objects
+            .filter(genres__id__in=preferred_genre_ids)
+            .exclude(id__in=exclude_movie_ids)
+            .annotate(
+                review_count=Count('reviews', distinct=True),
+            )
+            .prefetch_related('genres')
+            .distinct()
+            .order_by('-avg_rating', '-review_count', '-release_date')[:limit]
+        )
+
+        preferred_set = set(preferred_genre_ids)
+        preferred_count = max(1, len(preferred_set))
+        recommendations: List[Dict] = []
+
+        for movie in movies:
+            movie_genres = set(movie.genres.values_list('id', flat=True))
+            match_ratio = len(movie_genres & preferred_set) / preferred_count
+            popularity_score = min(movie.review_count or 0, 50) / 50  # Normalise to 0-1
+            rating_score = float(movie.avg_rating or 0) / 5.0
+            composite_score = (0.5 * match_ratio) + (0.3 * rating_score) + (0.2 * popularity_score)
+
+            recommendations.append({
+                'movie_id': movie.id,
+                'title': movie.title,
+                'avg_rating': float(movie.avg_rating or 0),
+                'poster_url': movie.poster_url or '',
+                'release_date': str(movie.release_date) if movie.release_date else '',
+                'genre_match_ratio': round(match_ratio, 3),
+                'hybrid_score': composite_score,
+                'source': 'preferred_genres',
+            })
+
+        return recommendations
+
+    def _merge_preference_recommendations(
+        self,
+        preferred_recommendations: List[Dict],
+        base_recommendations: List[Dict],
+        limit: int,
+    ) -> List[Dict]:
+        """Merge genre-prioritised and base recommendations while respecting uniqueness"""
+
+        combined: List[Dict] = []
+        seen = set()
+
+        for rec in preferred_recommendations:
+            movie_id = rec['movie_id']
+            if movie_id in seen:
+                continue
+            seen.add(movie_id)
+            combined.append(rec)
+            if len(combined) >= limit:
+                break
+
+        if len(combined) < limit:
+            for rec in base_recommendations:
+                movie_id = rec.get('movie_id')
+                if movie_id in seen:
+                    continue
+                seen.add(movie_id)
+                rec.setdefault('source', 'hybrid')
+                combined.append(rec)
+                if len(combined) >= limit:
+                    break
+
+        return self._finalize_recommendations(combined[:limit])
+
+    def _finalize_recommendations(self, recommendations: List[Dict]) -> List[Dict]:
+        """Ensure recommendations are ranked sequentially"""
+        for idx, rec in enumerate(recommendations):
             rec['rank'] = idx + 1
-        
-        return hybrid_recommendations[:limit]
+        return recommendations
     
     def get_user_taste_profile(self, user_id: int) -> Dict:
         """

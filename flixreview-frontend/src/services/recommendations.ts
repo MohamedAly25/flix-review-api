@@ -16,11 +16,26 @@ interface RecommendationItem {
   id?: number
 }
 
+export interface PreferredGenreSummary {
+  id: number
+  name: string
+  slug: string
+}
+
 interface TasteProfileData {
   avg_rating?: number
   total_reviews?: number
   favorite_genres?: string[]
   preferences?: Record<string, number>
+}
+
+export interface PersonalizedRecommendations {
+  movies: Movie[]
+  algorithm?: string
+  cached: boolean
+  preferencesApplied: boolean
+  preferredGenres: PreferredGenreSummary[]
+  preferredGenreIds: number[]
 }
 
 async function unwrapMovies(data: unknown): Promise<Movie[]> {
@@ -39,14 +54,20 @@ async function getTopRated(limit = 5): Promise<Movie[]> {
   return movies.slice(0, limit)
 }
 
-async function getPersonalized(limit = 5): Promise<{ movies: Movie[]; algorithm?: string }> {
+async function getPersonalized(limit = 5): Promise<PersonalizedRecommendations> {
   const response = await apiClient.get('/recommendations/for-you/', {
     params: { limit },
   })
 
-  const payload = response.data?.data
+  const payload = response.data?.data || response.data
   const recommendations = Array.isArray(payload?.recommendations)
     ? payload.recommendations
+    : []
+  const preferredGenres = Array.isArray(payload?.preferred_genres)
+    ? payload.preferred_genres
+    : []
+  const preferredGenreIds = Array.isArray(payload?.preferred_genre_ids)
+    ? payload.preferred_genre_ids
     : []
 
   const movieIds = recommendations
@@ -54,7 +75,14 @@ async function getPersonalized(limit = 5): Promise<{ movies: Movie[]; algorithm?
     .filter((id: unknown): id is number => typeof id === 'number')
 
   if (movieIds.length === 0) {
-    return { movies: [], algorithm: payload?.algorithm }
+    return {
+      movies: [],
+      algorithm: payload?.algorithm,
+      cached: Boolean(payload?.cached),
+      preferencesApplied: Boolean(payload?.preferences_applied),
+      preferredGenres,
+      preferredGenreIds,
+    }
   }
 
   const movies = await Promise.all(
@@ -71,6 +99,10 @@ async function getPersonalized(limit = 5): Promise<{ movies: Movie[]; algorithm?
   return {
     movies: movies.filter((movie): movie is Movie => movie !== null),
     algorithm: payload?.algorithm,
+    cached: Boolean(payload?.cached),
+    preferencesApplied: Boolean(payload?.preferences_applied),
+    preferredGenres,
+    preferredGenreIds,
   }
 }
 
@@ -121,7 +153,7 @@ export const recommendationsService = {
   },
 
   // Personalized Recommendations
-  async getPersonalizedRecommendations(limit = 10): Promise<{ movies: Movie[]; algorithm?: string }> {
+  async getPersonalizedRecommendations(limit = 10): Promise<PersonalizedRecommendations> {
     return getPersonalized(limit)
   },
 

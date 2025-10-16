@@ -31,7 +31,8 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      await login(email, password)
+      const normalizedEmail = email.trim().toLowerCase()
+      await login(normalizedEmail, password)
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } }
       setError(error.response?.data?.detail || 'Login failed. Please check your credentials.')
@@ -73,6 +74,8 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   className={styles.authInput}
                 />
               </div>

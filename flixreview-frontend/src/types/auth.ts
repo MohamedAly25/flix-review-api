@@ -1,6 +1,8 @@
 // TypeScript types matching Django models exactly
 // Reference: flix-review-api/accounts/models.py + serializers.py
 
+import type { Genre } from '@/types/movie'
+
 // User type matching UserProfileSerializer
 export interface User {
   id: number
@@ -11,6 +13,9 @@ export interface User {
   bio?: string | null
   profile_picture?: string | null
   profile_picture_url?: string | null
+  preferred_genres?: Array<Pick<Genre, 'id' | 'name' | 'slug'>>
+  preferred_genre_ids?: number[]
+  last_genre_update?: string | null
 }
 
 // Login credentials for CustomTokenObtainPairSerializer

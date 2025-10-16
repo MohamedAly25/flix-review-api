@@ -6,8 +6,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
+from accounts.models import UserProfile
 from movies.models import Movie
-from movies.serializers import MovieSerializer
+from movies.serializers import MovieSerializer, GenreSerializer
 from common.mixins import ApiResponseMixin
 from .services import RecommendationEngine
 
@@ -184,18 +185,33 @@ def personalized_recommendations(request):
 	elif limit > 50:
 		limit = 50
 	
+	profile, _ = UserProfile.objects.get_or_create(user=user)
+	preferred_genre_ids = list(profile.preferred_genres.values_list('id', flat=True))
+	preferred_genres_data = GenreSerializer(profile.preferred_genres.all(), many=True).data
+	
 	# Check cache first
 	cache_key = f"recommendations:user:{user.id}:algo:{algorithm}:limit:{limit}"
 	cached_result = cache.get(cache_key)
 	
 	if cached_result:
+		if isinstance(cached_result, dict):
+			recommendation_payload = cached_result
+		else:
+			recommendation_payload = {
+				'items': cached_result,
+				'preferences_applied': bool(preferred_genre_ids),
+				'preferred_genre_ids': preferred_genre_ids,
+			}
 		return Response({
 			'success': True,
 			'message': 'Personalized recommendations retrieved successfully',
 			'data': {
-				'recommendations': cached_result,
+				'recommendations': recommendation_payload.get('items', []),
 				'cached': True,
-				'algorithm': algorithm
+				'algorithm': algorithm,
+				'preferences_applied': recommendation_payload.get('preferences_applied', bool(preferred_genre_ids)),
+				'preferred_genre_ids': recommendation_payload.get('preferred_genre_ids', preferred_genre_ids),
+				'preferred_genres': preferred_genres_data,
 			}
 		})
 	
@@ -223,8 +239,14 @@ def personalized_recommendations(request):
 	else:  # hybrid (default)
 		recommendations = engine.get_hybrid_recommendations(user.id, limit=limit)
 	
+	recommendation_payload = {
+		'items': recommendations,
+		'preferences_applied': bool(preferred_genre_ids),
+		'preferred_genre_ids': preferred_genre_ids,
+	}
+
 	# Cache for 1 hour
-	cache.set(cache_key, recommendations, 3600)
+	cache.set(cache_key, recommendation_payload, 3600)
 	
 	return Response({
 		'success': True,
@@ -233,7 +255,10 @@ def personalized_recommendations(request):
 			'recommendations': recommendations,
 			'cached': False,
 			'algorithm': algorithm,
-			'ml_enabled': engine.is_enabled()
+			'ml_enabled': engine.is_enabled(),
+			'preferences_applied': bool(preferred_genre_ids),
+			'preferred_genre_ids': preferred_genre_ids,
+			'preferred_genres': preferred_genres_data,
 		}
 	})
 

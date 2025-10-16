@@ -86,8 +86,8 @@ export default function RegisterPage() {
 
     try {
       await register({
-        email: formData.email,
-        username: formData.username,
+        email: formData.email.trim().toLowerCase(),
+        username: formData.username.trim(),
         password: formData.password,
         password_confirm: formData.password_confirm,
       })
@@ -171,6 +171,8 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                   autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   className={styles.authInput}
                 />
               </div>
@@ -184,6 +186,8 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   required
                   autoComplete="username"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   className={styles.authInput}
                 />
               </div>

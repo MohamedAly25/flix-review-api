@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { recommendationsService } from '@/services/recommendations'
+import { userPreferencesService } from '@/services/userPreferences'
 import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
@@ -23,6 +24,13 @@ export default function TasteProfilePage() {
     queryKey: ['taste-profile'],
     queryFn: () => recommendationsService.getTasteProfile(),
     enabled: isAuthenticated,
+  })
+
+  const { data: preferredGenresData, isLoading: preferredGenresLoading } = useQuery({
+    queryKey: ['users', 'preferred-genres', 'taste-profile'],
+    queryFn: () => userPreferencesService.getPreferredGenres(),
+    enabled: isAuthenticated,
+    retry: false,
   })
 
   if (authLoading || isLoading) {
@@ -82,6 +90,62 @@ export default function TasteProfilePage() {
         <div className="container mx-auto px-4 pb-16">
           {tasteProfile ? (
             <div className="space-y-12">
+              {isAuthenticated && (
+                <div className="flix-card p-8">
+                  <div className="flex flex-wrap items-start justify-between gap-6">
+                    <div className="space-y-2">
+                      <p className="text-xs uppercase tracking-[0.28em] text-flix-accent/70">Manual taste preferences</p>
+                      <h2 className="flix-heading-md">Preferred Genres</h2>
+                      <p className="flix-text-secondary text-sm max-w-2xl">
+                        These picks are merged with your historical ratings to prioritize what appears first. Update them to instantly shift your recommendations.
+                      </p>
+                    </div>
+                    <Link
+                      href="/account"
+                      className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-flix-accent-hover"
+                    >
+                      Manage picks
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </Link>
+                  </div>
+
+                  {preferredGenresLoading ? (
+                    <div className="mt-6 flex items-center gap-3 text-sm text-white/60">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-flix-accent" />
+                      Loading preferred genres…
+                    </div>
+                  ) : preferredGenresData?.preferred_genres?.length ? (
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {preferredGenresData.preferred_genres.map((genre) => (
+                        <span
+                          key={genre.id}
+                          className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white"
+                        >
+                          {genre.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/12 bg-white/5 p-4">
+                      <p className="flix-text-secondary text-sm">
+                        You haven&apos;t set manual preferences yet. Pick up to three genres from your account page to steer the recommendation engine instantly.
+                      </p>
+                      <Link
+                        href="/account"
+                        className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-white/20"
+                      >
+                        Choose genres
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Overview Stats - Enhanced Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flix-card p-8 text-center hover:scale-105 transition-transform">

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Link from 'next/link'
 import { useMovies } from '@/hooks/useMovies'
 import { useUserReviews } from '@/hooks/useReviews'
 import { MovieCard } from '@/components/movies/MovieCard'
@@ -20,6 +21,7 @@ export default function MoviesPage() {
   })
   const [page, setPage] = useState(1)
   const { user, isAuthenticated } = useAuth()
+  const preferredGenres = useMemo(() => user?.preferred_genres ?? [], [user?.preferred_genres])
 
   const isDefaultFiltersActive =
     filters.search === '' &&
@@ -59,13 +61,13 @@ export default function MoviesPage() {
     setPage(1)
   }
 
-  const movies = data?.results ?? []
+  const movies = useMemo(() => data?.results ?? [], [data?.results])
   const isInitialLoading = isLoading && !data
   const isRefetching = isFetching && !isInitialLoading
   const skeletonItems = Array.from({ length: page === 1 ? 8 : 4 })
 
   // Calculate user's genre preferences based on their reviews
-  const genrePreferences = useMemo(() => {
+  const reviewDerivedPreferences = useMemo(() => {
     if (!userReviewsData?.results || !isAuthenticated) {
       return {}
     }
@@ -90,6 +92,31 @@ export default function MoviesPage() {
 
     return preferences
   }, [userReviewsData, isAuthenticated])
+
+  const manualPreferenceMap = useMemo(() => {
+    if (!preferredGenres.length) {
+      return {}
+    }
+
+    return preferredGenres.reduce<Record<string, number>>((acc, genre, index) => {
+      const weight = Math.max(0.6, 1 - index * 0.2)
+      acc[genre.name] = weight
+      return acc
+    }, {})
+  }, [preferredGenres])
+
+  const genrePreferences = useMemo(() => {
+    if (Object.keys(manualPreferenceMap).length === 0) {
+      return reviewDerivedPreferences
+    }
+
+    return {
+      ...reviewDerivedPreferences,
+      ...manualPreferenceMap,
+    }
+  }, [manualPreferenceMap, reviewDerivedPreferences])
+
+  const hasManualPreferences = preferredGenres.length > 0
 
   const totalPages = data?.count ? Math.ceil(data.count / 12) : 0
   const currentPageCount = movies.length
@@ -166,7 +193,10 @@ export default function MoviesPage() {
             ) : (
               featuredMovie && (
                 <div className="flix-mt-xl">
-                  <MovieHero movie={featuredMovie} badgeLabel="Random Pick" />
+                  <MovieHero
+                    movie={featuredMovie}
+                    badgeLabel={hasManualPreferences ? 'Tailored Pick' : 'Random Pick'}
+                  />
                 </div>
               )
             )}
@@ -179,6 +209,38 @@ export default function MoviesPage() {
               />
 
               <div className="flix-mt-sm">
+                {hasManualPreferences && (
+                  <div className="mb-6 rounded-3xl border border-flix-accent/30 bg-flix-accent/10 p-6">
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.28em] text-flix-accent/70">Manual taste boost</p>
+                        <p className="mt-2 text-sm text-white/70">
+                          These genres are currently boosting your browse results. Adjust them from your account whenever your mood changes.
+                        </p>
+                      </div>
+                      <Link
+                        href="/account"
+                        className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-flix-accent-hover"
+                      >
+                        Update picks
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {preferredGenres.map((genre) => (
+                        <span
+                          key={genre.id}
+                          className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-white"
+                        >
+                          {genre.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {error ? (
                   <div className="flix-card rounded-3xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur">
                     <svg

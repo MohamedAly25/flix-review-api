@@ -7,10 +7,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from common.mixins import ApiResponseMixin
 
+from .models import UserProfile
 from .serializers import (
 	UserRegistrationSerializer,
 	CustomTokenObtainPairSerializer,
 	UserProfileSerializer,
+	UserPreferredGenresSerializer,
 )
 
 
@@ -64,9 +66,36 @@ class UserProfileView(ApiResponseMixin, generics.RetrieveUpdateDestroyAPIView):
 	}
 
 	def get_object(self):
+		UserProfile.objects.get_or_create(user=self.request.user)
 		return self.request.user
 
 	def destroy(self, request, *args, **kwargs):
 		instance = self.get_object()
 		self.perform_destroy(instance)
 		return Response({'detail': 'User account deleted'}, status=status.HTTP_200_OK)
+
+
+class UserPreferredGenresView(ApiResponseMixin, generics.GenericAPIView):
+	serializer_class = UserPreferredGenresSerializer
+	permission_classes = [permissions.IsAuthenticated]
+	success_messages = {
+		'GET': 'Preferred genres retrieved successfully',
+		'POST': 'Preferred genres updated successfully',
+	}
+
+	def get_profile(self):
+		profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
+		return profile
+
+	def get(self, request, *args, **kwargs):
+		profile = self.get_profile()
+		serializer = self.get_serializer(profile, context={'request': request})
+		return Response(serializer.data)
+
+	def post(self, request, *args, **kwargs):
+		profile = self.get_profile()
+		serializer = self.get_serializer(profile, data=request.data, context={'request': request})
+		serializer.is_valid(raise_exception=True)
+		updated_profile = serializer.save()
+		response_data = self.get_serializer(updated_profile, context={'request': request}).data
+		return Response(response_data)

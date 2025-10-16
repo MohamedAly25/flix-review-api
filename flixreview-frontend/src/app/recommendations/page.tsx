@@ -40,12 +40,22 @@ export default function RecommendationsPage() {
 
   const skeletonCards = Array.from({ length: 6 })
 
+  const preferredGenres = personalizedData?.preferredGenres ?? []
+  const preferencesApplied = Boolean(personalizedData?.preferencesApplied)
+  const personalizedMetadata = personalizedData
+    ? [
+        personalizedData.cached ? 'Cached for faster load' : 'Live recommendation blend',
+        personalizedData.algorithm ? `${personalizedData.algorithm} algorithm` : null,
+        preferencesApplied ? 'Preferences applied' : null,
+      ].filter(Boolean)
+    : []
+
   return (
     <div className="min-h-screen flex flex-col flix-bg-primary">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow pt-24 sm:pt-28">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-flix-accent/20 via-transparent to-transparent py-16">
+        <section className="relative overflow-hidden bg-gradient-to-br from-flix-accent/20 via-transparent to-transparent pt-12 pb-16 sm:pt-16 sm:pb-20">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl">
               <h1 className="flix-h1 mb-4">Discover Amazing Movies</h1>
@@ -63,10 +73,15 @@ export default function RecommendationsPage() {
               <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <h2 className="flix-h2 mb-2">For You</h2>
-                  <p className="text-sm text-white/60">
-                    {personalizedData?.algorithm
-                      ? `Powered by ${personalizedData.algorithm} algorithm`
-                      : 'Personalized based on your viewing history'}
+                  <p className="flex flex-wrap items-center gap-2 text-sm text-white/60">
+                    {personalizedMetadata.length > 0
+                      ? personalizedMetadata.map((item) => (
+                          <span key={item} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white/60">
+                            <span className="h-1.5 w-1.5 rounded-full bg-flix-accent" />
+                            {item}
+                          </span>
+                        ))
+                      : 'Personalized using your viewing history and recent reviews'}
                   </p>
                 </div>
                 <Link
@@ -84,11 +99,60 @@ export default function RecommendationsPage() {
                   ))}
                 </div>
               ) : personalizedData?.movies && personalizedData.movies.length > 0 ? (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
-                  {personalizedData.movies.map((movie) => (
-                    <MovieCard key={movie.id} movie={movie} />
-                  ))}
-                </div>
+                <>
+                  {preferredGenres.length > 0 ? (
+                    <div className="mb-6 rounded-3xl border border-flix-accent/30 bg-flix-accent/10 p-6">
+                      <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.28em] text-flix-accent/70">Manual taste boost</p>
+                          <p className="mt-2 text-sm text-white/70">
+                            We prioritized these genres in your current mix. Update them anytime from your account.
+                          </p>
+                        </div>
+                        <Link
+                          href="/account"
+                          className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-flix-accent-hover"
+                        >
+                          Adjust genres
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </Link>
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {preferredGenres.map((genre) => (
+                          <span
+                            key={genre.id}
+                            className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-white"
+                          >
+                            {genre.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : !preferencesApplied ? (
+                    <div className="mb-6 rounded-3xl border border-white/15 bg-white/5 p-6">
+                      <p className="text-sm text-white/70">
+                        Set up your preferred genres to instantly tilt recommendations toward what you love. You can pick up to three genres from the account page.
+                      </p>
+                      <Link
+                        href="/account"
+                        className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-white/20"
+                      >
+                        Choose preferred genres
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                      </Link>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                    {personalizedData.movies.map((movie) => (
+                      <MovieCard key={movie.id} movie={movie} />
+                    ))}
+                  </div>
+                </>
               ) : (
                 <div className="flix-card p-12 text-center">
                   <svg
