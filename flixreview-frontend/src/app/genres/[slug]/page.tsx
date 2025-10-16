@@ -26,34 +26,22 @@ export default function GenreDetailPage({ params }: { params: Promise<{ slug: st
   const totalPages = moviesData?.count ? Math.ceil(moviesData.count / 18) : 0
 
   return (
-    <div className="min-h-screen flex flex-col flix-bg-primary">
+    <div className="flix-main-layout">
       <Header />
-      <main className="flex-grow">
+      <main className="flix-main-content">
         {isLoading ? (
-          <div className="flex items-center justify-center py-32">
+          <div className="flix-loading-panel">
             <Spinner size="lg" />
           </div>
         ) : !genre ? (
-          <div className="container mx-auto px-6 py-16">
-            <div className="flix-card p-12 text-center">
-              <svg
-                className="mx-auto mb-4 h-16 w-16 text-white/20"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
+          <div className="flix-container flix-section">
+            <div className="flix-card flix-p-2xl flix-text-center">
+              <svg className="w-16 h-16 flix-text-muted flix-mx-auto flix-mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <p className="text-lg font-medium text-white">Genre not found</p>
-              <Link
-                href="/genres"
-                className="mt-6 inline-block rounded-lg bg-flix-accent px-6 py-3 font-medium text-white transition-colors hover:bg-flix-accent-hover"
-              >
+              <h2 className="flix-title flix-mb-sm">Genre not found</h2>
+              <p className="flix-body flix-text-muted flix-mb-lg">The genre you&apos;re looking for doesn&apos;t exist.</p>
+              <Link href="/genres" className="flix-btn flix-btn-primary flix-btn-lg">
                 Browse All Genres
               </Link>
             </div>
@@ -61,84 +49,82 @@ export default function GenreDetailPage({ params }: { params: Promise<{ slug: st
         ) : (
           <>
             {/* Hero Section */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-flix-accent/10 via-transparent to-transparent py-16">
-              <div className="container mx-auto px-6">
+            <section className="flix-hero">
+              <div className="flix-hero-background"></div>
+              <div className="flix-hero-content flix-fade-in">
                 {/* Breadcrumb */}
-                <nav className="mb-8">
-                  <ol className="flex items-center gap-2 text-sm text-white/60">
+                <nav className="flix-mb-xl" aria-label="Breadcrumb">
+                  <ol className="flix-flex flix-items-center flix-gap-2xs flix-small flix-text-muted">
                     <li>
-                      <Link href="/genres" className="transition-colors hover:text-white">
+                      <Link href="/genres" className="flix-transition-fast hover:flix-text-primary">
                         Genres
                       </Link>
                     </li>
-                    <li>/</li>
-                    <li className="font-medium text-white">{genre.name}</li>
+                    <li aria-hidden="true">/</li>
+                    <li className="flix-font-semibold flix-text-primary">{genre.name}</li>
                   </ol>
                 </nav>
 
                 {/* Genre Header */}
                 <div className="max-w-4xl">
-                  <div className="mb-4 inline-block rounded-full bg-flix-accent/20 px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-flix-accent">
+                  <div className="flix-mb-md flix-inline-flex flix-items-center flix-gap-2xs flix-px-md flix-py-2xs flix-rounded-full flix-bg-accent/20 flix-small flix-font-semibold flix-uppercase flix-tracking-wide flix-accent">
                     {genre.movie_count || 0} {genre.movie_count === 1 ? 'Movie' : 'Movies'}
                   </div>
-                  <h1 className="flix-h1 mb-6">{genre.name}</h1>
+                  <h1 className="flix-hero-title flix-mb-lg">{genre.name}</h1>
                   {genre.description && (
-                    <p className="text-lg leading-relaxed text-white/80">{genre.description}</p>
+                    <p className="flix-body-lg flix-text-muted">{genre.description}</p>
                   )}
                 </div>
               </div>
             </section>
 
             {/* Movies Section */}
-            <section className="container mx-auto px-6 py-12">
-              {/* Sort Controls */}
-              <div className="mb-8 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-white">
-                  {moviesData?.results ? `${moviesData.count} Movies` : 'Loading...'}
-                </h2>
-                <select
-                  value={ordering}
-                  onChange={(e) => {
-                    setOrdering(e.target.value)
-                    setPage(1)
-                  }}
-                  className="rounded-lg bg-white/5 px-4 py-2.5 text-sm font-medium text-white outline-none ring-1 ring-white/10 transition-all hover:bg-white/10 focus:ring-flix-accent"
-                >
-                  <option value="-avg_rating">Highest Rated</option>
-                  <option value="avg_rating">Lowest Rated</option>
-                  <option value="-release_date">Newest First</option>
-                  <option value="release_date">Oldest First</option>
-                  <option value="title">A to Z</option>
-                  <option value="-title">Z to A</option>
-                </select>
-              </div>
+            <section className="flix-section">
+              <div className="flix-container">
+                {/* Sort Controls */}
+                <div className="flix-flex flix-justify-between flix-items-center flix-mb-xl">
+                  <h2 className="flix-subtitle">
+                    {moviesData?.results ? `${moviesData.count} Movies` : 'Loading...'}
+                  </h2>
+                  <div className="flix-flex flix-items-center flix-gap-sm">
+                    <label htmlFor="sort-select" className="flix-small flix-text-muted flix-font-medium">
+                      Sort by:
+                    </label>
+                    <select
+                      id="sort-select"
+                      value={ordering}
+                      onChange={(e) => {
+                        setOrdering(e.target.value)
+                        setPage(1)
+                      }}
+                      className="flix-input flix-px-md flix-py-2xs flix-bg-secondary flix-border flix-rounded-md flix-transition-fast focus:flix-border-accent"
+                    >
+                      <option value="-avg_rating">Highest Rated</option>
+                      <option value="avg_rating">Lowest Rated</option>
+                      <option value="-release_date">Newest First</option>
+                      <option value="release_date">Oldest First</option>
+                      <option value="title">A to Z</option>
+                      <option value="-title">Z to A</option>
+                    </select>
+                  </div>
+                </div>
 
               {/* Movies Grid */}
               {moviesLoading ? (
-                <div className="flex justify-center py-16">
+                <div className="flix-loading-panel">
                   <Spinner />
                 </div>
               ) : !moviesData?.results || moviesData.results.length === 0 ? (
-                <div className="flix-card p-12 text-center">
-                  <svg
-                    className="mx-auto mb-4 h-16 w-16 text-white/20"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                    />
+                <div className="flix-card flix-p-2xl flix-text-center">
+                  <svg className="w-16 h-16 flix-text-muted flix-mx-auto flix-mb-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                   </svg>
-                  <p className="text-lg font-medium text-white">No movies in this genre yet</p>
-                  <p className="mt-2 text-white/60">Check back soon for new additions</p>
+                  <h3 className="flix-title flix-mb-sm">No movies in this genre yet</h3>
+                  <p className="flix-body flix-text-muted">Check back soon for new additions</p>
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                  <div className="flix-movie-grid">
                     {moviesData.results.map((movie) => (
                       <MovieCard key={movie.id} movie={movie} />
                     ))}
@@ -146,29 +132,29 @@ export default function GenreDetailPage({ params }: { params: Promise<{ slug: st
 
                   {/* Pagination */}
                   {totalPages > 1 && (
-                    <div className="mt-12 flex items-center justify-center gap-4">
+                    <div className="flix-mt-2xl flix-flex flix-justify-center flix-items-center flix-gap-md">
                       <button
                         onClick={() => setPage((p) => Math.max(1, p - 1))}
                         disabled={!moviesData.previous}
-                        className="flex items-center gap-2 rounded-lg bg-white/5 px-6 py-3 font-medium text-white transition-all hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flix-btn flix-btn-secondary flix-btn-sm flix-flex flix-items-center flix-gap-2xs disabled:flix-opacity-50 disabled:flix-cursor-not-allowed"
                       >
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                         </svg>
                         Previous
                       </button>
 
-                      <span className="rounded-lg bg-white/5 px-6 py-3 font-medium text-white">
+                      <span className="flix-small flix-text-muted flix-font-medium flix-px-md flix-py-2xs flix-bg-secondary flix-rounded-md">
                         Page {page} of {totalPages}
                       </span>
 
                       <button
                         onClick={() => setPage((p) => p + 1)}
                         disabled={!moviesData.next}
-                        className="flex items-center gap-2 rounded-lg bg-white/5 px-6 py-3 font-medium text-white transition-all hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="flix-btn flix-btn-secondary flix-btn-sm flix-flex flix-items-center flix-gap-2xs disabled:flix-opacity-50 disabled:flix-cursor-not-allowed"
                       >
                         Next
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
@@ -176,6 +162,7 @@ export default function GenreDetailPage({ params }: { params: Promise<{ slug: st
                   )}
                 </>
               )}
+            </div>
             </section>
           </>
         )}

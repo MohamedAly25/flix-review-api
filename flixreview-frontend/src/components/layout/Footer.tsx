@@ -52,10 +52,7 @@ const footerLinkGroups: FooterLink[][] = [
 
 export function Footer() {
   return (
-    <footer
-      className="flix-bg-secondary"
-      style={{ borderTop: '1px solid var(--flix-border)', marginTop: 'auto' }}
-    >
+    <footer className="flix-footer-shell">
       <div className="flix-container">
         <div className="flix-footer">
           <p className="flix-small flix-text-muted flix-text-center">
@@ -66,19 +63,12 @@ export function Footer() {
             {footerLinkGroups.map((links, index) => (
               <ul
                 key={index}
-                style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  margin: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
+                className="flix-footer-column"
               >
                 {links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="flix-footer-link" style={{ textAlign: 'center' }}>
-                      <span className="flix-font-semibold" style={{ display: 'block' }}>
+                    <Link href={link.href} className="flix-footer-link">
+                      <span className="flix-font-semibold">
                         {link.label}
                       </span>
                     </Link>

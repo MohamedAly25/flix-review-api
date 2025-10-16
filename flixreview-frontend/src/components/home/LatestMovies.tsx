@@ -16,7 +16,7 @@ export function LatestMovies() {
   const movies = data?.results ?? []
 
   return (
-    <section className="flix-section flix-bg-secondary">
+    <section className="flix-section-muted">
       <div className="flix-container">
         <div className="flix-flex flix-justify-between flix-items-end flix-gap-md flix-mb-lg">
           <div>
@@ -28,7 +28,7 @@ export function LatestMovies() {
         </div>
 
         {isLoading ? (
-          <div className="flix-flex flix-justify-center" style={{ padding: '48px 0' }}>
+          <div className="flix-loading-panel">
             <Spinner size="md" />
           </div>
         ) : isError ? (

@@ -5,6 +5,7 @@ interface HighlightItem {
   description: string;
   icon: ReactNode;
   badge?: string;
+  meta?: string;
 }
 
 const HIGHLIGHTS: HighlightItem[] = [
@@ -28,6 +29,7 @@ const HIGHLIGHTS: HighlightItem[] = [
       </svg>
     ),
     badge: "Adaptive Engine",
+    meta: "Powered by 40K+ rating signals",
   },
   {
     title: "Verified Community Voices",
@@ -55,6 +57,7 @@ const HIGHLIGHTS: HighlightItem[] = [
       </svg>
     ),
     badge: "Trust & Safety",
+    meta: "Every profile verified through playback telemetry",
   },
   {
     title: "Shared Watchrooms",
@@ -82,40 +85,89 @@ const HIGHLIGHTS: HighlightItem[] = [
       </svg>
     ),
     badge: "New",
+    meta: "Latency under 120ms for co-watching events",
+  },
+  {
+    title: "Studio Mode Dashboards",
+    description:
+      "Monitor trending reviews, session quality, and watch time from a single, cinematic view.",
+    icon: (
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        className="flix-highlight-icon"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M4.5 5H19.5M4.5 12H15.5M4.5 19H13"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M17.5 10.5L19.5 12l-2 1.5"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M12 15.5L14 17l-2 1.5"
+        />
+      </svg>
+    ),
+    badge: "Pro Feature",
+    meta: "Insights refreshed every 15 minutes",
   },
 ];
 
 export function ExperienceHighlights() {
   return (
-    <section className="flix-section">
+    <section className="flix-section-alt" aria-labelledby="experience-highlights-heading">
       <div className="flix-container">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-12">
+        <div className="flix-highlight-header">
           <div className="max-w-2xl">
             <p className="flix-eyebrow">Why FlixReview</p>
-            <h2 className="flix-title flix-mb-sm">
+            <h2 id="experience-highlights-heading" className="flix-title flix-mb-sm">
               A premium browsing experience for film lovers
             </h2>
             <p className="flix-body flix-text-muted">
               Everything about FlixReview is designed to feel cinematic—from the responsive browsing grid to the way your ratings inform smarter picks.
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-white/50">
-            <span className="inline-flex h-2 w-2 rounded-full bg-flix-accent animate-pulse" aria-hidden="true"></span>
+          <div className="flix-flex flix-items-center flix-gap-2xs flix-small flix-text-muted">
+            <span
+              className="flix-highlight-status flix-pulse"
+              aria-hidden="true"
+            ></span>
             Real-time sync with the FlixReview API
           </div>
         </div>
 
-        <div className="grid gap-6 pt-12 md:grid-cols-2 xl:grid-cols-3">
-          {HIGHLIGHTS.map((highlight) => (
-            <article key={highlight.title} className="flix-feature-card flix-glass-card">
+        <div className="flix-highlight-grid">
+          {HIGHLIGHTS.map((highlight, index) => (
+            <article
+              key={highlight.title}
+              className="flix-feature-card flix-glass-card flix-highlight-card"
+              style={{ animationDelay: `${index * 120}ms` }}
+            >
               {highlight.badge && (
                 <span className="flix-highlight-badge">{highlight.badge}</span>
               )}
-              <div className="flix-highlight-icon-wrap" aria-hidden="true">
-                {highlight.icon}
+              <span className="flix-highlight-ambient" aria-hidden="true" />
+              <div className="flix-highlight-icon-ring" aria-hidden="true">
+                <span className="flix-highlight-icon-orbit" />
+                <div className="flix-highlight-icon-wrap">{highlight.icon}</div>
               </div>
-              <h3 className="flix-highlight-title">{highlight.title}</h3>
-              <p className="flix-highlight-copy">{highlight.description}</p>
+              <div className="flix-highlight-body">
+                <h3 className="flix-highlight-title">{highlight.title}</h3>
+                <p className="flix-highlight-copy">{highlight.description}</p>
+                {highlight.meta && (
+                  <p className="flix-highlight-meta">{highlight.meta}</p>
+                )}
+              </div>
             </article>
           ))}
         </div>

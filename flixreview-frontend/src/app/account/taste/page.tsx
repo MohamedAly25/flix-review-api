@@ -15,7 +15,7 @@ export default function TasteProfilePage() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push('/login?next=/profile/taste')
+      router.push('/login?next=/account/taste')
     }
   }, [isAuthenticated, authLoading, router])
 

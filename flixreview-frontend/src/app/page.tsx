@@ -3,13 +3,13 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { TrendingMovies } from "@/components/home/TrendingMovies";
 import { LatestMovies } from "@/components/home/LatestMovies";
+import { ExperienceHighlights } from "@/components/home/ExperienceHighlights";
 
 export default function Home() {
   return (
-    <div className="flix-min-h-screen flix-flex flix-flex-col">
+    <div className="flix-main-layout">
       <Header />
-      <main className="flix-flex-1">
-        {/* Hero Section - FlixReview Style */}
+      <main className="flix-main-content">
         <section className="flix-hero">
           <div className="flix-hero-background"></div>
           <div className="flix-hero-content flix-fade-in">
@@ -35,17 +35,16 @@ export default function Home() {
           </div>
         </section>
 
-  {/* Trending Movies Section */}
-  <TrendingMovies />
+        <ExperienceHighlights />
 
-  {/* Recently Added Movies Section */}
-  <LatestMovies />
+        <TrendingMovies />
 
-        {/* Browse Movies CTA */}
+        <LatestMovies />
+
         <section className="flix-section flix-text-center">
           <div className="flix-container">
             <h2 className="flix-title flix-mb-md">Ready to Explore?</h2>
-            <p className="flix-body flix-mb-lg" style={{ fontSize: '18px', maxWidth: '600px', margin: '0 auto 32px' }}>
+            <p className="flix-body-lg flix-text-muted flix-cta-copy flix-mb-lg">
               Browse our extensive collection, read community reviews, and share your thoughts with movie lovers worldwide.
             </p>
             <div className="flix-flex flix-justify-center flix-gap-md flix-flex-wrap">

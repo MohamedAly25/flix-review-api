@@ -3,9 +3,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { recommendationsService } from '@/services/recommendations'
 import { MovieCard } from '@/components/movies/MovieCard'
+import { MovieCardSkeleton } from '@/components/movies/MovieCardSkeleton'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
-import { Spinner } from '@/components/ui/Spinner'
 import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
 
@@ -38,6 +38,8 @@ export default function RecommendationsPage() {
     enabled: isAuthenticated,
   })
 
+  const skeletonCards = Array.from({ length: 6 })
+
   return (
     <div className="min-h-screen flex flex-col flix-bg-primary">
       <Header />
@@ -58,17 +60,17 @@ export default function RecommendationsPage() {
           {/* For You Section - Only for authenticated users */}
           {isAuthenticated && (
             <section>
-              <div className="mb-6 flex items-center justify-between">
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <h2 className="flix-h2 mb-2">For You</h2>
                   <p className="text-sm text-white/60">
-                    {personalizedData?.algorithm 
+                    {personalizedData?.algorithm
                       ? `Powered by ${personalizedData.algorithm} algorithm`
                       : 'Personalized based on your viewing history'}
                   </p>
                 </div>
                 <Link
-                  href="/profile/taste"
+                  href="/account/taste"
                   className="text-sm font-medium text-flix-accent transition-colors hover:text-flix-accent-hover"
                 >
                   View Taste Profile →
@@ -76,8 +78,10 @@ export default function RecommendationsPage() {
               </div>
 
               {loadingPersonalized ? (
-                <div className="flex justify-center py-12">
-                  <Spinner />
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                  {skeletonCards.map((_, index) => (
+                    <MovieCardSkeleton key={index} />
+                  ))}
                 </div>
               ) : personalizedData?.movies && personalizedData.movies.length > 0 ? (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
@@ -121,8 +125,10 @@ export default function RecommendationsPage() {
             </div>
 
             {loadingTopRated ? (
-              <div className="flex justify-center py-12">
-                <Spinner />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {skeletonCards.map((_, index) => (
+                  <MovieCardSkeleton key={index} />
+                ))}
               </div>
             ) : topRated && topRated.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
@@ -145,8 +151,10 @@ export default function RecommendationsPage() {
             </div>
 
             {loadingTrending ? (
-              <div className="flex justify-center py-12">
-                <Spinner />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {skeletonCards.map((_, index) => (
+                  <MovieCardSkeleton key={index} />
+                ))}
               </div>
             ) : trending && trending.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
@@ -169,8 +177,10 @@ export default function RecommendationsPage() {
             </div>
 
             {loadingMostReviewed ? (
-              <div className="flex justify-center py-12">
-                <Spinner />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {skeletonCards.map((_, index) => (
+                  <MovieCardSkeleton key={index} />
+                ))}
               </div>
             ) : mostReviewed && mostReviewed.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
@@ -193,8 +203,10 @@ export default function RecommendationsPage() {
             </div>
 
             {loadingRecent ? (
-              <div className="flex justify-center py-12">
-                <Spinner />
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+                {skeletonCards.map((_, index) => (
+                  <MovieCardSkeleton key={index} />
+                ))}
               </div>
             ) : recent && recent.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">

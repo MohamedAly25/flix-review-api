@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { useMovies } from '@/hooks/useMovies'
 import { useUserReviews } from '@/hooks/useReviews'
 import { MovieCard } from '@/components/movies/MovieCard'
+import { MovieCardSkeleton } from '@/components/movies/MovieCardSkeleton'
 import { MovieFilters, type FilterState } from '@/components/movies/MovieFilters'
 import { MovieHero } from '@/components/movies/MovieHero'
 import { Header } from '@/components/layout/Header'
@@ -29,7 +30,7 @@ export default function MoviesPage() {
 
   const pageSize = page === 1 && isDefaultFiltersActive ? 13 : 12
   
-  const { data, isLoading, error } = useMovies({
+  const { data, isLoading, isFetching, error, refetch } = useMovies({
     search: filters.search || undefined,
     genres__slug: filters.genre || undefined,
     ordering: filters.ordering,
@@ -49,7 +50,19 @@ export default function MoviesPage() {
     setPage(1) // Reset to first page when filters change
   }
 
+  const handleResetFilters = () => {
+    setFilters({
+      search: '',
+      genre: '',
+      ordering: '-avg_rating',
+    })
+    setPage(1)
+  }
+
   const movies = data?.results ?? []
+  const isInitialLoading = isLoading && !data
+  const isRefetching = isFetching && !isInitialLoading
+  const skeletonItems = Array.from({ length: page === 1 ? 8 : 4 })
 
   // Calculate user's genre preferences based on their reviews
   const genrePreferences = useMemo(() => {
@@ -82,7 +95,7 @@ export default function MoviesPage() {
   const currentPageCount = movies.length
   const showingStart = currentPageCount ? (page - 1) * 12 + 1 : 0
   const showingEnd = currentPageCount ? Math.min((page - 1) * 12 + currentPageCount, data?.count ?? 0) : 0
-  const shouldShowHero = !isLoading && !error && page === 1 && isDefaultFiltersActive && movies.length > 1
+  const shouldShowHero = !isInitialLoading && !error && page === 1 && isDefaultFiltersActive && movies.length > 1
 
   // Select featured movie with genre preference weighting
   const featuredMovie = useMemo(() => {
@@ -130,7 +143,7 @@ export default function MoviesPage() {
   }, [movies, shouldShowHero, genrePreferences, isAuthenticated])
 
   const gridMovies = shouldShowHero ? movies.filter(movie => movie.id !== featuredMovie?.id) : movies
-  const hasNoResults = !isLoading && !error && movies.length === 0
+  const hasNoResults = !isInitialLoading && !error && movies.length === 0
 
   return (
     <div className="min-h-screen flex flex-col flix-bg-primary">
@@ -146,10 +159,16 @@ export default function MoviesPage() {
               </p>
             </div>
 
-            {featuredMovie && (
+            {isInitialLoading ? (
               <div className="flix-mt-xl">
-                <MovieHero movie={featuredMovie} badgeLabel="Random Pick" />
+                <div className="h-[360px] w-full animate-pulse rounded-3xl border border-white/5 bg-white/[0.04]" />
               </div>
+            ) : (
+              featuredMovie && (
+                <div className="flix-mt-xl">
+                  <MovieHero movie={featuredMovie} badgeLabel="Random Pick" />
+                </div>
+              )
             )}
 
             <div className="flix-mt-xl grid gap-8 lg:grid-cols-[320px_1fr] xl:grid-cols-[340px_1fr]">
@@ -160,11 +179,7 @@ export default function MoviesPage() {
               />
 
               <div className="flix-mt-sm">
-                {isLoading ? (
-                  <div className="flex justify-center flix-p-xl">
-                    <Spinner size="lg" />
-                  </div>
-                ) : error ? (
+                {error ? (
                   <div className="flix-card rounded-3xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur">
                     <svg
                       className="mx-auto mb-4 h-16 w-16 text-white/20"
@@ -180,7 +195,22 @@ export default function MoviesPage() {
                       />
                     </svg>
                     <p className="text-lg font-semibold text-flix-accent">Error loading movies</p>
-                    <p className="mt-2 text-white/60">Please try again later.</p>
+                    <p className="mt-2 text-white/60">Please try again or refresh the page.</p>
+                    <button
+                      onClick={() => refetch()}
+                      className="mt-8 inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-flix-accent-hover"
+                    >
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0019 5l.5-.5" />
+                      </svg>
+                      Retry loading titles
+                    </button>
+                  </div>
+                ) : isInitialLoading ? (
+                  <div className="grid flix-gap-md sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+                    {skeletonItems.map((_, index) => (
+                      <MovieCardSkeleton key={index} />
+                    ))}
                   </div>
                 ) : hasNoResults ? (
                   <div className="flix-card rounded-3xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur">
@@ -199,10 +229,23 @@ export default function MoviesPage() {
                     </svg>
                     <p className="text-lg font-semibold text-white">No titles match your filters yet.</p>
                     <p className="mt-2 text-white/60">Try broadening your search or clearing filters.</p>
+                    <button
+                      onClick={handleResetFilters}
+                      className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+                    >
+                      Clear filters
+                    </button>
                   </div>
                 ) : (
-                  <div>
-                    <div className="flex flex-wrap items-center justify-between flix-gap-xs text-sm text-white/70 flix-mb-md">
+                  <div className="space-y-8">
+                    {isRefetching && (
+                      <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white/60">
+                        <Spinner size="sm" />
+                        Updating results…
+                      </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center justify-between flix-gap-xs text-sm text-white/70">
                       <span>
                         Showing {showingStart}–{showingEnd} of {data?.count ?? 0} movies
                       </span>
@@ -218,7 +261,7 @@ export default function MoviesPage() {
                     </div>
 
                     {totalPages > 1 && (
-                      <div className="flex flex-wrap items-center justify-center flix-gap-xs flix-mt-xl">
+                      <div className="flex flex-wrap items-center justify-center flix-gap-xs">
                         <button
                           onClick={() => setPage((p) => Math.max(1, p - 1))}
                           disabled={!data?.previous}

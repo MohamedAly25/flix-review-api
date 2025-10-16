@@ -14,8 +14,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
-        <Providers>{children}</Providers>
+      <body className="antialiased flix-body-theme">
+        <Providers>
+          <div className="flix-page-shell">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

@@ -27,29 +27,29 @@ export function Header() {
     <>
       <header className="flix-header fixed top-0 left-0 right-0 z-40">
         <nav className="flix-container">
-          <div className="flix-flex flix-justify-between flix-items-center" style={{ height: '64px' }}>
+          <div className="flix-header-bar">
             <div className="flix-flex flix-items-center flix-gap-lg">
               <Link href="/" className="flix-flex flix-items-center">
                 <span className="flix-header-logo">
                   FlixReview
                 </span>
               </Link>
-              <div className="flix-hidden sm:flex flix-gap-sm">
+              <div className="flix-hidden sm:flex flix-nav">
                 <Link
                   href="/movies"
-                  className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+                  className="flix-nav-link"
                 >
                   Movies
                 </Link>
                 <Link
                   href="/genres"
-                  className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+                  className="flix-nav-link"
                 >
                   Genres
                 </Link>
                 <Link
                   href="/recommendations"
-                  className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+                  className="flix-nav-link"
                 >
                   Discover
                 </Link>
@@ -57,15 +57,15 @@ export function Header() {
                   <>
                     <Link
                       href="/my-reviews"
-                      className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+                      className="flix-nav-link"
                     >
                       My Reviews
                     </Link>
                     <Link
-                      href="/profile"
-                      className="flix-body flix-btn-secondary flix-btn-sm flix-transition-fast"
+                      href="/account"
+                      className="flix-nav-link"
                     >
-                      Profile
+                      Account
                     </Link>
                   </>
                 )}
@@ -83,8 +83,8 @@ export function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <span className="flix-hidden md:inline">Search</span>
-                <kbd className="flix-hidden lg:inline-flex flix-items-center flix-gap-1 px-2 py-1 text-xs flix-bg-primary flix-rounded-sm border border-gray-600">
-                  <span className="text-xs">⌘</span>K
+                <kbd className="flix-hidden lg:inline-flex flix-kbd">
+                  <span>⌘</span>K
                 </kbd>
               </button>
 

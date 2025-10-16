@@ -52,7 +52,7 @@ export function TrendingMovies() {
         </div>
 
         {isLoading || authLoading ? (
-          <div className="flix-flex flix-justify-center" style={{ padding: '48px 0' }}>
+          <div className="flix-loading-panel">
             <Spinner size="md" />
           </div>
         ) : isError ? (
