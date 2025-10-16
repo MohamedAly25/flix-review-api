@@ -7,7 +7,12 @@ import { Movie } from './movie'
 // Review type matching Review model + ReviewSerializer
 export interface Review {
   id: number
-  user: string              // StringRelatedField - returns username as string
+  user: {
+    username: string
+    profile_picture?: {
+      url: string
+    } | null
+  } | string  // Support both new object format and legacy string format
   movie: Movie              // Full Movie object (MovieSerializer read-only)
   content: string           // Field name is 'content' not 'comment'
   rating: number            // Must be 1-5 (RATING_CHOICES)

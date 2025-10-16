@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
@@ -6,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Spinner } from '@/components/ui/Spinner'
 import { authService } from '@/services/auth'
+import { deleteAccountSchema, type DeleteAccountFormData } from '@/lib/validations/auth'
 
 interface AccountDeletionCardProps {
   onSuccess?: () => void
@@ -14,13 +17,22 @@ interface AccountDeletionCardProps {
 export function AccountDeletionCard({ onSuccess }: AccountDeletionCardProps) {
   const { logout } = useAuth()
   const router = useRouter()
-  const [password, setPassword] = useState('')
-  const [confirmText, setConfirmText] = useState('')
-  const [errors, setErrors] = useState<Record<string, string>>({})
   const [showConfirm, setShowConfirm] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    watch,
+  } = useForm<DeleteAccountFormData>({
+    resolver: zodResolver(deleteAccountSchema),
+  })
+
+  const confirmText = watch('confirmText', '')
 
   const mutation = useMutation({
-    mutationFn: (password: string) => authService.deleteAccount(password),
+    mutationFn: (data: DeleteAccountFormData) => authService.deleteAccount(data.password),
     onSuccess: () => {
       logout()
       onSuccess?.()
@@ -28,32 +40,20 @@ export function AccountDeletionCard({ onSuccess }: AccountDeletionCardProps) {
     },
     onError: (error: unknown) => {
       const axiosError = error as { response?: { data?: { errors?: Record<string, string[] | string>; message?: string } } }
-      if (axiosError.response?.data?.errors?.password) {
-        setErrors({ password: Array.isArray(axiosError.response.data.errors.password) ? axiosError.response.data.errors.password[0] : axiosError.response.data.errors.password })
-      } else if (axiosError.response?.data?.message) {
-        setErrors({ general: axiosError.response.data.message })
+      const errorData = axiosError.response?.data
+      if (errorData?.errors?.password) {
+        setServerError('Password is incorrect.')
+      } else if (errorData?.message) {
+        setServerError(errorData.message)
       } else {
-        setErrors({ general: 'Failed to delete account. Please try again.' })
+        setServerError('Failed to delete account. Please try again.')
       }
     },
   })
 
-  const handleDeleteClick = () => {
-    if (confirmText.toLowerCase() === 'delete my account') {
-      setErrors({})
-      mutation.mutate(password)
-    } else {
-      setErrors({ confirmText: 'Please type "delete my account" to confirm.' })
-    }
-  }
-
-  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (field === 'password') setPassword(e.target.value)
-    if (field === 'confirmText') setConfirmText(e.target.value)
-
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
+  const onSubmit = (data: DeleteAccountFormData) => {
+    setServerError(null)
+    mutation.mutate(data)
   }
 
   if (!showConfirm) {
@@ -136,17 +136,15 @@ export function AccountDeletionCard({ onSuccess }: AccountDeletionCardProps) {
           </div>
         </div>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="password-form-group">
             <label className="password-form-label text-sm font-medium text-[var(--flix-text-secondary)] block mb-2">
               Confirm Password
             </label>
             <PasswordInput
-              value={password}
-              onChange={handleInputChange('password')}
+              {...register('password')}
               placeholder="Enter your password to confirm"
-              error={errors.password}
-              required
+              error={errors.password?.message}
             />
           </div>
 
@@ -155,21 +153,19 @@ export function AccountDeletionCard({ onSuccess }: AccountDeletionCardProps) {
               Type &quot;delete my account&quot; to confirm
             </label>
             <input
+              {...register('confirmText')}
               type="text"
-              value={confirmText}
-              onChange={handleInputChange('confirmText')}
               placeholder='Type &quot;delete my account&quot;'
               className="confirm-text-input w-full px-3 py-2 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500"
-              required
             />
             {errors.confirmText && (
-              <p className="text-sm text-red-400 mt-1">{errors.confirmText}</p>
+              <p className="text-sm text-red-400 mt-1">{errors.confirmText.message}</p>
             )}
           </div>
 
-          {errors.general && (
+          {serverError && (
             <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-              {errors.general}
+              {serverError}
             </div>
           )}
 
@@ -179,19 +175,18 @@ export function AccountDeletionCard({ onSuccess }: AccountDeletionCardProps) {
               variant="outline"
               size="sm"
               onClick={() => setShowConfirm(false)}
-              disabled={mutation.isPending}
+              disabled={isSubmitting || mutation.isPending}
             >
               Cancel
             </Button>
             <Button
-              type="button"
+              type="submit"
               variant="outline"
               size="sm"
-              onClick={handleDeleteClick}
-              disabled={mutation.isPending || !password || !confirmText}
+              disabled={isSubmitting || mutation.isPending || confirmText.toLowerCase() !== 'delete my account'}
               className="min-w-[120px] text-red-400 border-red-400/40 hover:bg-red-500/10 hover:border-red-400"
             >
-              {mutation.isPending ? <Spinner size="sm" /> : 'Delete Account'}
+              {isSubmitting || mutation.isPending ? <Spinner size="sm" /> : 'Delete Account'}
             </Button>
           </div>
         </form>

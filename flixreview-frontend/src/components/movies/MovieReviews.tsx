@@ -90,7 +90,7 @@ export function MovieReviews({
               <ReviewCard
                 key={review.id}
                 review={review}
-                canEdit={review.user === userUsername}
+                canEdit={typeof review.user === 'string' ? review.user === userUsername : review.user.username === userUsername}
                 onEdit={onEditReview}
                 onDelete={onDeleteReview}
               />

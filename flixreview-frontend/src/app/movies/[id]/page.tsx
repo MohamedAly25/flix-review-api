@@ -40,7 +40,9 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
       return null
     }
 
-    return reviewsData.results.find((review) => review.user === user.username) ?? null
+    return reviewsData.results.find((review) => 
+      typeof review.user === 'string' ? review.user === user.username : review.user.username === user.username
+    ) ?? null
   }, [reviewsData, user?.username])
 
   const userHasReviewed = !!userReview
@@ -100,7 +102,8 @@ export default function MovieDetailsPage({ params }: { params: Promise<{ id: str
   }
 
   const handleEditReview = (review: Review) => {
-    if (!isAuthenticated || review.user !== user?.username) {
+    const reviewUsername = typeof review.user === 'string' ? review.user : review.user.username
+    if (!isAuthenticated || reviewUsername !== user?.username) {
       return
     }
 

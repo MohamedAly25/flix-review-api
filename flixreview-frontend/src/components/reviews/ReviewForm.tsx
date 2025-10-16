@@ -1,8 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/Button'
 import { TextArea } from '@/components/ui/TextArea'
+import { reviewCreateSchema, type ReviewCreateInput } from '@/schemas/review.schema'
 
 interface ReviewFormProps {
   onSubmit: (data: { rating: number; content: string }) => Promise<void>
@@ -19,44 +22,46 @@ export function ReviewForm({
   initialContent = '',
   submitLabel = 'Submit Review',
 }: ReviewFormProps) {
-  const [rating, setRating] = useState(initialRating)
-  const [content, setContent] = useState(initialContent)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState('')
+
+  const {
+    register,
+    handleSubmit: handleFormSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+    reset
+  } = useForm<ReviewCreateInput>({
+    resolver: zodResolver(reviewCreateSchema),
+    defaultValues: {
+      rating: initialRating,
+      content: initialContent
+    }
+  })
+
+  const rating = watch('rating')
 
   useEffect(() => {
-    setRating(initialRating)
-    setContent(initialContent)
-  }, [initialRating, initialContent])
+    reset({
+      rating: initialRating,
+      content: initialContent
+    })
+  }, [initialRating, initialContent, reset])
 
-  const resetForm = () => {
-    setRating(initialRating)
-    setContent(initialContent)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-
-    if (!content.trim()) {
-      setError('Please write a review')
-      return
-    }
-
+  const handleSubmit = async (data: ReviewCreateInput) => {
     setIsSubmitting(true)
     try {
-      await onSubmit({ rating, content: content.trim() })
-      resetForm()
+      await onSubmit(data)
+      reset()
     } catch (err) {
-      const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Failed to submit review')
+      console.error('Failed to submit review:', err)
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleFormSubmit(handleSubmit)} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-white/80 mb-2">
           Your Rating
@@ -66,7 +71,7 @@ export function ReviewForm({
             <button
               key={star}
               type="button"
-              onClick={() => setRating(star)}
+              onClick={() => setValue('rating', star)}
               className="focus:outline-none"
             >
               <svg
@@ -80,19 +85,26 @@ export function ReviewForm({
             </button>
           ))}
         </div>
+        {errors.rating && (
+          <p className="text-red-400 text-sm mt-1">{errors.rating.message}</p>
+        )}
       </div>
 
-      <TextArea
-        label="Your Review"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={4}
-        placeholder="Share your thoughts about this movie..."
-        error={error}
-        labelClassName="text-white/80"
-        errorClassName="text-red-400"
-        className="bg-white/5 border-white/10 text-white placeholder-white/40 focus:ring-red-500 focus:border-red-500"
-      />
+      <div>
+        <label htmlFor="content" className="block text-sm font-medium text-white/80 mb-2">
+          Your Review
+        </label>
+        <textarea
+          id="content"
+          {...register('content')}
+          rows={4}
+          placeholder="Share your thoughts about this movie..."
+          className="w-full bg-white/5 border border-white/10 text-white placeholder-white/40 focus:ring-red-500 focus:border-red-500 rounded-lg p-3"
+        />
+        {errors.content && (
+          <p className="text-red-400 text-sm mt-1">{errors.content.message}</p>
+        )}
+      </div>
 
       <div className="flex gap-2">
         <Button type="submit" isLoading={isSubmitting}>

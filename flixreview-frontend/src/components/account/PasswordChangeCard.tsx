@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/Button'
 import { PasswordInput } from '@/components/ui/PasswordInput'
 import { Spinner } from '@/components/ui/Spinner'
 import { authService } from '@/services/auth'
+import { changePasswordSchema, type ChangePasswordFormData } from '@/lib/validations/auth'
 
 interface PasswordChangeCardProps {
   onSuccess?: () => void
@@ -12,59 +15,41 @@ interface PasswordChangeCardProps {
 
 export function PasswordChangeCard({ onSuccess }: PasswordChangeCardProps) {
   const { logout } = useAuth()
-  const [formData, setFormData] = useState({
-    current_password: '',
-    new_password: '',
-    new_password_confirm: '',
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<ChangePasswordFormData>({
+    resolver: zodResolver(changePasswordSchema),
   })
-  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const mutation = useMutation({
-    mutationFn: (data: typeof formData) => authService.changePassword(data),
+    mutationFn: (data: ChangePasswordFormData) => authService.changePassword(data),
     onSuccess: () => {
-      // Clear form and logout user (force re-login with new password)
-      setFormData({
-        current_password: '',
-        new_password: '',
-        new_password_confirm: '',
-      })
-      setErrors({})
+      reset()
+      setServerError(null)
       logout()
       onSuccess?.()
     },
     onError: (error: unknown) => {
       const axiosError = error as { response?: { data?: { errors?: Record<string, string[] | string>; message?: string } } }
-      if (axiosError.response?.data?.errors) {
-        const errorObj: Record<string, string> = {}
-        Object.entries(axiosError.response.data.errors).forEach(([key, value]) => {
-          errorObj[key] = Array.isArray(value) ? value[0] : value
-        })
-        setErrors(errorObj)
-      } else if (axiosError.response?.data?.message) {
-        setErrors({ general: axiosError.response.data.message })
+      const errorData = axiosError.response?.data
+      if (errorData?.errors?.current_password) {
+        setServerError('Current password is incorrect.')
+      } else if (errorData?.message) {
+        setServerError(errorData.message)
       } else {
-        setErrors({ general: 'Failed to change password. Please try again.' })
+        setServerError('Failed to change password. Please try again.')
       }
     },
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setErrors({})
-
-    if (formData.new_password !== formData.new_password_confirm) {
-      setErrors({ new_password_confirm: 'New passwords do not match.' })
-      return
-    }
-
-    mutation.mutate(formData)
-  }
-
-  const handleInputChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({ ...prev, [field]: e.target.value }))
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
-    }
+  const onSubmit = (data: ChangePasswordFormData) => {
+    setServerError(null)
+    mutation.mutate(data)
   }
 
   return (
@@ -83,17 +68,15 @@ export function PasswordChangeCard({ onSuccess }: PasswordChangeCardProps) {
 
       {/* Card Content Section */}
       <div className="password-change-card-content flix-p-lg">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="password-form-group">
             <label className="password-form-label text-sm font-medium text-[var(--flix-text-secondary)] block mb-2">
               Current Password
             </label>
             <PasswordInput
-              value={formData.current_password}
-              onChange={handleInputChange('current_password')}
+              {...register('current_password')}
               placeholder="Enter your current password"
-              error={errors.current_password}
-              required
+              error={errors.current_password?.message}
             />
           </div>
 
@@ -102,11 +85,9 @@ export function PasswordChangeCard({ onSuccess }: PasswordChangeCardProps) {
               New Password
             </label>
             <PasswordInput
-              value={formData.new_password}
-              onChange={handleInputChange('new_password')}
+              {...register('new_password')}
               placeholder="Enter your new password"
-              error={errors.new_password}
-              required
+              error={errors.new_password?.message}
             />
           </div>
 
@@ -115,17 +96,15 @@ export function PasswordChangeCard({ onSuccess }: PasswordChangeCardProps) {
               Confirm New Password
             </label>
             <PasswordInput
-              value={formData.new_password_confirm}
-              onChange={handleInputChange('new_password_confirm')}
+              {...register('new_password_confirm')}
               placeholder="Confirm your new password"
-              error={errors.new_password_confirm}
-              required
+              error={errors.new_password_confirm?.message}
             />
           </div>
 
-          {errors.general && (
+          {serverError && (
             <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-              {errors.general}
+              {serverError}
             </div>
           )}
 
@@ -134,10 +113,10 @@ export function PasswordChangeCard({ onSuccess }: PasswordChangeCardProps) {
               type="submit"
               variant="outline"
               size="sm"
-              disabled={mutation.isPending}
+              disabled={isSubmitting || mutation.isPending}
               className="min-w-[120px]"
             >
-              {mutation.isPending ? <Spinner size="sm" /> : 'Change Password'}
+              {isSubmitting || mutation.isPending ? <Spinner size="sm" /> : 'Change Password'}
             </Button>
           </div>
         </form>
