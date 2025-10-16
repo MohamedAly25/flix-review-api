@@ -711,6 +711,46 @@ python manage.py test accounts movies reviews -v 2
 | `CORS_ALLOW_ALL_ORIGINS` | Allow all CORS | True |
 | `SECURE_SSL_REDIRECT` | SSL redirect | False (dev) / True (prod) |
 
+## 🛠 Management Commands
+
+Django provides several management commands for data management and maintenance:
+
+### Movie Data Management
+
+```bash
+# Import popular movies from TMDB
+python manage.py import_popular_movies
+
+# Import a specific movie by TMDB ID
+python manage.py import_tmdb_movie --tmdb-id 550
+
+# Clean up movies not imported from TMDB (removes movies without tmdb_id)
+python manage.py cleanup_non_tmdb_movies --dry-run  # Preview what will be deleted
+python manage.py cleanup_non_tmdb_movies --force    # Skip confirmation
+python manage.py cleanup_non_tmdb_movies             # Interactive mode
+```
+
+### Data Seeding
+
+```bash
+# Seed database with sample data
+python manage.py seed_data
+```
+
+### Testing & Quality
+
+```bash
+# Run all tests with coverage
+python manage.py test --coverage
+
+# Run specific app tests
+python manage.py test movies -v 2
+
+# Check code quality
+flake8 .
+black --check .
+```
+
 ## 🤝 Contributing
 
 1. Fork the repository

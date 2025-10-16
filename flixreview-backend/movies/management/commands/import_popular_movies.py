@@ -2,9 +2,9 @@
 Management command to import popular movies from TMDB
 
 Usage:
-    python manage.py import_popular_movies
-    python manage.py import_popular_movies --pages 5
-    python manage.py import_popular_movies --pages 2 --force
+    python manage.py import_popular_movies                    # Import 2000 movies (100 pages)
+    python manage.py import_popular_movies --pages 5         # Import 100 movies (5 pages)
+    python manage.py import_popular_movies --pages 2 --force # Force re-import 40 movies
 """
 from django.core.management.base import BaseCommand, CommandError
 from movies.services import TMDBService
@@ -18,8 +18,8 @@ class Command(BaseCommand):
         parser.add_argument(
             '--pages',
             type=int,
-            default=1,
-            help='Number of pages to import (20 movies per page)'
+            default=100,  # Default to 100 pages (2000 movies)
+            help='Number of pages to import (20 movies per page, default: 100)'
         )
         parser.add_argument(
             '--force',
@@ -32,16 +32,45 @@ class Command(BaseCommand):
             default=0.5,
             help='Delay between requests in seconds (default: 0.5)'
         )
+        parser.add_argument(
+            '--retry-failed',
+            action='store_true',
+            help='Retry importing movies that previously failed'
+        )
+        parser.add_argument(
+            '--failed-pages',
+            type=str,
+            help='Comma-separated list of pages to retry (e.g., "1,5,10")'
+        )
 
     def handle(self, *args, **options):
         pages = options['pages']
         force = options['force']
         delay = options['delay']
+        retry_failed = options['retry_failed']
+        failed_pages = options.get('failed_pages')
         
-        if pages < 1 or pages > 10:
-            raise CommandError('Pages must be between 1 and 10')
+        if retry_failed and failed_pages:
+            # Parse failed pages
+            try:
+                page_list = [int(p.strip()) for p in failed_pages.split(',')]
+                pages = len(page_list)
+                self.stdout.write(f'Retrying import for {pages} specific pages: {page_list}')
+            except ValueError:
+                raise CommandError('Invalid failed-pages format. Use comma-separated numbers like "1,5,10"')
+        elif retry_failed:
+            # Default retry behavior - try pages that might have failed
+            page_list = list(range(1, pages + 1))
+        else:
+            page_list = list(range(1, pages + 1))
         
-        self.stdout.write(f'Importing {pages} page(s) of popular movies from TMDB...')
+        if pages < 1 or pages > 500:
+            raise CommandError('Pages must be between 1 and 500')
+        
+        if retry_failed:
+            self.stdout.write(f'Retrying import of {pages} page(s) of popular movies from TMDB with enhanced error handling...')
+        else:
+            self.stdout.write(f'Importing {pages} page(s) of popular movies from TMDB...')
         
         # Initialize TMDB service
         service = TMDBService()
@@ -54,15 +83,20 @@ class Command(BaseCommand):
         total_skipped = 0
         total_failed = 0
         
-        for page in range(1, pages + 1):
-            self.stdout.write(f'\nProcessing page {page}...')
+        for page_idx, page in enumerate(page_list):
+            if retry_failed and failed_pages:
+                current_page = page
+            else:
+                current_page = page_idx + 1
+                
+            self.stdout.write(f'\nProcessing page {current_page}...')
             
             # Get popular movies for this page
-            movies = service.get_popular_movies(page=page)
+            movies = service.get_popular_movies(page=current_page)
             
             if not movies:
                 self.stdout.write(
-                    self.style.WARNING(f'No movies found on page {page}')
+                    self.style.WARNING(f'No movies found on page {current_page}')
                 )
                 continue
             
@@ -75,7 +109,7 @@ class Command(BaseCommand):
                 from movies.models import Movie
                 existing = Movie.objects.filter(tmdb_id=tmdb_id).first()
                 
-                if existing and not force:
+                if existing and not force and not retry_failed:
                     self.stdout.write(f'  ⊙ Skipped: {title} (already exists)')
                     total_skipped += 1
                     continue
@@ -85,11 +119,14 @@ class Command(BaseCommand):
                 
                 if result:
                     action = "↻" if result.get('created') is False else "✓"
-                    self.stdout.write(f'  {action} Imported: {title}')
+                    source = result.get('source', 'TMDB')
+                    self.stdout.write(f'  {action} Imported: {title} ({source})')
                     total_imported += 1
                 else:
+                    # Try to get more specific error information
+                    error_msg = f"Failed to import: {title} (TMDB ID: {tmdb_id})"
                     self.stdout.write(
-                        self.style.WARNING(f'  ✗ Failed: {title}')
+                        self.style.ERROR(f'  ✗ {error_msg}')
                     )
                     total_failed += 1
                 
