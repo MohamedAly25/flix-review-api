@@ -73,10 +73,10 @@ export function MovieFilters({ onFilterChange, currentFilters, className }: Movi
       'flix-card space-y-5 rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_72px_rgba(0,0,0,0.35)] backdrop-blur-lg transition-shadow',
       className,
     )}>
-      {/* Search Bar */}
-      <div className="relative">
+      {/* Search Bar - Enhanced */}
+      <div className="movies-search-container">
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40"
+          className="movies-search-icon"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -90,11 +90,22 @@ export function MovieFilters({ onFilterChange, currentFilters, className }: Movi
         </svg>
         <input
           type="search"
-          placeholder="Search movies by title or description..."
+          placeholder="Search"
           value={localFilters.search}
           onChange={(e) => handleFilterUpdate('search', e.target.value)}
-          className="w-full rounded-full border border-white/10 bg-white/10 py-3 pl-12 pr-4 text-white placeholder-white/40 outline-none transition-all focus:border-flix-accent focus:bg-white/20"
+          className="movies-search-input"
         />
+        {localFilters.search && (
+          <button
+            onClick={() => handleFilterUpdate('search', '')}
+            className="movies-search-clear"
+            aria-label="Clear search"
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Filter Toggle */}

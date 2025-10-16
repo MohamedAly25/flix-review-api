@@ -1,16 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import Link from 'next/link'
 import { useMovies } from '@/hooks/useMovies'
 import { useUserReviews } from '@/hooks/useReviews'
-import { MovieCard } from '@/components/movies/MovieCard'
-import { MovieCardSkeleton } from '@/components/movies/MovieCardSkeleton'
 import { MovieFilters, type FilterState } from '@/components/movies/MovieFilters'
 import { MovieHero } from '@/components/movies/MovieHero'
+import { MoviesPageHeader } from '@/components/movies/MoviesPageHeader'
+import { MoviesGrid } from '@/components/movies/MoviesGrid'
+import { UserPreferencesBanner } from '@/components/movies/UserPreferencesBanner'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
-import { Spinner } from '@/components/ui/Spinner'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function MoviesPage() {
@@ -31,7 +30,7 @@ export default function MoviesPage() {
     !filters.rating
 
   const pageSize = page === 1 && isDefaultFiltersActive ? 13 : 12
-  
+
   const { data, isLoading, isFetching, error, refetch } = useMovies({
     search: filters.search || undefined,
     genres__slug: filters.genre || undefined,
@@ -50,15 +49,6 @@ export default function MoviesPage() {
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters)
     setPage(1) // Reset to first page when filters change
-  }
-
-  const handleResetFilters = () => {
-    setFilters({
-      search: '',
-      genre: '',
-      ordering: '-avg_rating',
-    })
-    setPage(1)
   }
 
   const movies = useMemo(() => data?.results ?? [], [data?.results])
@@ -170,7 +160,6 @@ export default function MoviesPage() {
   }, [movies, shouldShowHero, genrePreferences, isAuthenticated])
 
   const gridMovies = shouldShowHero ? movies.filter(movie => movie.id !== featuredMovie?.id) : movies
-  const hasNoResults = !isInitialLoading && !error && movies.length === 0
 
   return (
     <div className="min-h-screen flex flex-col flix-bg-primary">
@@ -178,21 +167,15 @@ export default function MoviesPage() {
       <main className="flex-grow">
         <section className="flix-section">
           <div className="flix-container">
-            <div className="flix-mt-lg">
-              <h1 className="text-4xl font-semibold tracking-tight text-white md:text-5xl">Discover Movies</h1>
-              <p className="max-w-3xl text-base text-white/70 md:text-lg flix-mt-sm">
-                Browse cinematic highlights inspired by Netflix&apos;s immersive browsing and IMDb&apos;s rich metadata.
-                Filter, sort, or search to find your next watch.
-              </p>
-            </div>
+            <MoviesPageHeader />
 
             {isInitialLoading ? (
-              <div className="flix-mt-xl">
+              <div className="flix-mt-lg">
                 <div className="h-[360px] w-full animate-pulse rounded-3xl border border-white/5 bg-white/[0.04]" />
               </div>
             ) : (
               featuredMovie && (
-                <div className="flix-mt-xl">
+                <div className="flix-mt-lg">
                   <MovieHero
                     movie={featuredMovie}
                     badgeLabel={hasManualPreferences ? 'Tailored Pick' : 'Random Pick'}
@@ -201,183 +184,30 @@ export default function MoviesPage() {
               )
             )}
 
-            <div className="flix-mt-xl grid gap-8 lg:grid-cols-[320px_1fr] xl:grid-cols-[340px_1fr]">
+            <div className="flix-mt-lg movies-page-layout">
               <MovieFilters
                 onFilterChange={handleFilterChange}
                 currentFilters={filters}
-                className="self-start md:sticky md:top-28 lg:top-32"
+                className="movies-filters-sidebar"
               />
 
-              <div className="flix-mt-sm">
-                {hasManualPreferences && (
-                  <div className="mb-6 rounded-3xl border border-flix-accent/30 bg-flix-accent/10 p-6">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.28em] text-flix-accent/70">Manual taste boost</p>
-                        <p className="mt-2 text-sm text-white/70">
-                          These genres are currently boosting your browse results. Adjust them from your account whenever your mood changes.
-                        </p>
-                      </div>
-                      <Link
-                        href="/account"
-                        className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-flix-accent-hover"
-                      >
-                        Update picks
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </Link>
-                    </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {preferredGenres.map((genre) => (
-                        <span
-                          key={genre.id}
-                          className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.26em] text-white"
-                        >
-                          {genre.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div className="movies-content-main">
+                <UserPreferencesBanner preferredGenres={preferredGenres} />
 
-                {error ? (
-                  <div className="flix-card rounded-3xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur">
-                    <svg
-                      className="mx-auto mb-4 h-16 w-16 text-white/20"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <p className="text-lg font-semibold text-flix-accent">Error loading movies</p>
-                    <p className="mt-2 text-white/60">Please try again or refresh the page.</p>
-                    <button
-                      onClick={() => refetch()}
-                      className="mt-8 inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-flix-accent-hover"
-                    >
-                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v6h6M20 20v-6h-6M5 19A9 9 0 0019 5l.5-.5" />
-                      </svg>
-                      Retry loading titles
-                    </button>
-                  </div>
-                ) : isInitialLoading ? (
-                  <div className="grid flix-gap-md sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                    {skeletonItems.map((_, index) => (
-                      <MovieCardSkeleton key={index} />
-                    ))}
-                  </div>
-                ) : hasNoResults ? (
-                  <div className="flix-card rounded-3xl border border-white/10 bg-white/5 p-12 text-center backdrop-blur">
-                    <svg
-                      className="mx-auto mb-4 h-16 w-16 text-white/20"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                      />
-                    </svg>
-                    <p className="text-lg font-semibold text-white">No titles match your filters yet.</p>
-                    <p className="mt-2 text-white/60">Try broadening your search or clearing filters.</p>
-                    <button
-                      onClick={handleResetFilters}
-                      className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20"
-                    >
-                      Clear filters
-                    </button>
-                  </div>
-                ) : (
-                  <div className="space-y-8">
-                    {isRefetching && (
-                      <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium uppercase tracking-[0.18em] text-white/60">
-                        <Spinner size="sm" />
-                        Updating results…
-                      </div>
-                    )}
-
-                    <div className="flex flex-wrap items-center justify-between flix-gap-xs text-sm text-white/70">
-                      <span>
-                        Showing {showingStart}–{showingEnd} of {data?.count ?? 0} movies
-                      </span>
-                      <span className="rounded-full border border-white/10 px-4 py-1 text-xs uppercase tracking-[0.18em] text-white/60">
-                        Page {page} of {totalPages || 1}
-                      </span>
-                    </div>
-
-                    <div className="grid flix-gap-md sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-                      {gridMovies.map((movie) => (
-                        <MovieCard key={movie.id} movie={movie} />
-                      ))}
-                    </div>
-
-                    {totalPages > 1 && (
-                      <div className="flex flex-wrap items-center justify-center flix-gap-xs">
-                        <button
-                          onClick={() => setPage((p) => Math.max(1, p - 1))}
-                          disabled={!data?.previous}
-                          className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/10"
-                        >
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                          </svg>
-                          Previous
-                        </button>
-
-                        <div className="flex flex-wrap items-center justify-center flix-gap-xs">
-                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                            let pageNum
-                            if (totalPages <= 5) {
-                              pageNum = i + 1
-                            } else if (page <= 3) {
-                              pageNum = i + 1
-                            } else if (page >= totalPages - 2) {
-                              pageNum = totalPages - 4 + i
-                            } else {
-                              pageNum = page - 2 + i
-                            }
-
-                            return (
-                              <button
-                                key={pageNum}
-                                onClick={() => setPage(pageNum)}
-                                className={`h-10 w-10 rounded-full border border-transparent font-semibold transition-all ${
-                                  page === pageNum
-                                    ? 'bg-flix-accent text-white shadow-[0_12px_32px_rgba(229,9,20,0.45)]'
-                                    : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
-                                }`}
-                              >
-                                {pageNum}
-                              </button>
-                            )
-                          })}
-                        </div>
-
-                        <button
-                          onClick={() => setPage((p) => p + 1)}
-                          disabled={!data?.next}
-                          className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/10"
-                        >
-                          Next
-                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <MoviesGrid
+                  movies={gridMovies}
+                  isInitialLoading={isInitialLoading}
+                  isRefetching={isRefetching}
+                  error={error}
+                  refetch={refetch}
+                  totalPages={totalPages}
+                  currentPage={page}
+                  onPageChange={setPage}
+                  showingStart={showingStart}
+                  showingEnd={showingEnd}
+                  totalCount={data?.count ?? 0}
+                  skeletonItems={skeletonItems.length}
+                />
               </div>
             </div>
           </div>

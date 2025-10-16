@@ -117,7 +117,8 @@
 .authPasswordToggle {
   position: absolute;
   right: var(--flix-spacing-xs);
-  bottom: var(--flix-spacing-xs);
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.5);
