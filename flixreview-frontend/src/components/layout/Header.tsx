@@ -30,7 +30,7 @@ export function Header() {
           <div className="flix-flex flix-justify-between flix-items-center" style={{ height: '64px' }}>
             <div className="flix-flex flix-items-center flix-gap-lg">
               <Link href="/" className="flix-flex flix-items-center">
-                <span className="flix-title flix-accent" style={{ fontSize: '24px', marginBottom: 0 }}>
+                <span className="flix-header-logo">
                   FlixReview
                 </span>
               </Link>

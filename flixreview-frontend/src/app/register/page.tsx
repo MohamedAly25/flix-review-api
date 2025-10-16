@@ -105,26 +105,31 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flix-min-h-screen flix-flex flix-flex-col">
+    <div className="flix-min-h-screen flix-flex flix-flex-col flix-bg-primary">
       <Header />
-      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md">
-        <div className="flix-fade-in" style={{ maxWidth: '448px', width: '100%' }}>
-          <div className="flix-card flix-p-lg">
-            <h2 className="flix-title flix-text-center flix-mb-lg">
-              Create your account
-            </h2>
+      <main className="flix-flex-1 flix-flex flix-items-center flix-justify-center flix-p-md flix-bg-primary">
+        <div className="flix-fade-in auth-container">
+          <div className="flix-card flix-p-xl auth-card">
+            <div className="auth-header">
+              <h2 className="flix-title flix-text-center flix-mb-lg auth-title">
+                Create your account
+              </h2>
+              <p className="flix-body flix-text-center flix-text-secondary auth-subtitle">
+                Join FlixReview and start discovering amazing movies
+              </p>
+            </div>
             
-            <form className="flix-flex flix-flex-col flix-gap-md" onSubmit={handleSubmit}>
+            <form className="flix-flex flix-flex-col flix-gap-lg auth-form" onSubmit={handleSubmit}>
               {error && (
-                <div className="flix-alert flix-alert-error">
-                  <svg style={{ width: '20px', height: '20px' }} fill="currentColor" viewBox="0 0 20 20">
+                <div className="flix-alert flix-alert-error auth-alert">
+                  <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span>{error}</span>
+                  <span className="auth-error-text">{error}</span>
                 </div>
               )}
 
-              <div>
+              <div className="auth-form-group">
                 <Input
                   label="Email address"
                   name="email"
@@ -132,10 +137,11 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  className="auth-input"
                 />
               </div>
 
-              <div>
+              <div className="auth-form-group">
                 <Input
                   label="Username"
                   name="username"
@@ -143,10 +149,11 @@ export default function RegisterPage() {
                   value={formData.username}
                   onChange={handleChange}
                   required
+                  className="auth-input"
                 />
               </div>
 
-              <div>
+              <div className="auth-form-group">
                 <Input
                   label="Password"
                   name="password"
@@ -154,10 +161,11 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={handleChange}
                   required
+                  className="auth-input"
                 />
               </div>
 
-              <div>
+              <div className="auth-form-group">
                 <Input
                   label="Confirm Password"
                   name="password_confirm"
@@ -165,19 +173,24 @@ export default function RegisterPage() {
                   value={formData.password_confirm}
                   onChange={handleChange}
                   required
+                  className="auth-input"
                 />
               </div>
 
-              <Button type="submit" className="flix-w-full" isLoading={isLoading}>
-                Sign up
-              </Button>
+              <div className="auth-button-container">
+                <Button type="submit" className="flix-w-full auth-button" isLoading={isLoading}>
+                  Sign up
+                </Button>
+              </div>
 
-              <p className="flix-small flix-text-center flix-text-muted">
-                Already have an account?{' '}
-                <Link href="/login" className="flix-accent flix-font-semibold">
-                  Sign in
-                </Link>
-              </p>
+              <div className="auth-footer">
+                <p className="flix-small flix-text-center flix-text-muted auth-footer-text">
+                  Already have an account?{' '}
+                  <Link href="/login" className="flix-accent flix-font-semibold auth-link">
+                    Sign in
+                  </Link>
+                </p>
+              </div>
             </form>
           </div>
         </div>
