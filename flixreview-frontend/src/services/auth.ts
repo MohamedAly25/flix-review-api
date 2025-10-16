@@ -40,4 +40,12 @@ export const authService = {
     // Backend wraps response in {success, message, data} format
     return response.data.data || response.data
   },
+
+  async changePassword(data: { current_password: string; new_password: string; new_password_confirm: string }): Promise<void> {
+    await apiClient.post('/users/change-password/', data)
+  },
+
+  async deleteAccount(password: string): Promise<void> {
+    await apiClient.post('/users/delete-account/', { password })
+  },
 }

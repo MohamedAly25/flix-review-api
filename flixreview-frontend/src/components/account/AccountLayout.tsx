@@ -5,6 +5,8 @@ import { ProfilePictureCard } from './ProfilePictureCard'
 import { PersonalInfoCard } from './PersonalInfoCard'
 import { BioCard } from './BioCard'
 import { AccountActions } from './AccountActions'
+import { PasswordChangeCard } from './PasswordChangeCard'
+import { AccountDeletionCard } from './AccountDeletionCard'
 
 interface AccountLayoutProps {
   user: {
@@ -23,6 +25,8 @@ interface AccountLayoutProps {
   onSaveProfile: () => void
   onBioChange: (value: string) => void
   preferredGenresCard?: ReactNode
+  onPasswordChangeSuccess?: () => void
+  onAccountDeletionSuccess?: () => void
 }
 
 export function AccountLayout({
@@ -35,6 +39,8 @@ export function AccountLayout({
   onSaveProfile,
   onBioChange,
   preferredGenresCard,
+  onPasswordChangeSuccess,
+  onAccountDeletionSuccess,
 }: AccountLayoutProps) {
   return (
     <section className="w-full space-y-12 sm:space-y-14 lg:space-y-16">
@@ -76,6 +82,12 @@ export function AccountLayout({
                   {preferredGenresCard}
                 </div>
               )}
+
+              {/* Security Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 flix-gap-md">
+                <PasswordChangeCard onSuccess={onPasswordChangeSuccess} />
+                <AccountDeletionCard onSuccess={onAccountDeletionSuccess} />
+              </div>
             </div>
           </div>
 

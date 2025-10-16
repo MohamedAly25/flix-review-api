@@ -25,6 +25,7 @@ export default function AccountPage() {
   const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>([])
   const [preferencesMessage, setPreferencesMessage] = useState<string | null>(null)
   const [preferencesError, setPreferencesError] = useState<string | null>(null)
+  const [passwordChangeMessage, setPasswordChangeMessage] = useState<string | null>(null)
 
   const {
     data: preferencesData,
@@ -167,6 +168,14 @@ export default function AccountPage() {
     setSelectedGenreIds([])
   }
 
+  const handlePasswordChangeSuccess = () => {
+    setPasswordChangeMessage('Password changed successfully! You have been logged out for security. Please log in with your new password.')
+  }
+
+  const handleAccountDeletionSuccess = () => {
+    // This will redirect to home page automatically
+  }
+
   const preferencesQueryMessage = useMemo(() => {
     if (!preferencesQueryError) return null
     return 'Unable to load your preferred genres right now. Please refresh the page.'
@@ -273,6 +282,8 @@ export default function AccountPage() {
               onSaveProfile={handleSaveProfile}
               onBioChange={setEditedBio}
               preferredGenresCard={preferredGenresCard}
+              onPasswordChangeSuccess={handlePasswordChangeSuccess}
+              onAccountDeletionSuccess={handleAccountDeletionSuccess}
             />
 
             {error && (
@@ -290,6 +301,31 @@ export default function AccountPage() {
                     <button
                       onClick={() => setError(null)}
                       className="inline-flex rounded-md p-1.5 text-red-300 hover:bg-[rgba(229,9,20,0.2)] hover:text-red-100 focus:outline-none focus:ring-2 focus:ring-red-500/60 focus:ring-offset-2 focus:ring-offset-[var(--flix-bg-secondary)]"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {passwordChangeMessage && (
+              <div className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl shadow-[var(--shadow-md)] animate-in slide-in-from-top-2 duration-300">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-green-200">{passwordChangeMessage}</p>
+                  </div>
+                  <div className="ml-auto pl-3">
+                    <button
+                      onClick={() => setPasswordChangeMessage(null)}
+                      className="inline-flex rounded-md p-1.5 text-green-300 hover:bg-green-500/10 hover:text-green-100 focus:outline-none focus:ring-2 focus:ring-green-500/60 focus:ring-offset-2 focus:ring-offset-[var(--flix-bg-secondary)]"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
