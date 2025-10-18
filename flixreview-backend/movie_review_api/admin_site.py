@@ -24,6 +24,17 @@ class CustomAdminSite(AdminSite):
         ]
         return custom_urls + urls
 
+    def index(self, request, extra_context=None):
+        """Override index to add quick stats"""
+        extra_context = extra_context or {}
+        extra_context.update({
+            'user_count': User.objects.count(),
+            'movie_count': Movie.objects.count(),
+            'review_count': Review.objects.count(),
+            'genre_count': Genre.objects.count(),
+        })
+        return super().index(request, extra_context)
+
     @staff_member_required
     def dashboard_view(self, request):
         """Custom dashboard with statistics and analytics"""

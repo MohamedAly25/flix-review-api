@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "admin/base_site.html" %}
 {% load static %}
 
 {% block title %}Admin Dashboard{% endblock %}
@@ -150,7 +150,7 @@
                 <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center">
                     <i class="fas fa-user-plus text-purple-500 mr-3"></i>Recent Users
                 </h3>
-                <a href="{% url 'admin:accounts_customuser_changelist' %}" 
+                <a href="{% url 'admin:accounts_user_changelist' %}" 
                    class="text-purple-500 hover:text-purple-600 text-sm font-semibold">
                     View All →
                 </a>
@@ -397,3 +397,4 @@
         });
     }
 </script>
+{% endblock %}

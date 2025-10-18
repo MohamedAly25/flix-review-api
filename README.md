@@ -1,53 +1,78 @@
-# 🎬 FlixReview# FlixReview
+# 🎬 FlixReview
 
+> **Production-ready Netflix-inspired movie review platform** built with Next.js 15 (App Router) and Django REST Framework.
 
-
-> **Production-ready Netflix-inspired movie review platform**  Production-ready Netflix-inspired movie review platform built with Next.js 15 (App Router) and Django REST Framework.
-
-> Next.js 15 (App Router) • Django REST Framework • JWT Auth • TMDB Integration
+> Next.js 15 (App Router) • Django REST Framework • JWT Auth • TMDB Integration • Professional Admin Dashboard
 
 ## Quick Start
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)](https://github.com/MohamedAly25/flix-review)- `./START_SERVERS.ps1` from the repository root launches both servers and opens http://localhost:3000.
+[![Version](https://img.shields.io/badge/version-0.3.0-blue.svg)](https://github.com/MohamedAly25/flix-review)
+[![Status](https://img.shields.io/badge/status-stable-success.svg)](https://github.com/MohamedAly25/flix-review)
+[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-[![Status](https://img.shields.io/badge/status-stable-success.svg)](https://github.com/MohamedAly25/flix-review)- Manual alternative:
-
-[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)  - Backend: `cd flixreview-backend && python manage.py runserver`
-
-  - Frontend: `cd flixreview-frontend && npm run dev`
-
----
-
-## Project Highlights
-
-## 🚀 Quick Start- Authentication with JWT (login, refresh, logout, rate limits) and enriched profile management (avatar upload, bio edit, preferred genres).
-
-- Movie catalogue with TMDB imagery, search, genre filters, trending/recent feeds, and personalised recommendations.
-
-### Automated Launch (Recommended)- Review lifecycle (create/delete, single review per user/movie, rating badges) surfaced through account dashboards and recommendation cards.
-
-```powershell- Netflix-grade UI: cinematic hero, staggered carousels, keyboard-accessible search overlay, bilingual-ready layout.
-
-./START_SERVERS.ps1- Stable release **v1.2.0** dated 2025-10-15; backend 1.1.0, frontend 1.2.0.
-
+### Automated Launch (Recommended)
+```powershell
+./START_SERVERS.ps1
 ```
+Launches both servers and opens all access points automatically.
 
-Opens http://localhost:3000 with both servers running.## Documentation Map
-
-- [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md) – Architecture, feature set, operations, release snapshot.
-
-### Manual Launch- [`docs/IMPLEMENTATION_GUIDE.md`](docs/IMPLEMENTATION_GUIDE.md) – Frontend and backend component breakdowns, workflows, and deployment notes.
-
-```bash- [`docs/DELIVERY_AND_TESTING.md`](docs/DELIVERY_AND_TESTING.md) – Timeline of fixes, QA coverage, and outstanding risks.
-
+### Manual Alternative
+```bash
 # Terminal 1 - Backend
-
-cd flixreview-backend && python manage.py runserverLegacy markdown reports from earlier milestones were merged into the files above to keep the documentation concise and discoverable.
-
+cd flixreview-backend && python manage.py runserver
 
 # Terminal 2 - Frontend
 cd flixreview-frontend && npm run dev
 ```
+
+---
+
+## 🌟 What's New in v0.3.0
+
+### Professional Admin Interface
+- ✨ **Enhanced Admin Dashboard** - Modern statistics dashboard with real-time metrics
+- 📊 **Interactive Charts** - Chart.js visualizations for ratings and activity trends
+- 🎨 **Beautiful UI** - Tailwind CSS styling with purple-cyan gradient theme
+- 📱 **Responsive Design** - Mobile-friendly layouts throughout
+- 🔍 **Quick Stats** - At-a-glance view of users, movies, reviews, and genres
+
+### Comprehensive API Documentation
+- � **Professional API Docs** - Custom landing page at `/api/docs/`
+- 🔄 **Interactive Testing** - Swagger UI at `/api/swagger/`
+- 🔐 **Authentication Guide** - Complete JWT token workflow
+- 💡 **Code Examples** - Ready-to-use cURL commands
+- 📖 **Endpoint Reference** - Organized by resource type
+
+### Improvements
+- ✅ Fixed all template syntax errors
+- ✅ Corrected URL routing issues
+- ✅ Enhanced admin navigation
+- ✅ Added quick action buttons
+- ✅ Improved user experience
+
+---
+
+## 📋 Project Highlights
+
+- **Authentication**: JWT (login, refresh, logout, rate limits) with profile management (avatar, bio, preferred genres)
+- **Movies**: TMDB integration, search, genre filters, trending/recent feeds, personalized recommendations
+- **Reviews**: Full CRUD lifecycle, single review per user/movie, rating badges
+- **UI/UX**: Netflix-grade interface with cinematic hero, staggered carousels, keyboard-accessible search
+- **Admin**: Professional dashboard with statistics, charts, and content management
+- **API**: Comprehensive documentation with interactive testing tools
+
+---
+
+## 📚 Documentation
+
+### Main Documentation
+- [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md) – Architecture, feature set, operations, release snapshot
+- [`docs/IMPLEMENTATION_GUIDE.md`](docs/IMPLEMENTATION_GUIDE.md) – Component breakdowns, workflows, deployment notes
+- [`docs/DELIVERY_AND_TESTING.md`](docs/DELIVERY_AND_TESTING.md) – Timeline, QA coverage, deployment readiness
+
+### New in v0.3.0
+- [`VISUAL_GUIDE.md`](VISUAL_GUIDE.md) – Visual overview of new admin and API features
+- [`ADMIN_API_DOCS_UPDATE.md`](ADMIN_API_DOCS_UPDATE.md) – Technical details of admin enhancements
 
 ---
 
@@ -126,21 +151,32 @@ FlixReview/
 
 | Component | Version | Status |
 |-----------|---------|--------|
-| **Overall** | 1.2.0 | ✅ Stable |
+| **Overall** | 0.3.0 | ✅ Stable |
 | **Frontend** | 1.2.0 | ✅ Production Ready |
 | **Backend** | 1.1.0 | ✅ Production Ready |
-| **Release Date** | 2025-10-15 | "Netflix Edition" |
+| **Admin Dashboard** | 0.3.0 | ✨ NEW |
+| **API Documentation** | 0.3.0 | ✨ NEW |
+| **Release Date** | 2025-10-18 | "Professional Edition" |
 
 ---
 
 ## 🔗 Access Points
 
-| Service | URL | Credentials |
+| Service | URL | Description |
 |---------|-----|-------------|
-| Frontend | http://localhost:3000 | - |
-| Backend API | http://127.0.0.1:8000/api | - |
-| API Docs | http://127.0.0.1:8000/api/docs | Interactive Swagger |
-| Admin Panel | http://127.0.0.1:8000/admin | `admin` / `admin123` |
+| **Frontend** | http://localhost:3000 | Main application interface |
+| **Backend API** | http://127.0.0.1:8000/api/ | REST API endpoints |
+| **API Documentation** | http://127.0.0.1:8000/api/docs/ | 📚 Professional API docs (NEW) |
+| **Swagger UI** | http://127.0.0.1:8000/api/swagger/ | 🔄 Interactive API testing (NEW) |
+| **API Schema** | http://127.0.0.1:8000/api/schema/ | OpenAPI schema |
+| **Admin Panel** | http://127.0.0.1:8000/admin/ | 🎨 Enhanced dashboard (NEW) |
+| **Admin Dashboard** | http://127.0.0.1:8000/admin/dashboard/ | 📊 Statistics & analytics (NEW) |
+
+### Credentials
+
+**Admin Access:**
+- Username: `admin`
+- Password: `admin123`
 
 **Test Users:**
 - `john_doe` / `password123`

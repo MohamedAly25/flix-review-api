@@ -20,6 +20,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.shortcuts import redirect
+from django.views.generic import TemplateView
 from common.views import health_check, home_view, about_view
 from .admin_site import admin_site
 
@@ -33,5 +34,6 @@ urlpatterns = [
     path('api/reviews/', include('reviews.urls')),
     path('api/recommendations/', include('recommendations.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/docs/', TemplateView.as_view(template_name='api_docs.html'), name='api-docs'),
+    path('api/swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

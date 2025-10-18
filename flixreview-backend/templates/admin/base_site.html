@@ -1,0 +1,122 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | FlixReview Admin{% endblock %}
+
+{% block branding %}
+<div class="flex items-center space-x-3 px-4 py-3">
+    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
+        <i class="fas fa-film text-white text-xl"></i>
+    </div>
+    <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
+        FlixReview Admin
+    </h1>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    :root {
+        --primary-color: #8b5cf6;
+        --secondary-color: #06b6d4;
+        --accent-color: #f59e0b;
+    }
+    
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
+    }
+    
+    /* Django Admin Style Overrides */
+    #header {
+        background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        color: white;
+    }
+    
+    .module h2, .module caption, .inline-group h2 {
+        background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    }
+    
+    a:link, a:visited {
+        color: var(--primary-color);
+    }
+    
+    #header a:link, #header a:visited {
+        color: white;
+    }
+    
+    .button, input[type=submit], input[type=button], .submit-row input, button {
+        background: var(--primary-color);
+        transition: all 0.2s ease;
+    }
+    
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, button:hover {
+        background: #7c3aed;
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
+{% block nav-global %}
+<div class="bg-white border-b border-gray-200">
+    <div class="flex items-center justify-between px-6 py-3">
+        <nav class="flex space-x-6">
+            <a href="{% url 'admin:index' %}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                <i class="fas fa-home mr-2"></i>Dashboard
+            </a>
+            <a href="{% url 'admin:app_list' app_label='accounts' %}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                <i class="fas fa-users mr-2"></i>Users
+            </a>
+            <a href="{% url 'admin:app_list' app_label='movies' %}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                <i class="fas fa-film mr-2"></i>Movies
+            </a>
+            <a href="{% url 'admin:app_list' app_label='reviews' %}" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+                <i class="fas fa-star mr-2"></i>Reviews
+            </a>
+            <a href="/api/docs/" target="_blank" class="text-gray-700 hover:text-cyan-600 font-medium transition-colors">
+                <i class="fas fa-code mr-2"></i>API Docs
+            </a>
+        </nav>
+        <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-600">
+                <i class="fas fa-user-circle mr-2"></i>{{ user.username }}
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}
