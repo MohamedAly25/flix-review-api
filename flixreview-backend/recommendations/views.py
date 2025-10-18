@@ -5,6 +5,7 @@ from django.core.cache import cache
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiTypes
 
 from accounts.models import UserProfile
 from movies.models import Movie
@@ -102,6 +103,7 @@ class RecommendationsDashboardView(ApiResponseMixin, generics.GenericAPIView):
 	Useful for homepage/dashboard display.
 	"""
 	permission_classes = [permissions.AllowAny]
+	serializer_class = MovieSerializer
 	success_messages = {'GET': 'Recommendations dashboard retrieved successfully'}
 
 	def get(self, request, *args, **kwargs):
@@ -163,6 +165,15 @@ class RecommendationsDashboardView(ApiResponseMixin, generics.GenericAPIView):
 # ML-Powered Recommendation Endpoints
 # ==================================================
 
+@extend_schema(
+	summary="Get personalized recommendations",
+	description="Get personalized movie recommendations for the authenticated user using ML algorithms",
+	parameters=[
+		OpenApiParameter(name='limit', type=OpenApiTypes.INT, description='Number of recommendations (default: 10, max: 50)'),
+		OpenApiParameter(name='algorithm', type=OpenApiTypes.STR, description='Algorithm type: hybrid (default), collaborative, or content')
+	],
+	responses={200: MovieSerializer(many=True)}
+)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def personalized_recommendations(request):
@@ -263,6 +274,14 @@ def personalized_recommendations(request):
 	})
 
 
+@extend_schema(
+	summary="Get similar movies",
+	description="Get movies similar to the specified movie using content-based filtering",
+	parameters=[
+		OpenApiParameter(name='limit', type=OpenApiTypes.INT, description='Number of recommendations (default: 10, max: 30)')
+	],
+	responses={200: MovieSerializer(many=True)}
+)
 @api_view(['GET'])
 @permission_classes([permissions.AllowAny])
 def similar_movies(request, pk):
@@ -332,6 +351,20 @@ def similar_movies(request, pk):
 	})
 
 
+@extend_schema(
+	summary="Get user taste profile",
+	description="Get user's taste profile based on their rating history including favorite genres, statistics, and rating distribution",
+	responses={
+		200: {
+			'type': 'object',
+			'properties': {
+				'success': {'type': 'boolean'},
+				'message': {'type': 'string'},
+				'data': {'type': 'object'}
+			}
+		}
+	}
+)
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def user_taste_profile(request):
@@ -377,6 +410,26 @@ def user_taste_profile(request):
 	})
 
 
+@extend_schema(
+	summary="Clear recommendation cache",
+	description="Clear cached recommendations for the authenticated user (useful after rating new movies)",
+	request=None,
+	responses={
+		200: {
+			'type': 'object',
+			'properties': {
+				'success': {'type': 'boolean'},
+				'message': {'type': 'string'},
+				'data': {
+					'type': 'object',
+					'properties': {
+						'cleared_keys': {'type': 'integer'}
+					}
+				}
+			}
+		}
+	}
+)
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def clear_recommendation_cache(request):

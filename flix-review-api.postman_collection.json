@@ -1,0 +1,903 @@
+{
+  "info": {
+    "name": "flix-review api",
+    "description": "Complete API collection for FlixReview - Movie Review Platform v0.3.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "3.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"testpass123\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/register/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "register", ""]
+            },
+            "description": "Register a new user account"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', response.access);",
+                  "    pm.collectionVariables.set('refresh_token', response.refresh);",
+                  "    console.log('JWT Token saved:', response.access);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"testpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/login/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "login", ""]
+            },
+            "description": "Login and get JWT tokens (automatically saves tokens)"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('jwt_token', response.access);",
+                  "    console.log('JWT Token refreshed:', response.access);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/token/refresh/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "token", "refresh", ""]
+            },
+            "description": "Refresh JWT access token"
+          }
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "profile", ""]
+            },
+            "description": "Get current user profile (requires authentication)"
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Updated\",\n  \"last_name\": \"Name\",\n  \"bio\": \"Updated bio\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/profile/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "profile", ""]
+            },
+            "description": "Update current user profile (requires authentication)"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"old_password\": \"testpass123\",\n  \"new_password\": \"newpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/change-password/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "change-password", ""]
+            },
+            "description": "Change user password (requires authentication)"
+          }
+        },
+        {
+          "name": "Set Preferred Genres",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"genre_ids\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/genres/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "genres", ""]
+            },
+            "description": "Set user's preferred genres (requires authentication)"
+          }
+        },
+        {
+          "name": "Get User Preferred Genres",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/genres/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "genres", ""]
+            },
+            "description": "Get user's preferred genres (requires authentication)"
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/?page=1&page_size=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", ""],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "List all users with pagination"
+          }
+        },
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/testuser/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "testuser", ""]
+            },
+            "description": "Get specific user details by username"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Movies",
+      "item": [
+        {
+          "name": "List Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/?page=1&page_size=10&ordering=-release_date",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", ""],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-release_date"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search movies by title"
+                },
+                {
+                  "key": "genres__id",
+                  "value": "",
+                  "description": "Filter by genre ID"
+                }
+              ]
+            },
+            "description": "List movies with filtering, search, and pagination"
+          }
+        },
+        {
+          "name": "Create Movie",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Matrix\",\n  \"overview\": \"A computer hacker learns about the true nature of reality.\",\n  \"release_date\": \"1999-03-31\",\n  \"runtime\": 136,\n  \"budget\": 63000000,\n  \"revenue\": 467222824,\n  \"imdb_id\": \"tt0133093\",\n  \"tmdb_id\": 603,\n  \"poster_path\": \"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg\",\n  \"backdrop_path\": \"/s3TBrRGB1iav7gFOCNx3H31MoES.jpg\",\n  \"genres\": [1, 2]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movies/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", ""]
+            },
+            "description": "Create a new movie (requires authentication)"
+          }
+        },
+        {
+          "name": "Get Movie Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "1", ""]
+            },
+            "description": "Get detailed information about a specific movie"
+          }
+        },
+        {
+          "name": "Update Movie",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Matrix (Updated)\",\n  \"overview\": \"Updated overview.\",\n  \"release_date\": \"1999-03-31\",\n  \"runtime\": 136\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movies/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "1", ""]
+            },
+            "description": "Update movie details (requires authentication)"
+          }
+        },
+        {
+          "name": "Delete Movie",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "1", ""]
+            },
+            "description": "Delete a movie (requires authentication)"
+          }
+        },
+        {
+          "name": "Search TMDB",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/search-tmdb/?query=The%20Matrix",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "search-tmdb", ""],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "The Matrix",
+                  "description": "Movie title to search"
+                }
+              ]
+            },
+            "description": "Search movies in TMDB database"
+          }
+        },
+        {
+          "name": "Import from TMDB",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tmdb_id\": 603\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movies/import-tmdb/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "import-tmdb", ""]
+            },
+            "description": "Import movie from TMDB (requires authentication)"
+          }
+        },
+        {
+          "name": "Sync with TMDB",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/1/sync-tmdb/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "1", "sync-tmdb", ""]
+            },
+            "description": "Sync movie data with TMDB (requires authentication)"
+          }
+        },
+        {
+          "name": "List Genres",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/movies/genres/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "genres", ""]
+            },
+            "description": "List all movie genres"
+          }
+        },
+        {
+          "name": "Create Genre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Science Fiction\",\n  \"tmdb_id\": 878\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/movies/genres/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "movies", "genres", ""]
+            },
+            "description": "Create a new genre (requires authentication)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "List Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/?page=1&page_size=10&ordering=-created_at",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", ""],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "10"
+                },
+                {
+                  "key": "ordering",
+                  "value": "-created_at"
+                }
+              ]
+            },
+            "description": "List all reviews with pagination"
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"movie\": 1,\n  \"rating\": 9,\n  \"title\": \"Amazing Movie!\",\n  \"content\": \"This movie was absolutely incredible. The plot twists kept me on the edge of my seat throughout.\",\n  \"contains_spoilers\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", ""]
+            },
+            "description": "Create a new review (requires authentication)"
+          }
+        },
+        {
+          "name": "Get Review Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1", ""]
+            },
+            "description": "Get detailed information about a specific review"
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 10,\n  \"title\": \"Updated: Amazing Movie!\",\n  \"content\": \"Updated review content.\",\n  \"contains_spoilers\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1", ""]
+            },
+            "description": "Update review details (requires authentication, owner only)"
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1", ""]
+            },
+            "description": "Delete a review (requires authentication, owner only)"
+          }
+        },
+        {
+          "name": "Search Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/search/?q=matrix",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "search", ""],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "matrix",
+                  "description": "Search query"
+                }
+              ]
+            },
+            "description": "Search reviews by content"
+          }
+        },
+        {
+          "name": "Like/Unlike Review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1/like/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1", "like", ""]
+            },
+            "description": "Like or unlike a review (requires authentication)"
+          }
+        },
+        {
+          "name": "Most Liked Reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/most-liked/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "most-liked", ""]
+            },
+            "description": "Get most liked reviews"
+          }
+        },
+        {
+          "name": "Get Reviews by Movie",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/movie/The%20Matrix/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "movie", "The%20Matrix", ""]
+            },
+            "description": "Get all reviews for a specific movie"
+          }
+        },
+        {
+          "name": "List Review Comments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1/comments/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1", "comments", ""]
+            },
+            "description": "List all comments for a review"
+          }
+        },
+        {
+          "name": "Add Review Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Great review! I completely agree with your points.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/1/comments/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "1", "comments", ""]
+            },
+            "description": "Add a comment to a review (requires authentication)"
+          }
+        },
+        {
+          "name": "Update Review Comment",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated comment content.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reviews/comments/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "comments", "1", ""]
+            },
+            "description": "Update a review comment (requires authentication, owner only)"
+          }
+        },
+        {
+          "name": "Delete Review Comment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reviews/comments/1/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reviews", "comments", "1", ""]
+            },
+            "description": "Delete a review comment (requires authentication, owner only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "item": [
+        {
+          "name": "Top Rated Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/top-rated/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "top-rated", ""]
+            },
+            "description": "Get top rated movies"
+          }
+        },
+        {
+          "name": "Trending Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/trending/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "trending", ""]
+            },
+            "description": "Get trending movies"
+          }
+        },
+        {
+          "name": "Most Reviewed Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/most-reviewed/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "most-reviewed", ""]
+            },
+            "description": "Get most reviewed movies"
+          }
+        },
+        {
+          "name": "Recent Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/recent/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "recent", ""]
+            },
+            "description": "Get recently added movies"
+          }
+        },
+        {
+          "name": "Recommendations Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/dashboard/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "dashboard", ""]
+            },
+            "description": "Get recommendations dashboard with multiple categories"
+          }
+        },
+        {
+          "name": "Personalized Recommendations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/for-you/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "for-you", ""]
+            },
+            "description": "Get personalized movie recommendations (requires authentication)"
+          }
+        },
+        {
+          "name": "Similar Movies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/movies/1/similar/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "movies", "1", "similar", ""]
+            },
+            "description": "Get movies similar to a specific movie"
+          }
+        },
+        {
+          "name": "User Taste Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/profile/taste/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "profile", "taste", ""]
+            },
+            "description": "Get user's taste profile and preferences (requires authentication)"
+          }
+        },
+        {
+          "name": "Clear Recommendation Cache",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/recommendations/cache/clear/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "recommendations", "cache", "clear", ""]
+            },
+            "description": "Clear recommendation cache (admin only)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health & System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health/",
+              "host": ["{{base_url}}"],
+              "path": ["health", ""]
+            },
+            "description": "Check API health status"
+          }
+        },
+        {
+          "name": "API Schema",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/schema/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "schema", ""]
+            },
+            "description": "Get OpenAPI schema"
+          }
+        },
+        {
+          "name": "Home Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Get home page"
+          }
+        },
+        {
+          "name": "About Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/about/",
+              "host": ["{{base_url}}"],
+              "path": ["about", ""]
+            },
+            "description": "Get about page"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh token if it's close to expiry",
+          "const token = pm.collectionVariables.get('jwt_token');",
+          "if (token) {",
+          "    try {",
+          "        const payload = JSON.parse(atob(token.split('.')[1]));",
+          "        const expiry = payload.exp * 1000;",
+          "        const now = Date.now();",
+          "        const fiveMinutes = 5 * 60 * 1000;",
+          "        ",
+          "        if (expiry - now < fiveMinutes) {",
+          "            console.log('Token expiring soon, consider refreshing');",
+          "        }",
+          "    } catch (e) {",
+          "        console.log('Could not parse token');",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

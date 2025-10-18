@@ -296,7 +296,22 @@ def import_tmdb_movie(request):
 @extend_schema(
 	summary="Sync movie with TMDB data",
 	description="Update an existing movie with latest data from The Movie Database (Admin only)",
-	responses={200: MovieSerializer}
+	request=None,
+	responses={
+		200: {
+			'type': 'object',
+			'properties': {
+				'success': {'type': 'boolean'},
+				'message': {'type': 'string'},
+				'data': {
+					'type': 'object',
+					'properties': {
+						'movie': {'$ref': '#/components/schemas/Movie'}
+					}
+				}
+			}
+		}
+	}
 )
 @api_view(['POST'])
 @permission_classes([IsAdminOrReadOnly])

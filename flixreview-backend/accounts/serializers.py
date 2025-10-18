@@ -6,6 +6,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from drf_spectacular.utils import extend_schema_field
 
 from movies.models import Genre
 from movies.serializers import GenreSerializer
@@ -25,6 +26,7 @@ class UserListSerializer(serializers.ModelSerializer):
 		fields = ('id', 'username', 'first_name', 'last_name', 'bio', 'profile_picture_url', 'reviews_count')
 		read_only_fields = ('id', 'username', 'reviews_count')
 
+	@extend_schema_field(serializers.CharField(allow_null=True))
 	def get_profile_picture_url(self, obj):
 		if obj.profile_picture:
 			request = self.context.get('request')
@@ -33,6 +35,7 @@ class UserListSerializer(serializers.ModelSerializer):
 			return obj.profile_picture.url
 		return None
 
+	@extend_schema_field(serializers.IntegerField)
 	def get_reviews_count(self, obj):
 		return obj.reviews.count()
 
@@ -118,6 +121,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('id', 'email', 'preferred_genres', 'preferred_genre_ids', 'last_genre_update')
 
+    @extend_schema_field(serializers.CharField(allow_null=True))
     def get_profile_picture_url(self, obj):
         if obj.profile_picture:
             request = self.context.get('request')
@@ -129,18 +133,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def _get_profile(self, obj):
         return getattr(obj, 'profile', None)
 
+    @extend_schema_field(GenreSerializer(many=True))
     def get_preferred_genres(self, obj):
         profile = self._get_profile(obj)
         if not profile:
             return []
         return GenreSerializer(profile.preferred_genres.all(), many=True).data
 
+    @extend_schema_field(serializers.ListField(child=serializers.IntegerField()))
     def get_preferred_genre_ids(self, obj):
         profile = self._get_profile(obj)
         if not profile:
             return []
         return list(profile.preferred_genres.values_list('id', flat=True))
 
+    @extend_schema_field(serializers.DateTimeField(allow_null=True))
     def get_last_genre_update(self, obj):
         profile = self._get_profile(obj)
         if not profile or not profile.last_genre_update:
@@ -175,16 +182,19 @@ class UserPreferredGenresSerializer(serializers.ModelSerializer):
 
     COOLDOWN_PERIOD = timedelta(days=7)
 
+    @extend_schema_field(serializers.BooleanField)
     def get_cooldown_active(self, obj):
         if not obj.last_genre_update:
             return False
         return (timezone.now() - obj.last_genre_update) < self.COOLDOWN_PERIOD
 
+    @extend_schema_field(serializers.DateTimeField(allow_null=True))
     def get_next_update_available_at(self, obj):
         if not obj.last_genre_update:
             return None
         return obj.last_genre_update + self.COOLDOWN_PERIOD
 
+    @extend_schema_field(serializers.IntegerField)
     def get_days_until_next_update(self, obj):
         if not obj.last_genre_update:
             return 0

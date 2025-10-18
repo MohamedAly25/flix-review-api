@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 
 from .models import Review, ReviewLike, ReviewComment
 from movies.models import Movie
@@ -29,6 +30,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('user', 'created_at', 'updated_at', 'is_edited', 'likes_count', 'comments_count', 'user_has_liked')
 
+    @extend_schema_field(serializers.DictField)
     def get_user(self, obj):
         user = obj.user
         profile_picture_url = None
@@ -46,12 +48,15 @@ class ReviewSerializer(serializers.ModelSerializer):
             } if profile_picture_url else None
         }
 
+    @extend_schema_field(serializers.IntegerField)
     def get_likes_count(self, obj):
         return obj.likes.count()
 
+    @extend_schema_field(serializers.IntegerField)
     def get_comments_count(self, obj):
         return obj.comments.count()
 
+    @extend_schema_field(serializers.BooleanField)
     def get_user_has_liked(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
@@ -101,6 +106,7 @@ class ReviewCommentSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'review', 'review_id', 'content', 'created_at', 'updated_at', 'is_edited')
         read_only_fields = ('user', 'created_at', 'updated_at', 'is_edited', 'review')
 
+    @extend_schema_field(serializers.DictField)
     def get_user(self, obj):
         user = obj.user
         profile_picture_url = None

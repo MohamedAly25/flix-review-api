@@ -6,6 +6,7 @@ from rest_framework import generics, permissions, status, serializers
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema, inline_serializer
 
 from .models import Review, ReviewLike, ReviewComment
 from .serializers import ReviewSerializer, ReviewLikeSerializer, ReviewCommentSerializer
@@ -89,6 +90,7 @@ class ReviewByMovieView(ApiResponseMixin, ReviewFilterMixin, generics.ListAPIVie
 	filterset_fields = ['rating']
 	ordering_fields = ['rating', 'created_at']
 	ordering = ['-created_at']
+	queryset = Review.objects.none()  # Default empty queryset for schema generation
 	success_messages = {
 		'GET': 'Reviews retrieved successfully',
 	}
@@ -134,6 +136,20 @@ class ReviewSearchView(ApiResponseMixin, ReviewFilterMixin, generics.ListAPIView
 		return queryset
 
 
+@extend_schema(
+	summary="Like/Unlike a review",
+	description="Toggle like status on a review (like if not liked, unlike if already liked)",
+	request=None,
+	responses={
+		200: inline_serializer(
+			name='ReviewLikeResponse',
+			fields={
+				'detail': serializers.CharField(),
+				'likes_count': serializers.IntegerField()
+			}
+		)
+	}
+)
 class ReviewLikeToggleView(ApiResponseMixin, APIView):
 	"""Toggle like on a review (like or unlike)"""
 	permission_classes = [permissions.IsAuthenticated]
