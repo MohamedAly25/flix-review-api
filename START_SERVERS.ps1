@@ -131,7 +131,7 @@ Write-Host "══════════════════════�
 Write-Host "   🚀 FlixReview v0.3.0 is ready!" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Gray
 Write-Host ""
-Write-Host "Press any key to exit this window..."
+Write-Host "Press any key to exit this window..." -ForegroundColor Gray
 try {
     $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 } catch {
