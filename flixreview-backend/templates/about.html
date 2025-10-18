@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+<!-- About Hero -->
+<div class="bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600 text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div class="animate-fade-in">
+            <i class="fas fa-info-circle text-6xl mb-6"></i>
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">About FlixReview</h1>
+            <p class="text-xl text-purple-100 max-w-3xl mx-auto">
+                A modern, professional movie review platform built with cutting-edge technology
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Mission Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-20">
+        <div class="animate-slide-up">
+            <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-6">
+                <i class="fas fa-bullseye text-purple-500 mr-3"></i>Our Mission
+            </h2>
+            <p class="text-lg text-slate-600 dark:text-slate-400 mb-6">
+                FlixReview aims to provide a comprehensive, user-friendly platform for movie enthusiasts 
+                to discover, review, and share their thoughts about films from around the world.
+            </p>
+            <p class="text-lg text-slate-600 dark:text-slate-400">
+                We leverage modern web technologies to deliver a seamless experience for both users and 
+                developers, with a robust API and an intuitive frontend interface.
+            </p>
+        </div>
+        
+        <div class="bg-gradient-to-br from-purple-500 to-cyan-500 rounded-3xl p-1">
+            <div class="bg-white dark:bg-slate-800 rounded-3xl p-8">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">1000+</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Movies</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-cyan-600 dark:text-cyan-400 mb-2">5000+</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Reviews</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-pink-600 dark:text-pink-400 mb-2">500+</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Users</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-amber-600 dark:text-amber-400 mb-2">4.8</div>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Avg Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Technology Stack -->
+    <div class="mb-20">
+        <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-12 text-center">
+            <i class="fas fa-code text-cyan-500 mr-3"></i>Technology Stack
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Backend -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center">
+                    <i class="fas fa-server text-green-500 mr-3"></i>Backend
+                </h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <i class="fab fa-python text-blue-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">Django 5.2</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">High-level Python web framework</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-cog text-purple-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">Django REST Framework</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Powerful API toolkit</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-database text-cyan-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">PostgreSQL</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Advanced relational database</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-key text-amber-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">JWT Authentication</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Secure token-based auth</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Frontend -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
+                <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center">
+                    <i class="fas fa-desktop text-purple-500 mr-3"></i>Frontend
+                </h3>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <i class="fab fa-react text-cyan-400 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">Next.js 14</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">React framework with SSR</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-paint-brush text-pink-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">Tailwind CSS</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Utility-first CSS framework</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-bolt text-yellow-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">React Query</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Data fetching & caching</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 text-2xl mr-4 mt-1"></i>
+                        <div>
+                            <h4 class="font-semibold text-slate-900 dark:text-white">TypeScript</h4>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Type-safe JavaScript</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features -->
+    <div class="mb-20">
+        <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-12 text-center">
+            <i class="fas fa-rocket text-purple-500 mr-3"></i>Key Features
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 dark:bg-opacity-20 rounded-2xl p-6 border-2 border-purple-200 dark:border-purple-800">
+                <i class="fas fa-shield-alt text-3xl text-purple-600 dark:text-purple-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Secure Authentication</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    JWT-based authentication with refresh tokens and role-based access control
+                </p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900 dark:to-blue-900 dark:bg-opacity-20 rounded-2xl p-6 border-2 border-cyan-200 dark:border-cyan-800">
+                <i class="fas fa-search text-3xl text-cyan-600 dark:text-cyan-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Advanced Search</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    Powerful filtering and search capabilities across movies, reviews, and users
+                </p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900 dark:to-orange-900 dark:bg-opacity-20 rounded-2xl p-6 border-2 border-amber-200 dark:border-amber-800">
+                <i class="fas fa-brain text-3xl text-amber-600 dark:text-amber-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Smart Recommendations</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    AI-powered personalized movie recommendations based on user preferences
+                </p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900 dark:to-emerald-900 dark:bg-opacity-20 rounded-2xl p-6 border-2 border-green-200 dark:border-green-800">
+                <i class="fas fa-mobile-alt text-3xl text-green-600 dark:text-green-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Fully Responsive</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    Optimized for all devices - desktop, tablet, and mobile
+                </p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900 dark:to-rose-900 dark:bg-opacity-20 rounded-2xl p-6 border-2 border-pink-200 dark:border-pink-800">
+                <i class="fas fa-chart-line text-3xl text-pink-600 dark:text-pink-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Real-time Analytics</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    Live statistics and insights on user activity and content performance
+                </p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900 dark:to-purple-900 dark:bg-opacity-20 rounded-2xl p-6 border-2 border-indigo-200 dark:border-indigo-800">
+                <i class="fas fa-code text-3xl text-indigo-600 dark:text-indigo-400 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Well-Documented API</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">
+                    Interactive API documentation with Swagger UI and OpenAPI 3.0 specification
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CTA -->
+    <div class="bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl shadow-2xl p-12 text-center text-white">
+        <h2 class="text-3xl font-bold mb-4">Ready to Explore?</h2>
+        <p class="text-xl mb-8 text-purple-100">Check out our API documentation or explore the admin panel</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'swagger-ui' %}" 
+               class="px-8 py-4 bg-white text-purple-600 rounded-xl font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                <i class="fas fa-book mr-2"></i>API Documentation
+            </a>
+            <a href="{% url 'admin:index' %}" 
+               class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold hover:bg-white hover:text-purple-600 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                <i class="fas fa-cog mr-2"></i>Admin Panel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

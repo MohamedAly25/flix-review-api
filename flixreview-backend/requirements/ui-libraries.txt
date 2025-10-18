@@ -1,0 +1,16 @@
+# Django Templates - Professional UI/UX Enhancements
+# FlixReview Backend
+
+# CDN-based libraries (no installation required):
+# - Tailwind CSS v3.x (CDN)
+# - Alpine.js v3.x (CDN)
+# - Chart.js v4.4.0 (CDN)
+# - Font Awesome v6.4.0 (CDN)
+
+# Optional: For production deployment, consider installing:
+# django-tailwind==3.8.0
+# django-compressor==4.4
+# django-crispy-forms==2.1
+
+# All UI libraries are loaded via CDN in templates/base.html
+# No additional Python packages required for basic functionality

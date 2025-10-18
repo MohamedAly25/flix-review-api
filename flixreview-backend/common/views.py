@@ -5,6 +5,20 @@ from django.utils import timezone
 import sys
 
 
+def home_view(request):
+	"""
+	Home page view with platform overview
+	"""
+	return render(request, 'home.html')
+
+
+def about_view(request):
+	"""
+	About page view with platform information
+	"""
+	return render(request, 'about.html')
+
+
 def health_check(request):
 	"""
 	Health check endpoint for Docker and monitoring systems.

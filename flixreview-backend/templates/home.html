@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-cyan-600 text-white">
+    <div class="absolute inset-0 bg-black opacity-10"></div>
+    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNjAgMTAgTSAxMCAwIEwgMTAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4='); opacity: 0.1;"></div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+        <div class="text-center animate-fade-in">
+            <div class="inline-block mb-6">
+                <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-full p-6 shadow-2xl">
+                    <i class="fas fa-film text-6xl"></i>
+                </div>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+                Welcome to <span class="gradient-text bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 via-pink-200 to-cyan-200">FlixReview</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl mb-8 text-purple-100 max-w-3xl mx-auto leading-relaxed">
+                A professional movie review platform built with Django REST Framework and Next.js
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <a href="{% url 'swagger-ui' %}" 
+                   class="group relative px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                    <i class="fas fa-code mr-2"></i>Explore API
+                    <span class="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400 to-pink-400 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></span>
+                </a>
+                
+                <a href="{% url 'admin:index' %}" 
+                   class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white hover:text-purple-600 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                    <i class="fas fa-shield-alt mr-2"></i>Admin Panel
+                </a>
+            </div>
+            
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-6 hover:bg-opacity-20 transition-all duration-300">
+                    <i class="fas fa-rocket text-4xl mb-3 text-yellow-300"></i>
+                    <h3 class="text-lg font-bold mb-2">RESTful API</h3>
+                    <p class="text-sm text-purple-100">Powerful & scalable endpoints</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-6 hover:bg-opacity-20 transition-all duration-300">
+                    <i class="fas fa-shield-alt text-4xl mb-3 text-green-300"></i>
+                    <h3 class="text-lg font-bold mb-2">Secure</h3>
+                    <p class="text-sm text-purple-100">JWT authentication & permissions</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-6 hover:bg-opacity-20 transition-all duration-300">
+                    <i class="fas fa-chart-line text-4xl mb-3 text-cyan-300"></i>
+                    <h3 class="text-lg font-bold mb-2">Analytics</h3>
+                    <p class="text-sm text-purple-100">Real-time insights & metrics</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="text-center mb-16 animate-slide-up">
+        <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+            <i class="fas fa-star text-amber-500 mr-3"></i>Platform Features
+        </h2>
+        <p class="text-xl text-slate-600 dark:text-slate-400">Everything you need for a complete movie review experience</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature Card 1 -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 hover-lift">
+            <div class="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                <i class="fas fa-users text-purple-600 dark:text-purple-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">User Management</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">Complete user authentication system with profiles, preferences, and activity tracking.</p>
+            <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <li><i class="fas fa-check text-green-500 mr-2"></i>JWT Authentication</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Profile Management</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Activity History</li>
+            </ul>
+        </div>
+        
+        <!-- Feature Card 2 -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 hover-lift">
+            <div class="bg-cyan-100 dark:bg-cyan-900 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                <i class="fas fa-film text-cyan-600 dark:text-cyan-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Movie Database</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">Extensive movie catalog with detailed information, genres, and ratings.</p>
+            <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Rich Metadata</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Genre Classification</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Search & Filter</li>
+            </ul>
+        </div>
+        
+        <!-- Feature Card 3 -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 hover-lift">
+            <div class="bg-amber-100 dark:bg-amber-900 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                <i class="fas fa-star text-amber-600 dark:text-amber-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Reviews & Ratings</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">Comprehensive review system with ratings, comments, and likes.</p>
+            <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <li><i class="fas fa-check text-green-500 mr-2"></i>5-Star Ratings</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Detailed Comments</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Like System</li>
+            </ul>
+        </div>
+        
+        <!-- Feature Card 4 -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 hover-lift">
+            <div class="bg-pink-100 dark:bg-pink-900 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                <i class="fas fa-brain text-pink-600 dark:text-pink-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Smart Recommendations</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">AI-powered movie recommendations based on user preferences and behavior.</p>
+            <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Personalized Suggestions</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Genre-Based</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Trending Movies</li>
+            </ul>
+        </div>
+        
+        <!-- Feature Card 5 -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 hover-lift">
+            <div class="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                <i class="fas fa-code text-green-600 dark:text-green-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">RESTful API</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">Well-documented API endpoints with Swagger UI integration.</p>
+            <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <li><i class="fas fa-check text-green-500 mr-2"></i>OpenAPI 3.0</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Interactive Docs</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Easy Integration</li>
+            </ul>
+        </div>
+        
+        <!-- Feature Card 6 -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 hover-lift">
+            <div class="bg-indigo-100 dark:bg-indigo-900 w-16 h-16 rounded-xl flex items-center justify-center mb-6">
+                <i class="fas fa-database text-indigo-600 dark:text-indigo-400 text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Data Analytics</h3>
+            <p class="text-slate-600 dark:text-slate-400 mb-4">Real-time statistics and insights about platform usage.</p>
+            <ul class="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Usage Metrics</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Trend Analysis</li>
+                <li><i class="fas fa-check text-green-500 mr-2"></i>Dashboard</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Tech Stack Section -->
+<div class="bg-slate-100 dark:bg-slate-900 py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-slate-900 dark:text-white mb-4">
+                <i class="fas fa-layer-group text-purple-500 mr-3"></i>Built With Modern Technology
+            </h2>
+            <p class="text-xl text-slate-600 dark:text-slate-400">Leveraging the best tools and frameworks</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 text-center hover-lift">
+                <i class="fab fa-python text-5xl text-blue-500 mb-4"></i>
+                <h3 class="font-bold text-slate-900 dark:text-white">Django</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Backend Framework</p>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 text-center hover-lift">
+                <i class="fas fa-database text-5xl text-green-500 mb-4"></i>
+                <h3 class="font-bold text-slate-900 dark:text-white">PostgreSQL</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Database</p>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 text-center hover-lift">
+                <i class="fab fa-react text-5xl text-cyan-500 mb-4"></i>
+                <h3 class="font-bold text-slate-900 dark:text-white">Next.js</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Frontend Framework</p>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 text-center hover-lift">
+                <i class="fas fa-code text-5xl text-purple-500 mb-4"></i>
+                <h3 class="font-bold text-slate-900 dark:text-white">REST API</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Communication</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="bg-gradient-to-r from-purple-600 to-cyan-600 rounded-3xl shadow-2xl p-12 text-center text-white">
+        <h2 class="text-4xl font-bold mb-6">Ready to Get Started?</h2>
+        <p class="text-xl mb-8 text-purple-100">Explore the API documentation or access the admin panel</p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="{% url 'swagger-ui' %}" 
+               class="px-8 py-4 bg-white text-purple-600 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                <i class="fas fa-book mr-2"></i>View API Docs
+            </a>
+            <a href="{% url 'admin:index' %}" 
+               class="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-bold text-lg hover:bg-white hover:text-purple-600 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                <i class="fas fa-cog mr-2"></i>Admin Panel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
