@@ -1,26 +1,25 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
-import { Header } from '@/components/layout/Header'
-import { Footer } from '@/components/layout/Footer'
+import { PageLayout, PageHero, PageSection } from '@/components/layout'
 import { Spinner } from '@/components/ui/Spinner'
+import { Badge } from '@/components/ui/Badge'
 import { ProfileSettings } from '@/components/profile'
 import { AuthFlow } from '@/components/auth'
+import { User as UserIcon } from 'lucide-react'
 
 /**
  * Unified Profile Page
- * 
+ *
  * Behavior:
  * - If NOT authenticated → Show login/register flow
  * - If authenticated → Show profile/account settings
- * 
+ *
  * This replaces the old /account route with a more intuitive flow
  */
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading } = useAuth()
-  const router = useRouter()
 
   // Check for session expiration message
   useEffect(() => {
@@ -33,36 +32,45 @@ export default function ProfilePage() {
     }
   }, [])
 
+  // Loading state with improved spinner
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-background)' }}>
-        <Header />
-        <main className="flex-grow pt-24 sm:pt-28 flex items-center justify-center">
-          <div className="flex items-center gap-3 rounded-full border glass px-6 py-3 text-sm font-medium uppercase tracking-wider" 
-               style={{ 
-                 color: 'var(--color-text-secondary)',
-                 borderColor: 'var(--color-border)'
-               }}>
-            <Spinner size="sm" />
-            Loading...
-          </div>
-        </main>
-        <Footer />
-      </div>
+      <PageLayout mainClassName="flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Spinner size="lg" variant="accent" />
+          <Badge variant="glass" size="md" icon={<UserIcon className="w-4 h-4" />}>
+            Loading your profile...
+          </Badge>
+        </div>
+      </PageLayout>
     )
   }
 
+  const heroTitle = isAuthenticated && user
+    ? `Welcome back${user.first_name ? `, ${user.first_name}` : ''}`
+    : 'Your FlixReview Profile'
+
+  const heroDescription = isAuthenticated && user
+    ? 'Manage your account details, fine-tune preferences, and keep your cinematic identity polished.'
+    : 'Log in or create an account to personalize your FlixReview experience and track every review you share.'
+
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-background)' }}>
-      <Header />
-      <main className="flex-grow pt-24 sm:pt-28">
-        {isAuthenticated && user ? (
-          <ProfileSettings />
-        ) : (
-          <AuthFlow />
-        )}
-      </main>
-      <Footer />
-    </div>
+    <PageLayout>
+      <PageHero
+        icon={<UserIcon className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: 'var(--color-accent)' }} />}
+        title={heroTitle}
+        description={heroDescription}
+        align="center"
+        actions={
+          isAuthenticated && user ? (
+            <Badge variant="glass" size="md">{user.email}</Badge>
+          ) : undefined
+        }
+      />
+
+      <PageSection containerClassName="space-y-0 p-0">
+        {isAuthenticated && user ? <ProfileSettings /> : <AuthFlow />}
+      </PageSection>
+    </PageLayout>
   )
 }

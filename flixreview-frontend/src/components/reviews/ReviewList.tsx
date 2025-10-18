@@ -1,33 +1,38 @@
 import React from 'react'
-import { UserCard, type User } from './UserCard'
+import { ReviewCard } from './ReviewCard'
 import { LoadingGrid } from '@/components/ui/LoadingSkeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Users as UsersIcon } from 'lucide-react'
+import { Star } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import type { Review } from '@/types/review'
 
-export interface UserGridProps {
-  users: User[]
+export interface ReviewListProps {
+  reviews: Review[]
   isLoading?: boolean
   isError?: boolean
   searchQuery?: string
   onClearSearch?: () => void
+  currentUsername?: string
+  showComments?: boolean
   className?: string
 }
 
-export const UserGrid: React.FC<UserGridProps> = ({
-  users,
+export const ReviewList: React.FC<ReviewListProps> = ({
+  reviews,
   isLoading,
   isError,
   searchQuery,
   onClearSearch,
+  currentUsername,
+  showComments = true,
   className,
 }) => {
   // Error state
   if (isError) {
     return (
       <EmptyState
-        icon={UsersIcon}
-        title="Failed to load users"
+        icon={Star}
+        title="Failed to load reviews"
         description="Please try again later."
         variant="error"
         className={className}
@@ -37,19 +42,19 @@ export const UserGrid: React.FC<UserGridProps> = ({
 
   // Loading state
   if (isLoading) {
-    return <LoadingGrid count={8} variant="user" className={className} />
+    return <LoadingGrid count={5} variant="review" className={className} />
   }
 
   // Empty state
-  if (users.length === 0) {
+  if (reviews.length === 0) {
     return (
       <EmptyState
-        icon={UsersIcon}
-        title="No users found"
+        icon={Star}
+        title="No reviews found"
         description={
           searchQuery
             ? 'Try adjusting your search terms.'
-            : 'No community members yet.'
+            : 'Be the first to write a review!'
         }
         action={
           searchQuery && onClearSearch ? (
@@ -66,16 +71,16 @@ export const UserGrid: React.FC<UserGridProps> = ({
     )
   }
 
-  // Render grid
+  // Render reviews
   return (
-    <div
-      className={cn(
-        'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6',
-        className
-      )}
-    >
-      {users.map((user) => (
-        <UserCard key={user.id} user={user} />
+    <div className={cn('space-y-6', className)}>
+      {reviews.map((review) => (
+        <ReviewCard
+          key={review.id}
+          review={review}
+          currentUsername={currentUsername}
+          showComments={showComments}
+        />
       ))}
     </div>
   )
