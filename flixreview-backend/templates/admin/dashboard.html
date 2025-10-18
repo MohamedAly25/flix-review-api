@@ -262,17 +262,16 @@
     // Rating Distribution Chart
     const ratingCtx = document.getElementById('ratingChart');
     if (ratingCtx) {
+        // Sample data - replace with dynamic data from backend context
+        const ratingData = [12, 25, 45, 78, 95];
+        
         new Chart(ratingCtx, {
             type: 'bar',
             data: {
-                labels: [1, 2, 3, 4, 5],
+                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
                 datasets: [{
                     label: 'Number of Reviews',
-                    data: [
-                        {% for rating_data in rating_distribution %}
-                            {{ rating_data.count|default:"0" }}{% if not forloop.last %},{% endif %}
-                        {% endfor %}
-                    ],
+                    data: ratingData,
                     backgroundColor: [
                         'rgba(239, 68, 68, 0.7)',
                         'rgba(251, 146, 60, 0.7)',
