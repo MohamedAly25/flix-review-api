@@ -15,6 +15,28 @@ from .models import UserProfile
 User = get_user_model()
 
 
+class UserListSerializer(serializers.ModelSerializer):
+	"""Simplified serializer for user list view"""
+	profile_picture_url = serializers.SerializerMethodField()
+	reviews_count = serializers.SerializerMethodField()
+
+	class Meta:
+		model = User
+		fields = ('id', 'username', 'first_name', 'last_name', 'bio', 'profile_picture_url', 'reviews_count')
+		read_only_fields = ('id', 'username', 'reviews_count')
+
+	def get_profile_picture_url(self, obj):
+		if obj.profile_picture:
+			request = self.context.get('request')
+			if request:
+				return request.build_absolute_uri(obj.profile_picture.url)
+			return obj.profile_picture.url
+		return None
+
+	def get_reviews_count(self, obj):
+		return obj.reviews.count()
+
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)

@@ -2,6 +2,7 @@
 // Reference: flix-review-api/accounts/models.py + serializers.py
 
 import type { Genre } from '@/types/movie'
+import { PaginatedResponse } from './api'
 
 // User type matching UserProfileSerializer
 export interface User {
@@ -16,6 +17,22 @@ export interface User {
   preferred_genres?: Array<Pick<Genre, 'id' | 'name' | 'slug'>>
   preferred_genre_ids?: number[]
   last_genre_update?: string | null
+}
+
+// User list item (simplified for list view)
+export interface UserListItem {
+  id: number
+  username: string
+  first_name?: string
+  last_name?: string
+  bio?: string
+  profile_picture_url?: string | null
+  reviews_count: number
+}
+
+// Paginated user list
+export interface UserList extends PaginatedResponse<UserListItem> {
+  results: UserListItem[]
 }
 
 // Login credentials for CustomTokenObtainPairSerializer

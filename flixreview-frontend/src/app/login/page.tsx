@@ -1,22 +1,36 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/contexts/AuthContext'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { useRouter } from 'next/navigation'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { useAuth } from '@/contexts/AuthContext'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { loginSchema, type LoginFormData } from '@/lib/validations/auth'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [serverError, setServerError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const { login, isAuthenticated } = useAuth()
   const router = useRouter()
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -24,19 +38,16 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, router])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError('')
 
     try {
-      const normalizedEmail = email.trim().toLowerCase()
-      await login(normalizedEmail, password)
+      const normalizedEmail = data.email.trim().toLowerCase()
+      await login(normalizedEmail, data.password)
+      reset()
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } }
-      setError(error.response?.data?.detail || 'Login failed. Please check your credentials.')
-    } finally {
-      setIsLoading(false)
+      setServerError(error.response?.data?.detail || 'Login failed. Please check your credentials.')
     }
   }
 
@@ -47,21 +58,19 @@ export default function LoginPage() {
         <div className="auth-container">
           <div className="auth-card">
             <div className="auth-header">
-              <h2 className="auth-title">
-                Sign in to FlixReview
-              </h2>
+              <h2 className="auth-title">Sign in to FlixReview</h2>
               <p className="auth-subtitle">
                 Welcome back! Sign in to continue exploring movies
               </p>
             </div>
-            
-            <form className="auth-form" onSubmit={handleSubmit}>
-              {error && (
+
+            <form className="auth-form" onSubmit={handleSubmit(onSubmit)} noValidate>
+              {serverError && (
                 <div className="auth-alert" role="alert" aria-live="assertive">
                   <svg style={{ width: '20px', height: '20px', flexShrink: 0 }} fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                   </svg>
-                  <span className="auth-error-text">{error}</span>
+                  <span className="auth-error-text">{serverError}</span>
                 </div>
               )}
 
@@ -69,12 +78,11 @@ export default function LoginPage() {
                 <Input
                   label="Email address"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
                   autoComplete="email"
                   autoCapitalize="none"
                   spellCheck={false}
+                  error={errors.email?.message}
+                  {...register('email')}
                 />
               </div>
 
@@ -83,11 +91,10 @@ export default function LoginPage() {
                   <Input
                     label="Password"
                     type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
                     autoComplete="current-password"
                     className="pr-12"
+                    error={errors.password?.message}
+                    {...register('password')}
                   />
                   <button
                     type="button"
@@ -113,8 +120,8 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="auth-button"
-                  isLoading={isLoading}
-                  disabled={isLoading || !email || !password}
+                  isLoading={isSubmitting}
+                  disabled={isSubmitting}
                 >
                   Sign in
                 </Button>

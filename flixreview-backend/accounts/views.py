@@ -12,6 +12,7 @@ from .serializers import (
 	UserRegistrationSerializer,
 	CustomTokenObtainPairSerializer,
 	UserProfileSerializer,
+	UserListSerializer,
 	UserPreferredGenresSerializer,
 	ChangePasswordSerializer,
 	DeleteAccountSerializer,
@@ -19,6 +20,41 @@ from .serializers import (
 
 
 User = get_user_model()
+
+
+class UserListView(ApiResponseMixin, generics.ListAPIView):
+	"""
+	List all users (read-only).
+	Supports search by username, first_name, last_name.
+	"""
+	queryset = User.objects.all().order_by('-date_joined')
+	serializer_class = UserListSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	success_messages = {'GET': 'Users retrieved successfully'}
+
+	def get_queryset(self):
+		queryset = super().get_queryset()
+		search = self.request.query_params.get('search', '')
+		if search:
+			queryset = queryset.filter(
+				username__icontains=search
+			) | queryset.filter(
+				first_name__icontains=search
+			) | queryset.filter(
+				last_name__icontains=search
+			)
+		return queryset
+
+
+class UserDetailView(ApiResponseMixin, generics.RetrieveAPIView):
+	"""
+	Retrieve a user's public profile by username.
+	"""
+	queryset = User.objects.all()
+	serializer_class = UserProfileSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	lookup_field = 'username'
+	success_messages = {'GET': 'User profile retrieved successfully'}
 
 
 @method_decorator(ratelimit(key='ip', rate='30/h', method='POST'), name='dispatch')

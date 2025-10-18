@@ -268,7 +268,10 @@ export default function MyReviewsPage() {
             <div className="my-reviews-list-container">
               {reviews.map((review) => (
                 <div key={review.id} className="review-card-enhanced">
-                  <ReviewCard review={review} />
+                  <ReviewCard 
+                    review={review} 
+                    currentUsername={user?.username}
+                  />
                 </div>
               ))}
             </div>

@@ -1,13 +1,14 @@
 from urllib.parse import unquote_plus
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, serializers
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Review
-from .serializers import ReviewSerializer
+from .models import Review, ReviewLike, ReviewComment
+from .serializers import ReviewSerializer, ReviewLikeSerializer, ReviewCommentSerializer
 from common.mixins import ApiResponseMixin
 from common.permissions import IsOwnerOrReadOnly
 
@@ -131,3 +132,117 @@ class ReviewSearchView(ApiResponseMixin, ReviewFilterMixin, generics.ListAPIView
 				pass
 
 		return queryset
+
+
+class ReviewLikeToggleView(ApiResponseMixin, APIView):
+	"""Toggle like on a review (like or unlike)"""
+	permission_classes = [permissions.IsAuthenticated]
+	success_messages = {
+		'POST': 'Review liked successfully',
+		'DELETE': 'Review unliked successfully',
+	}
+
+	def post(self, request, pk):
+		"""Like a review"""
+		try:
+			review = Review.objects.get(pk=pk)
+		except Review.DoesNotExist:
+			return Response({'detail': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+		# Prevent liking own review
+		if review.user == request.user:
+			return Response({'detail': 'You cannot like your own review'}, status=status.HTTP_400_BAD_REQUEST)
+
+		like, created = ReviewLike.objects.get_or_create(user=request.user, review=review)
+		
+		if not created:
+			return Response({'detail': 'You have already liked this review'}, status=status.HTTP_400_BAD_REQUEST)
+
+		return Response({
+			'detail': 'Review liked successfully',
+			'likes_count': review.likes.count()
+		}, status=status.HTTP_201_CREATED)
+
+	def delete(self, request, pk):
+		"""Unlike a review"""
+		try:
+			review = Review.objects.get(pk=pk)
+		except Review.DoesNotExist:
+			return Response({'detail': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+		try:
+			like = ReviewLike.objects.get(user=request.user, review=review)
+			like.delete()
+			return Response({
+				'detail': 'Review unliked successfully',
+				'likes_count': review.likes.count()
+			}, status=status.HTTP_200_OK)
+		except ReviewLike.DoesNotExist:
+			return Response({'detail': 'You have not liked this review'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MostLikedReviewsView(ApiResponseMixin, generics.ListAPIView):
+	"""Get most liked reviews, optionally filtered by movie"""
+	serializer_class = ReviewSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	success_messages = {'GET': 'Most liked reviews retrieved successfully'}
+
+	def get_queryset(self):
+		queryset = Review.objects.annotate(
+			like_count=Count('likes')
+		).filter(like_count__gt=0).order_by('-like_count', '-created_at')
+
+		# Optional filter by movie
+		movie_id = self.request.query_params.get('movie_id')
+		if movie_id:
+			queryset = queryset.filter(movie_id=movie_id)
+
+		return queryset.select_related('user', 'movie')
+
+
+class ReviewCommentListCreateView(ApiResponseMixin, generics.ListCreateAPIView):
+	"""List and create comments for a specific review"""
+	serializer_class = ReviewCommentSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+	filter_backends = [OrderingFilter]
+	ordering_fields = ['created_at']
+	ordering = ['-created_at']
+	success_messages = {
+		'GET': 'Comments retrieved successfully',
+		'POST': 'Comment created successfully',
+	}
+
+	def get_queryset(self):
+		review_id = self.kwargs.get('review_id')
+		return ReviewComment.objects.filter(review_id=review_id).select_related('user', 'review')
+
+	def perform_create(self, serializer):
+		review_id = self.kwargs.get('review_id')
+		try:
+			review = Review.objects.get(pk=review_id)
+		except Review.DoesNotExist:
+			raise serializers.ValidationError({'detail': 'Review not found'})
+		
+		serializer.save(user=self.request.user, review=review)
+
+
+class ReviewCommentDetailView(ApiResponseMixin, generics.RetrieveUpdateDestroyAPIView):
+	"""Retrieve, update, or delete a comment"""
+	queryset = ReviewComment.objects.all().select_related('user', 'review')
+	serializer_class = ReviewCommentSerializer
+	permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+	success_messages = {
+		'GET': 'Comment retrieved successfully',
+		'PUT': 'Comment updated successfully',
+		'PATCH': 'Comment updated successfully',
+		'DELETE': 'Comment deleted successfully',
+	}
+
+	def perform_update(self, serializer):
+		serializer.save(is_edited=True)
+
+	def destroy(self, request, *args, **kwargs):
+		instance = self.get_object()
+		self.perform_destroy(instance)
+		return Response({'detail': 'Comment deleted'}, status=status.HTTP_200_OK)
+

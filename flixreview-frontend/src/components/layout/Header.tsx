@@ -48,10 +48,22 @@ export function Header() {
                   Genres
                 </Link>
                 <Link
+                  href="/reviews"
+                  className="flix-nav-link"
+                >
+                  Reviews
+                </Link>
+                <Link
                   href="/recommendations"
                   className="flix-nav-link"
                 >
                   Discover
+                </Link>
+                <Link
+                  href="/users"
+                  className="flix-nav-link"
+                >
+                  Community
                 </Link>
                 {isAuthenticated && (
                   <>

@@ -2,12 +2,16 @@ import { Review } from '@/types/review'
 import { Card, CardBody } from '@/components/ui/Card'
 import { formatDateTime } from '@/utils/helpers'
 import { Button } from '@/components/ui/Button'
+import { ReviewLikeButton } from './ReviewLikeButton'
+import { ReviewComments } from './ReviewComments'
 
 interface ReviewCardProps {
   review: Review
   canEdit?: boolean
   onEdit?: (review: Review) => void
   onDelete?: (id: number) => void
+  showComments?: boolean
+  currentUsername?: string
 }
 
 const formatReviewerName = (user: Review['user']) => {
@@ -65,7 +69,7 @@ const getInitials = (name: string) => {
   return `${segments[0]}${segments[segments.length - 1]}`.slice(0, 2)
 }
 
-export function ReviewCard({ review, canEdit, onEdit, onDelete }: ReviewCardProps) {
+export function ReviewCard({ review, canEdit, onEdit, onDelete, showComments = true, currentUsername }: ReviewCardProps) {
   const renderStars = (rating: number) => {
     return (
       <div className="flex items-center gap-0.5">
@@ -192,6 +196,29 @@ export function ReviewCard({ review, canEdit, onEdit, onDelete }: ReviewCardProp
           <p className="leading-relaxed text-base text-white/85 flix-px-md flix-py-sm">
             {review.content}
           </p>
+
+          {/* Like Button and Comments Section */}
+          <div className="border-t border-white/10 pt-4 flix-px-md">
+            <div className="flex items-center justify-between mb-4">
+              <ReviewLikeButton
+                reviewId={review.id}
+                initialLikesCount={review.likes_count || 0}
+                initialUserHasLiked={review.user_has_liked || false}
+                size="md"
+              />
+              <span className="text-sm text-white/50">
+                {review.comments_count || 0} {review.comments_count === 1 ? 'comment' : 'comments'}
+              </span>
+            </div>
+
+            {showComments && (
+              <ReviewComments
+                reviewId={review.id}
+                initialCommentsCount={review.comments_count}
+                currentUsername={currentUsername}
+              />
+            )}
+          </div>
 
           {canEdit && (
             <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-4 flix-px-md flix-py-sm">

@@ -19,6 +19,10 @@ export interface Review {
   created_at: string
   updated_at: string
   is_edited: boolean
+  // NEW: Social features
+  likes_count: number       // Total number of likes on this review
+  comments_count: number    // Total number of comments on this review
+  user_has_liked: boolean   // Whether the current user has liked this review
 }
 
 // Review creation data (ReviewSerializer write fields)
@@ -49,4 +53,44 @@ export interface ReviewFilters {
   ordering?: string
   page?: number
   page_size?: number
+  search?: string  // Search by movie title or review content
 }
+
+// Review Comment (new feature)
+export interface ReviewComment {
+  id: number
+  user: {
+    username: string
+    id: number
+    profile_picture?: {
+      url: string
+    } | null
+  }
+  review: number
+  content: string
+  created_at: string
+  updated_at: string
+  is_edited: boolean
+}
+
+// Comment creation data
+export interface ReviewCommentCreate {
+  content: string
+}
+
+// Comment update data
+export interface ReviewCommentUpdate {
+  content: string
+}
+
+// Paginated comments list
+export interface ReviewCommentList extends PaginatedResponse<ReviewComment> {
+  results: ReviewComment[]
+}
+
+// Review Like response
+export interface ReviewLikeResponse {
+  detail: string
+  likes_count: number
+}
+

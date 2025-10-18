@@ -30,4 +30,39 @@ class Review(models.Model):
 		]
 
 
-# Create your models here.
+class ReviewLike(models.Model):
+	"""Track which users have liked which reviews"""
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_likes')
+	review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='likes')
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return f"{self.user.username} likes {self.review}"
+
+	class Meta:
+		unique_together = ['user', 'review']
+		ordering = ['-created_at']
+		indexes = [
+			models.Index(fields=['review', '-created_at']),
+			models.Index(fields=['user', '-created_at']),
+		]
+
+
+class ReviewComment(models.Model):
+	"""Comments on reviews"""
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='review_comments')
+	review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='comments')
+	content = models.TextField()
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+	is_edited = models.BooleanField(default=False)
+
+	def __str__(self):
+		return f"{self.user.username} commented on {self.review}"
+
+	class Meta:
+		ordering = ['-created_at']
+		indexes = [
+			models.Index(fields=['review', '-created_at']),
+			models.Index(fields=['user', '-created_at']),
+		]
