@@ -29,6 +29,9 @@ export function TrendingMovies() {
     if (data?.mode === 'personalized') {
       return 'Recommended For You'
     }
+    if (data?.mode === 'genre-based') {
+      return 'Based On Your Genres'
+    }
     return 'Top Rated Movies'
   }, [data?.mode])
 
@@ -36,8 +39,12 @@ export function TrendingMovies() {
     if (data?.mode === 'personalized') {
       return 'Tailored picks powered by the FlixReview recommendation engine.'
     }
+    if (data?.mode === 'genre-based') {
+      const genreNames = data?.genresUsed?.map(g => g.name).join(', ') || 'your preferences'
+      return `Films matching ${genreNames}. Update your preferences anytime.`
+    }
     return 'The highest rated films across the FlixReview community.'
-  }, [data?.mode])
+  }, [data?.mode, data?.genresUsed])
 
   const handleRetry = () => {
     refetch()

@@ -74,10 +74,10 @@ export function Header() {
                       My Reviews
                     </Link>
                     <Link
-                      href="/account"
+                      href="/profile"
                       className="flix-nav-link"
                     >
-                      Account
+                      Profile
                     </Link>
                   </>
                 )}
@@ -103,7 +103,7 @@ export function Header() {
               {isAuthenticated ? (
                 <>
                   <div className="flix-flex flix-items-center flix-gap-sm">
-                    <Link href="/account" className="flix-flex flix-items-center">
+                    <Link href="/profile" className="flix-flex flix-items-center">
                       {user?.profile_picture_url ? (
                         <Image
                           src={user.profile_picture_url}

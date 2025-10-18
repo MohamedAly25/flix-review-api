@@ -21,7 +21,7 @@ export function UserPreferencesBanner({ preferredGenres }: UserPreferencesBanner
             </p>
           </div>
           <Link
-            href="/account"
+            href="/profile"
             className="user-preferences-link"
           >
             Update picks

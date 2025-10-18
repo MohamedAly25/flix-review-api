@@ -17,7 +17,7 @@ const footerLinkGroups: FooterLink[][] = [
     },
     {
       label: 'Account',
-      href: '/account',
+      href: '/profile',
     },
   ],
   [

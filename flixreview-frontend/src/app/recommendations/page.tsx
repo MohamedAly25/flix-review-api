@@ -1,52 +1,40 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-import { recommendationsService } from '@/services/recommendations'
 import { MovieCard } from '@/components/movies/MovieCard'
 import { MovieCardSkeleton } from '@/components/movies/MovieCardSkeleton'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { useAuth } from '@/contexts/AuthContext'
+import {
+  useTopRated,
+  useTrending,
+  useMostReviewed,
+  useRecent,
+  usePersonalizedRecommendations,
+} from '@/hooks/useRecommendations'
 import Link from 'next/link'
 
 export default function RecommendationsPage() {
   const { isAuthenticated } = useAuth()
 
-  const { data: topRated, isLoading: loadingTopRated } = useQuery({
-    queryKey: ['recommendations', 'top-rated'],
-    queryFn: () => recommendationsService.getTopRated(12),
-  })
-
-  const { data: trending, isLoading: loadingTrending } = useQuery({
-    queryKey: ['recommendations', 'trending'],
-    queryFn: () => recommendationsService.getTrending(12),
-  })
-
-  const { data: mostReviewed, isLoading: loadingMostReviewed } = useQuery({
-    queryKey: ['recommendations', 'most-reviewed'],
-    queryFn: () => recommendationsService.getMostReviewed(12),
-  })
-
-  const { data: recent, isLoading: loadingRecent } = useQuery({
-    queryKey: ['recommendations', 'recent'],
-    queryFn: () => recommendationsService.getRecent(12),
-  })
-
-  const { data: personalizedData, isLoading: loadingPersonalized } = useQuery({
-    queryKey: ['recommendations', 'for-you'],
-    queryFn: () => recommendationsService.getPersonalizedRecommendations(12),
-    enabled: isAuthenticated,
-  })
+  const { data: topRated, isLoading: loadingTopRated } = useTopRated(12)
+  const { data: trending, isLoading: loadingTrending } = useTrending(12)
+  const { data: mostReviewed, isLoading: loadingMostReviewed } = useMostReviewed(12)
+  const { data: recent, isLoading: loadingRecent } = useRecent(12)
+  const { data: personalizedData, isLoading: loadingPersonalized } = usePersonalizedRecommendations(12)
 
   const skeletonCards = Array.from({ length: 6 })
 
   const preferredGenres = personalizedData?.preferredGenres ?? []
   const preferencesApplied = Boolean(personalizedData?.preferencesApplied)
+  const mlEnabled = personalizedData?.mlEnabled ?? false
+  
   const personalizedMetadata = personalizedData
     ? [
         personalizedData.cached ? 'Cached for faster load' : 'Live recommendation blend',
         personalizedData.algorithm ? `${personalizedData.algorithm} algorithm` : null,
-        preferencesApplied ? 'Preferences applied' : null,
+        preferencesApplied ? 'Genre preferences applied' : null,
+        mlEnabled ? 'ML-powered' : 'Rule-based',
       ].filter(Boolean)
     : []
 
@@ -83,10 +71,10 @@ export default function RecommendationsPage() {
                     </div>
                   </div>
                   <Link
-                    href="/account/taste"
+                    href="/profile"
                     className="inline-flex items-center gap-2 text-sm font-semibold text-flix-accent transition-colors hover:text-flix-accent-hover"
                   >
-                    View Taste Profile
+                    View Profile
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
@@ -112,7 +100,7 @@ export default function RecommendationsPage() {
                           </p>
                         </div>
                         <Link
-                          href="/account"
+                          href="/profile"
                           className="inline-flex items-center gap-2 rounded-full border border-flix-accent/40 bg-flix-accent px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-white transition hover:bg-flix-accent-hover"
                         >
                           Adjust genres
@@ -138,7 +126,7 @@ export default function RecommendationsPage() {
                         Set up your preferred genres to instantly tilt recommendations toward what you love. You can pick up to three genres from the account page.
                       </p>
                       <Link
-                        href="/account"
+                        href="/profile"
                         className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white transition hover:bg-white/20"
                       >
                         Choose preferred genres

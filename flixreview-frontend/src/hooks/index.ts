@@ -1,4 +1,5 @@
 export * from './useMovies'
 export * from './useReviews'
 export * from './useGenres'
+export * from './useRecommendations'
 export * from './account'

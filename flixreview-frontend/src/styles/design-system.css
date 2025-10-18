@@ -1,0 +1,494 @@
+/* ========================================
+   FlixReview Design System v2.0.0
+   LORE-Inspired Cinematic UI
+   Dark, Elegant, Immersive
+   ======================================== */
+
+:root {
+  /* =======================================
+     🎨 COLOR PALETTE - LORE Inspired
+     Dark, cinematic, with subtle accents
+     ======================================= */
+  
+  /* Background Layers */
+  --color-background: #0a0a0a;              /* Pure black base */
+  --color-background-secondary: #121214;    /* Subtle elevation */
+  --color-background-tertiary: #1a1a1d;     /* Card backgrounds */
+  
+  /* Surface Colors */
+  --color-surface: #1c1c1f;                 /* Elevated surfaces */
+  --color-surface-elevated: #232326;        /* Hover states */
+  --color-surface-hover: #2a2a2d;           /* Interactive hover */
+  
+  /* Accent Colors - Cinematic Red */
+  --color-accent: #e53935;                  /* Primary action */
+  --color-accent-hover: #ff4444;            /* Hover state */
+  --color-accent-light: #ff5a5f;            /* Light variant */
+  --color-accent-dark: #c62828;             /* Dark variant */
+  
+  /* Text Hierarchy */
+  --color-text-primary: #ffffff;            /* Primary text */
+  --color-text-secondary: rgba(255, 255, 255, 0.7);   /* Secondary text */
+  --color-text-tertiary: rgba(255, 255, 255, 0.45);   /* Tertiary text */
+  --color-text-inverse: #0a0a0a;            /* Inverse for light backgrounds */
+  
+  /* Border Colors */
+  --color-border: rgba(255, 255, 255, 0.08);        /* Subtle borders */
+  --color-border-light: rgba(255, 255, 255, 0.12);  /* Slightly visible */
+  --color-border-heavy: rgba(255, 255, 255, 0.2);   /* Emphasized borders */
+  
+  /* Semantic Colors */
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-error: #f44336;
+  --color-info: #2196f3;
+  
+  /* =======================================
+     📝 TYPOGRAPHY - LORE Style
+     Clean, readable, cinematic hierarchy
+     ======================================= */
+  
+  /* Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  
+  /* Font Weights */
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 800;
+  
+  /* =======================================
+     📐 SPACING SYSTEM
+     Consistent spacing based on 4px grid
+     ======================================= */
+  
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
+  /* =======================================
+     🎯 BORDER RADIUS
+     Subtle, modern curves
+     ======================================= */
+  
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;   /* Pill shape */
+  
+  /* =======================================
+     ⚡ ANIMATION & TRANSITIONS
+     Smooth, cinematic motion
+     ======================================= */
+  
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slower: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Easing Functions */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* =======================================
+     📦 SHADOWS - LORE Depth System
+     Subtle, layered depth
+     ======================================= */
+  
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.7);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+  
+  /* Glow Effects */
+  --shadow-glow-sm: 0 0 10px rgba(229, 57, 53, 0.3);
+  --shadow-glow-md: 0 0 20px rgba(229, 57, 53, 0.4);
+  --shadow-glow-lg: 0 0 30px rgba(229, 57, 53, 0.5);
+  
+  /* Inner Shadows */
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-inner-lg: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  
+  /* =======================================
+     📏 LAYOUT CONSTRAINTS
+     ======================================= */
+  
+  --max-width-xs: 20rem;      /* 320px */
+  --max-width-sm: 24rem;      /* 384px */
+  --max-width-md: 28rem;      /* 448px */
+  --max-width-lg: 32rem;      /* 512px */
+  --max-width-xl: 36rem;      /* 576px */
+  --max-width-2xl: 42rem;     /* 672px */
+  --max-width-3xl: 48rem;     /* 768px */
+  --max-width-4xl: 56rem;     /* 896px */
+  --max-width-5xl: 64rem;     /* 1024px */
+  --max-width-6xl: 72rem;     /* 1152px */
+  --max-width-7xl: 80rem;     /* 1280px */
+  --max-width-full: 100%;
+  
+  /* =======================================
+     🎭 Z-INDEX LAYERS
+     ======================================= */
+  
+  --z-base: 0;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-fixed: 1200;
+  --z-modal-backdrop: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-tooltip: 1600;
+  
+  /* =======================================
+     🔲 BACKDROP BLUR
+     ======================================= */
+  
+  --blur-xs: 2px;
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 12px;
+  --blur-xl: 16px;
+  --blur-2xl: 24px;
+  --blur-3xl: 40px;
+}
+
+/* =======================================
+   🌐 GLOBAL RESETS
+   ======================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-regular);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Enhanced background with subtle gradient */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(229, 57, 53, 0.08) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* =======================================
+   🎯 UTILITY CLASSES
+   ======================================= */
+
+/* Focus Styles - Accessible & Visible */
+.focus-visible:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Smooth Transitions */
+.transition-smooth {
+  transition: all var(--transition-base);
+}
+
+.transition-fast {
+  transition: all var(--transition-fast);
+}
+
+.transition-slow {
+  transition: all var(--transition-slow);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+    padding-left: var(--space-6);
+    padding-right: var(--space-6);
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+/* =======================================
+   🎨 TEXT UTILITIES
+   ======================================= */
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* =======================================
+   📦 GLASS MORPHISM EFFECT
+   ======================================= */
+
+.glass {
+  background: rgba(28, 28, 31, 0.7);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: 1px solid var(--color-border);
+}
+
+.glass-heavy {
+  background: rgba(28, 28, 31, 0.85);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--color-border-light);
+}
+
+/* =======================================
+   ⚡ ANIMATION CLASSES
+   ======================================= */
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base);
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-base);
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-fast);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =======================================
+   🎬 CINEMATIC EFFECTS
+   ======================================= */
+
+.cinematic-border {
+  position: relative;
+}
+
+.cinematic-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    var(--color-accent) 0%,
+    transparent 50%,
+    var(--color-accent) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0.3;
+  transition: opacity var(--transition-base);
+}
+
+.cinematic-border:hover::before {
+  opacity: 0.6;
+}
+
+/* =======================================
+   ♿ ACCESSIBILITY
+   ======================================= */
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip to Content Link */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: var(--space-4);
+  text-decoration: none;
+  z-index: var(--z-modal);
+  transition: top var(--transition-fast);
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* =======================================
+   📱 RESPONSIVE UTILITIES
+   ======================================= */
+
+@media (max-width: 639px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .show-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hide-tablet {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* =======================================
+   🎯 FORM ELEMENTS - LORE Style
+   ======================================= */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+textarea,
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Focus visible for keyboard navigation */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Remove default focus for mouse users */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+select:focus:not(:focus-visible) {
+  outline: none;
+}

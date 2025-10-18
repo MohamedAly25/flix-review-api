@@ -47,7 +47,7 @@ class MovieListView(ApiResponseMixin, generics.ListCreateAPIView):
 	serializer_class = MovieSerializer
 	permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 	filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-	filterset_fields = ['genres__slug']
+	filterset_fields = ['genres__slug', 'genres__id']
 	search_fields = ['title', 'description']
 	ordering_fields = ['release_date', 'avg_rating', 'created_at', 'review_count']
 	ordering = ['-created_at']
@@ -64,6 +64,15 @@ class MovieListView(ApiResponseMixin, generics.ListCreateAPIView):
 	def get_queryset(self):
 		queryset = super().get_queryset().prefetch_related('reviews', 'genres').annotate(review_count=Count('reviews'))
 		params = self.request.query_params
+
+		# Support comma-separated genre IDs
+		genres = params.get('genres')
+		if genres:
+			try:
+				genre_ids = [int(g.strip()) for g in genres.split(',')]
+				queryset = queryset.filter(genres__id__in=genre_ids).distinct()
+			except (ValueError, TypeError):
+				pass
 
 		min_rating = params.get('min_rating')
 		max_rating = params.get('max_rating')
