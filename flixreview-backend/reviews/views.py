@@ -163,16 +163,22 @@ class ReviewLikeToggleView(ApiResponseMixin, APIView):
 		try:
 			review = Review.objects.get(pk=pk)
 		except Review.DoesNotExist:
-			return Response({'detail': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+			response = Response({'detail': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+			response._skip_api_wrapper = True
+			return response
 
 		# Prevent liking own review
 		if review.user == request.user:
-			return Response({'detail': 'You cannot like your own review'}, status=status.HTTP_400_BAD_REQUEST)
+			response = Response({'detail': 'You cannot like your own review'}, status=status.HTTP_400_BAD_REQUEST)
+			response._skip_api_wrapper = True
+			return response
 
 		like, created = ReviewLike.objects.get_or_create(user=request.user, review=review)
 		
 		if not created:
-			return Response({'detail': 'You have already liked this review'}, status=status.HTTP_400_BAD_REQUEST)
+			response = Response({'detail': 'You have already liked this review'}, status=status.HTTP_400_BAD_REQUEST)
+			response._skip_api_wrapper = True
+			return response
 
 		return Response({
 			'detail': 'Review liked successfully',
@@ -184,7 +190,9 @@ class ReviewLikeToggleView(ApiResponseMixin, APIView):
 		try:
 			review = Review.objects.get(pk=pk)
 		except Review.DoesNotExist:
-			return Response({'detail': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+			response = Response({'detail': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+			response._skip_api_wrapper = True
+			return response
 
 		try:
 			like = ReviewLike.objects.get(user=request.user, review=review)
@@ -194,7 +202,9 @@ class ReviewLikeToggleView(ApiResponseMixin, APIView):
 				'likes_count': review.likes.count()
 			}, status=status.HTTP_200_OK)
 		except ReviewLike.DoesNotExist:
-			return Response({'detail': 'You have not liked this review'}, status=status.HTTP_400_BAD_REQUEST)
+			response = Response({'detail': 'You have not liked this review'}, status=status.HTTP_400_BAD_REQUEST)
+			response._skip_api_wrapper = True
+			return response
 
 
 class MostLikedReviewsView(ApiResponseMixin, generics.ListAPIView):

@@ -98,7 +98,8 @@ class ReviewCommentSerializer(serializers.ModelSerializer):
     review_id = serializers.PrimaryKeyRelatedField(
         queryset=Review.objects.all(),
         write_only=True,
-        source='review'
+        source='review',
+        required=False  # Not required since review is provided by the view from URL
     )
 
     class Meta:

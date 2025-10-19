@@ -171,7 +171,7 @@ export function ProfileSettings() {
         formData.append('profile_picture', profileImage)
       }
       
-      await api.patch(`/accounts/users/${user?.id}/`, formData)
+      await api.patch(`/users/profile/`, formData)
       setSuccessMessage('Profile updated successfully!')
       
       // Reload user data
@@ -195,19 +195,41 @@ export function ProfileSettings() {
       setErrorMessage(null)
       setSuccessMessage(null)
       
-      await api.post('/accounts/change-password/', data)
-      setSuccessMessage('Password changed successfully!')
+      await api.post('/users/change-password/', data)
+      setSuccessMessage('Password changed successfully! 🎉')
       passwordForm.reset()
       
       // Hide passwords
       setShowCurrentPassword(false)
       setShowNewPassword(false)
       setShowConfirmPassword(false)
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message)
+    } catch (error: any) {
+      if (isAxiosError(error)) {
+        const status = error.response?.status
+        const data = error.response?.data
+        
+        if (status === 429) {
+          setErrorMessage('⏱️ Too many attempts. Please wait 1 hour before trying again.')
+        } else if (status === 400) {
+          // Extract specific field errors
+          if (data?.errors?.current_password) {
+            setErrorMessage('❌ Current password is incorrect.')
+          } else if (data?.errors?.new_password_confirm) {
+            setErrorMessage('❌ New passwords do not match.')
+          } else if (data?.detail) {
+            setErrorMessage(`❌ ${data.detail}`)
+          } else {
+            setErrorMessage('❌ Invalid data. Please check your inputs.')
+          }
+        } else if (data?.detail) {
+          setErrorMessage(`❌ ${data.detail}`)
+        } else {
+          setErrorMessage('❌ Failed to change password. Please try again.')
+        }
+      } else if (error instanceof Error) {
+        setErrorMessage(`❌ ${error.message}`)
       } else {
-        setErrorMessage('Failed to change password. Please try again.')
+        setErrorMessage('❌ Failed to change password. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -219,21 +241,41 @@ export function ProfileSettings() {
       setIsLoading(true)
       setErrorMessage(null)
       
-      await api.post('/accounts/delete-account/', {
+      await api.post('/users/delete-account/', {
         password: data.password
       })
       
-      setSuccessMessage('Account deleted successfully. Redirecting...')
+      setSuccessMessage('✅ Account deleted successfully. Redirecting to homepage...')
+      setShowDeleteModal(false)
       
       setTimeout(async () => {
         await logout()
         router.push('/')
       }, 2000)
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message)
+    } catch (error: any) {
+      if (isAxiosError(error)) {
+        const status = error.response?.status
+        const data = error.response?.data
+        
+        if (status === 429) {
+          setErrorMessage('⏱️ Too many deletion attempts. Please wait 1 hour before trying again.')
+        } else if (status === 400 || status === 401) {
+          if (data?.errors?.password) {
+            setErrorMessage('❌ Password is incorrect. Please try again.')
+          } else if (data?.detail) {
+            setErrorMessage(`❌ ${data.detail}`)
+          } else {
+            setErrorMessage('❌ Incorrect password. Please try again.')
+          }
+        } else if (data?.detail) {
+          setErrorMessage(`❌ ${data.detail}`)
+        } else {
+          setErrorMessage('❌ Failed to delete account. Please try again.')
+        }
+      } else if (error instanceof Error) {
+        setErrorMessage(`❌ ${error.message}`)
       } else {
-        setErrorMessage('Failed to delete account. Please try again.')
+        setErrorMessage('❌ Failed to delete account. Please try again.')
       }
     } finally {
       setIsLoading(false)
@@ -371,23 +413,31 @@ export function ProfileSettings() {
           {/* Success Message */}
           {successMessage && (
             <div 
-              className="glass rounded-xl p-4 mb-6 flex items-start gap-3 animate-slide-up"
+              className="glass-heavy rounded-2xl p-5 mb-6 flex items-start gap-4 animate-slide-up shadow-xl"
               style={{ 
-                backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                borderColor: 'var(--color-success)',
-                border: '1px solid'
+                backgroundColor: 'rgba(76, 175, 80, 0.15)',
+                borderColor: 'rgba(76, 175, 80, 0.5)',
+                border: '2px solid',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px rgba(76, 175, 80, 0.2)'
               }}
               role="alert"
               aria-live="polite"
             >
-              <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-success)' }} />
-              <p className="flex-1" style={{ color: 'var(--color-success)' }}>{successMessage}</p>
+              <div className="flex-shrink-0 p-2 rounded-lg" style={{ backgroundColor: 'rgba(76, 175, 80, 0.2)' }}>
+                <CheckCircle className="w-6 h-6" style={{ color: '#4caf50' }} />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-base leading-relaxed" style={{ color: '#4caf50' }}>
+                  {successMessage}
+                </p>
+              </div>
               <button
                 onClick={() => setSuccessMessage(null)}
-                className="p-1 rounded transition-smooth hover:opacity-70"
+                className="p-2 rounded-lg transition-all duration-200 hover:bg-white/10"
                 aria-label="Dismiss message"
               >
-                <X className="w-4 h-4" style={{ color: 'var(--color-success)' }} />
+                <X className="w-5 h-5" style={{ color: '#4caf50' }} />
               </button>
             </div>
           )}
@@ -395,23 +445,31 @@ export function ProfileSettings() {
           {/* Error Message */}
           {errorMessage && (
             <div 
-              className="glass rounded-xl p-4 mb-6 flex items-start gap-3 animate-slide-up"
+              className="glass-heavy rounded-2xl p-5 mb-6 flex items-start gap-4 animate-slide-up shadow-xl"
               style={{ 
-                backgroundColor: 'rgba(244, 67, 54, 0.1)',
-                borderColor: 'var(--color-error)',
-                border: '1px solid'
+                backgroundColor: 'rgba(244, 67, 54, 0.15)',
+                borderColor: 'rgba(244, 67, 54, 0.5)',
+                border: '2px solid',
+                backdropFilter: 'blur(10px)',
+                boxShadow: '0 8px 32px rgba(244, 67, 54, 0.2)'
               }}
               role="alert"
               aria-live="assertive"
             >
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-error)' }} />
-              <p className="flex-1" style={{ color: 'var(--color-error)' }}>{errorMessage}</p>
+              <div className="flex-shrink-0 p-2 rounded-lg" style={{ backgroundColor: 'rgba(244, 67, 54, 0.2)' }}>
+                <AlertCircle className="w-6 h-6" style={{ color: '#f44336' }} />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-base leading-relaxed" style={{ color: '#f44336' }}>
+                  {errorMessage}
+                </p>
+              </div>
               <button
                 onClick={() => setErrorMessage(null)}
-                className="p-1 rounded transition-smooth hover:opacity-70"
+                className="p-2 rounded-lg transition-all duration-200 hover:bg-white/10"
                 aria-label="Dismiss error"
               >
-                <X className="w-4 h-4" style={{ color: 'var(--color-error)' }} />
+                <X className="w-5 h-5" style={{ color: '#f44336' }} />
               </button>
             </div>
           )}
@@ -982,25 +1040,25 @@ export function ProfileSettings() {
                 <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-6" noValidate>
                   {/* Current Password */}
                   <div>
-                    <label htmlFor="old_password" className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
+                    <label htmlFor="current_password" className="block text-sm font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                       Current Password *
                     </label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--color-text-tertiary)' }} />
                       <input
-                        {...passwordForm.register('old_password')}
+                        {...passwordForm.register('current_password')}
                         type={showCurrentPassword ? 'text' : 'password'}
-                        id="old_password"
+                        id="current_password"
                         autoComplete="current-password"
                         className="w-full pl-12 pr-12 py-3.5 rounded-lg border-2 transition-smooth focus-visible"
                         style={{
                           backgroundColor: 'var(--color-surface)',
-                          borderColor: passwordForm.formState.errors.old_password ? 'var(--color-error)' : 'var(--color-border)',
+                          borderColor: passwordForm.formState.errors.current_password ? 'var(--color-error)' : 'var(--color-border)',
                           color: 'var(--color-text-primary)',
                         }}
                         placeholder="Enter current password"
-                        aria-invalid={!!passwordForm.formState.errors.old_password}
-                        aria-describedby={passwordForm.formState.errors.old_password ? 'old-password-error' : undefined}
+                        aria-invalid={!!passwordForm.formState.errors.current_password}
+                        aria-describedby={passwordForm.formState.errors.current_password ? 'current-password-error' : undefined}
                       />
                       <button
                         type="button"
@@ -1015,10 +1073,10 @@ export function ProfileSettings() {
                         )}
                       </button>
                     </div>
-                    {passwordForm.formState.errors.old_password && (
-                      <p id="old-password-error" className="mt-2 text-sm flex items-center gap-1" style={{ color: 'var(--color-error)' }} role="alert">
+                    {passwordForm.formState.errors.current_password && (
+                      <p id="current-password-error" className="mt-2 text-sm flex items-center gap-1" style={{ color: 'var(--color-error)' }} role="alert">
                         <AlertCircle className="w-4 h-4" />
-                        {passwordForm.formState.errors.old_password.message}
+                        {passwordForm.formState.errors.current_password.message}
                       </p>
                     )}
                   </div>
@@ -1113,25 +1171,30 @@ export function ProfileSettings() {
                   </div>
                   
                   {/* Submit Button */}
-                  <div className="pt-4">
+                  <div className="pt-6">
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-3.5 px-6 rounded-lg font-semibold text-base transition-smooth focus-visible disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                      className="group w-full py-4 px-6 rounded-xl font-bold text-base transition-all duration-300 focus-visible disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 shadow-2xl hover:shadow-[0_20px_60px_rgba(229,57,53,0.4)] hover:scale-105 relative overflow-hidden"
                       style={{
                         backgroundColor: 'var(--color-accent)',
-                        color: 'var(--color-text-inverse)',
+                        color: 'white',
+                        border: '2px solid rgba(229, 57, 53, 0.3)',
                       }}
                     >
+                      {/* Animated gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                      
                       {isLoading ? (
                         <>
                           <Spinner size="sm" />
-                          <span>Changing Password...</span>
+                          <span className="relative z-10">Changing Password...</span>
                         </>
                       ) : (
                         <>
-                          <Shield className="w-5 h-5" />
-                          <span>Update Password</span>
+                          <Shield className="w-5 h-5 relative z-10 group-hover:rotate-12 transition-transform" />
+                          <span className="relative z-10">Update Password</span>
+                          <CheckCircle className="w-5 h-5 relative z-10 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </>
                       )}
                     </button>
